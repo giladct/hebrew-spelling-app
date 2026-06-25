@@ -1,5 +1,6 @@
 node_modules/
 apk-download/
+aab-download/
 keystore.properties
 *.jks
 *.keystore
