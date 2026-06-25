@@ -1,2 +1,6 @@
 node_modules/
 apk-download/
+keystore.properties
+*.jks
+*.keystore
+release-key.*

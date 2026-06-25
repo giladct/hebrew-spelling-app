@@ -320,26 +320,60 @@ const nextBtn = document.getElementById('nextBtn');
 const hintBtn = document.getElementById('hintBtn');
 const wordIndexEl = document.getElementById('wordIndex');
 const wordTotalEl = document.getElementById('wordTotal');
-const levelBtns = Array.from(document.querySelectorAll('.levelBtn'));
+const homeScreen = document.getElementById('homeScreen');
+const gameScreen = document.getElementById('gameScreen');
+const stageCardsEl = document.getElementById('stageCards');
+const continueBtn = document.getElementById('continueBtn');
+const homeBtn = document.getElementById('homeBtn');
+
+const STAGE_COLORS = ['#3498db', '#9b59b6', '#e67e22', '#27ae60', '#e74c3c'];
 
 function currentWords() {
   return LEVELS[currentLevel].words;
 }
 
-function goToLevel(level) {
+function buildStageCards() {
+  stageCardsEl.innerHTML = '';
+  LEVELS.forEach((lvl, i) => {
+    const card = document.createElement('button');
+    card.className = 'stageCard';
+    card.style.setProperty('--card-color', STAGE_COLORS[i % STAGE_COLORS.length]);
+    card.innerHTML = `<span class="stageNum">${i + 1}</span><span class="stageLabel">${lvl.label}</span>`;
+    card.addEventListener('click', () => startStage(i));
+    stageCardsEl.appendChild(card);
+  });
+}
+
+function showHome() {
+  if (hasSavedProgress()) {
+    continueBtn.classList.remove('hidden');
+  } else {
+    continueBtn.classList.add('hidden');
+  }
+  homeScreen.classList.remove('hidden');
+  gameScreen.classList.add('hidden');
+}
+
+function showGame() {
+  homeScreen.classList.add('hidden');
+  gameScreen.classList.remove('hidden');
+}
+
+function startStage(level, index = 0) {
   currentLevel = level;
-  currentIndex = 0;
-  levelBtns.forEach(b => b.classList.toggle('active', Number(b.dataset.level) === currentLevel));
+  currentIndex = index;
+  showGame();
   loadWord(currentIndex);
 }
 
-levelBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const level = Number(btn.dataset.level);
-    if (level === currentLevel) return;
-    goToLevel(level);
-  });
-});
+function goToLevel(level) {
+  currentLevel = level;
+  currentIndex = 0;
+  loadWord(currentIndex);
+}
+
+homeBtn.addEventListener('click', showHome);
+continueBtn.addEventListener('click', () => startStage(currentLevel, currentIndex));
 
 function shuffle(arr) {
   const a = arr.slice();
@@ -360,6 +394,15 @@ function saveProgress() {
   }
 }
 
+function hasSavedProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+    return !!(saved && LEVELS[saved.level] && LEVELS[saved.level].words[saved.index]);
+  } catch (e) {
+    return false;
+  }
+}
+
 function restoreProgress() {
   try {
     const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
@@ -370,7 +413,6 @@ function restoreProgress() {
   } catch (e) {
     // ignore corrupt/missing saved progress
   }
-  levelBtns.forEach(b => b.classList.toggle('active', Number(b.dataset.level) === currentLevel));
 }
 
 function loadWord(index) {
@@ -696,4 +738,5 @@ function playError() {
 
 // kick off
 restoreProgress();
-loadWord(currentIndex);
+buildStageCards();
+showHome();

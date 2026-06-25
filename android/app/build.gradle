@@ -1,5 +1,31 @@
 apply plugin: 'com.android.application'
 
+// Release signing: looks for credentials in environment variables first (used by CI,
+// see .github/workflows/android-build.yml), then falls back to a local
+// android/keystore.properties file (gitignored - never commit a real keystore or its
+// passwords). If neither is present, the release build type is simply left unsigned.
+def releaseStoreFile = null
+def releaseStorePassword = null
+def releaseKeyAlias = null
+def releaseKeyPassword = null
+
+if (System.getenv("ANDROID_KEYSTORE_PATH")) {
+    releaseStoreFile = file(System.getenv("ANDROID_KEYSTORE_PATH"))
+    releaseStorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+    releaseKeyAlias = System.getenv("ANDROID_KEY_ALIAS")
+    releaseKeyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+} else {
+    def keystorePropsFile = rootProject.file('keystore.properties')
+    if (keystorePropsFile.exists()) {
+        def keystoreProps = new Properties()
+        keystoreProps.load(new FileInputStream(keystorePropsFile))
+        releaseStoreFile = rootProject.file(keystoreProps['storeFile'])
+        releaseStorePassword = keystoreProps['storePassword']
+        releaseKeyAlias = keystoreProps['keyAlias']
+        releaseKeyPassword = keystoreProps['keyPassword']
+    }
+}
+
 android {
     namespace = "com.giladct.hebrewspelling"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,10 +42,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (releaseStoreFile != null) {
+                storeFile releaseStoreFile
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (releaseStoreFile != null) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

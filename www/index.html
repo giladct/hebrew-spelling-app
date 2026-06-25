@@ -8,31 +8,36 @@
 </head>
 <body>
   <div id="app">
-    <header>
+
+    <div id="homeScreen">
+      <div id="homeLogo">🐫</div>
       <h1>לומדים לאיית</h1>
-      <div id="levelSelect">
-        <button class="levelBtn active" data-level="0">שלב 1: קמץ ופתח</button>
-        <button class="levelBtn" data-level="1">שלב 2: חיריק</button>
-        <button class="levelBtn" data-level="2">שלב 3: קמץ, פתח וחיריק</button>
-        <button class="levelBtn" data-level="3">שלב 4: חולם, חיריק, קמץ ופתח</button>
-        <button class="levelBtn" data-level="4">שלב 5: צירה, סגול, חיריק, קמץ ופתח</button>
-      </div>
-      <div id="progress">מילה <span id="wordIndex">1</span> מתוך <span id="wordTotal">5</span></div>
-    </header>
+      <p class="subtitle">בחרו שלב להתחיל</p>
+      <button id="continueBtn" class="hidden">המשך מאיפה שהפסקת ←</button>
+      <div id="stageCards"></div>
+    </div>
 
-    <main>
-      <div id="pictureBox"></div>
+    <div id="gameScreen" class="hidden">
+      <header>
+        <button id="homeBtn">🏠 בית</button>
+        <h1>לומדים לאיית</h1>
+        <div id="progress">מילה <span id="wordIndex">1</span> מתוך <span id="wordTotal">5</span></div>
+      </header>
 
-      <button id="hintBtn">🔊 השמע מילה</button>
+      <main>
+        <div id="pictureBox"></div>
 
-      <div id="slots"></div>
+        <button id="hintBtn">🔊 השמע מילה</button>
 
-      <div id="tray"></div>
+        <div id="slots"></div>
 
-      <div id="feedback"></div>
-    </main>
+        <div id="tray"></div>
 
-    <button id="nextBtn" class="hidden">הבא ←</button>
+        <div id="feedback"></div>
+      </main>
+
+      <button id="nextBtn" class="hidden">הבא ←</button>
+    </div>
 
     <div id="balloonsOverlay"></div>
   </div>
