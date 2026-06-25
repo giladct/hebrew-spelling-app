@@ -154,10 +154,38 @@ main {
 #slots {
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   gap: 10px;
   min-height: 80px;
   align-items: center;
   justify-content: center;
+  max-width: 100%;
+}
+
+.wordGap {
+  width: 18px;
+  flex-shrink: 0;
+}
+
+#slots.compact {
+  gap: 4px;
+}
+
+#slots.compact .slot {
+  width: 46px;
+  height: 60px;
+  font-size: 1.4em;
+  border-width: 2px;
+}
+
+#slots.compact .wordGap {
+  width: 8px;
+}
+
+#slots.compact .slot .tile {
+  width: 46px;
+  height: 60px;
+  font-size: 1.4em;
 }
 
 #hintBtn {

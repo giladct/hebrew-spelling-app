@@ -185,7 +185,7 @@ const LEVELS = [
     words: [
       {
         name: 'אור',
-        tiles: ['א', 'וֹ', 'ר'],
+        tiles: ['אוֹ', 'ר'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="100" cy="85" r="48" fill="#f9d71c"/>
           <path d="M85 130 L115 130 L112 155 Q100 165 88 155 Z" fill="#bdc3c7"/>
@@ -196,7 +196,7 @@ const LEVELS = [
       },
       {
         name: 'דוב',
-        tiles: ['ד', 'וֹ', 'ב'],
+        tiles: ['דוֹ', 'ב'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="65" cy="55" r="20" fill="#8b5a2b"/>
           <circle cx="135" cy="55" r="20" fill="#8b5a2b"/>
@@ -211,7 +211,7 @@ const LEVELS = [
       },
       {
         name: 'חוף',
-        tiles: ['ח', 'וֹ', 'ף'],
+        tiles: ['חוֹ', 'ף'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="155" cy="40" r="22" fill="#f9d71c"/>
           <rect x="0" y="140" width="200" height="40" fill="#f0e0b0"/>
@@ -221,7 +221,7 @@ const LEVELS = [
       },
       {
         name: 'כוכב',
-        tiles: ['כּ', 'וֹ', 'כָ', 'ב'],
+        tiles: ['כּוֹ', 'כָ', 'ב'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M100 20 L118 75 L178 75 L130 110 L148 168 L100 132 L52 168 L70 110 L22 75 L82 75 Z" fill="#f9d71c" stroke="#e8b923" stroke-width="3"/>
         </svg>`
@@ -303,6 +303,129 @@ const LEVELS = [
         </svg>`
       }
     ]
+  },
+  {
+    label: 'שלב 6: שורוק וקובוץ',
+    words: [
+      {
+        name: 'תפוח',
+        tiles: ['תַּ', 'פּוּ', 'ח'],
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M100 70 Q60 60 50 100 Q42 150 100 165 Q158 150 150 100 Q140 60 100 70 Z" fill="#e74c3c"/>
+          <path d="M97 70 Q90 50 100 35" stroke="#8b5a2b" stroke-width="5" fill="none"/>
+          <ellipse cx="112" cy="42" rx="14" ry="8" fill="#2ecc71" transform="rotate(20 112 42)"/>
+        </svg>`
+      },
+      {
+        name: 'תפוז',
+        tiles: ['תַּ', 'פּוּ', 'ז'],
+        svg: `<svg viewBox="0 0 200 200">
+          <circle cx="100" cy="105" r="62" fill="#f39c12"/>
+          <ellipse cx="105" cy="48" rx="13" ry="7" fill="#2ecc71" transform="rotate(-15 105 48)"/>
+          <path d="M100 43 L100 58" stroke="#8b5a2b" stroke-width="4"/>
+        </svg>`
+      },
+      {
+        name: 'חומוס',
+        tiles: ['חֻ', 'מּוּ', 'ס'],
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="100" cy="120" rx="80" ry="40" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="5"/>
+          <ellipse cx="100" cy="110" rx="62" ry="28" fill="#e8c97a"/>
+          <path d="M70 105 Q100 95 130 105" stroke="#d4a73a" stroke-width="3" fill="none"/>
+          <circle cx="100" cy="100" r="6" fill="#6b8e23"/>
+          <path d="M65 105 Q60 90 70 80" stroke="#f1c40f" stroke-width="3" fill="none"/>
+        </svg>`
+      },
+      {
+        name: 'סוכר',
+        tiles: ['סוּ', 'כָּ', 'ר'],
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="50" y="80" width="40" height="40" fill="#fff" stroke="#ccc" stroke-width="2"/>
+          <rect x="95" y="80" width="40" height="40" fill="#fff" stroke="#ccc" stroke-width="2"/>
+          <rect x="72" y="115" width="40" height="40" fill="#fff" stroke="#ccc" stroke-width="2"/>
+          <rect x="117" y="115" width="40" height="40" fill="#fff" stroke="#ccc" stroke-width="2"/>
+        </svg>`
+      },
+      {
+        name: 'כדור',
+        tiles: ['כַּ', 'דּוּ', 'ר'],
+        svg: `<svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="65" fill="#fff" stroke="#2c3e50" stroke-width="4"/>
+          <path d="M100 35 L100 165 M35 100 L165 100" stroke="#2c3e50" stroke-width="3"/>
+          <path d="M55 55 Q100 75 145 55 M55 145 Q100 125 145 145" stroke="#2c3e50" stroke-width="3" fill="none"/>
+          <circle cx="100" cy="100" r="20" fill="#e74c3c"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'שלב 7: צמדי מילים',
+    words: [
+      {
+        name: 'קשת בענן',
+        tiles: ['קֶ', 'שֶׁ', 'ת', 'בְּ', 'עָ', 'נָ', 'ן'],
+        groupSizes: [3, 4],
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M20 150 A80 80 0 0 1 180 150" stroke="#e74c3c" stroke-width="10" fill="none"/>
+          <path d="M30 150 A70 70 0 0 1 170 150" stroke="#f39c12" stroke-width="10" fill="none"/>
+          <path d="M40 150 A60 60 0 0 1 160 150" stroke="#f1c40f" stroke-width="10" fill="none"/>
+          <path d="M50 150 A50 50 0 0 1 150 150" stroke="#2ecc71" stroke-width="10" fill="none"/>
+          <path d="M60 150 A40 40 0 0 1 140 150" stroke="#3498db" stroke-width="10" fill="none"/>
+          <ellipse cx="35" cy="150" rx="28" ry="16" fill="#fff"/>
+          <ellipse cx="165" cy="150" rx="28" ry="16" fill="#fff"/>
+        </svg>`
+      },
+      {
+        name: 'מכונית מירוץ',
+        tiles: ['מְ', 'כוֹ', 'נִי', 'ת', 'מֵ', 'רוֹ', 'ץ'],
+        groupSizes: [4, 3],
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M20 120 Q30 95 60 95 L80 75 L150 75 L165 95 Q180 95 180 120 L180 130 L20 130 Z" fill="#e74c3c"/>
+          <rect x="85" y="82" width="55" height="20" fill="#aed6f1"/>
+          <circle cx="55" cy="135" r="16" fill="#2c3e50"/>
+          <circle cx="145" cy="135" r="16" fill="#2c3e50"/>
+          <rect x="20" y="105" width="160" height="8" fill="#fff"/>
+        </svg>`
+      },
+      {
+        name: 'בית ספר',
+        tiles: ['בֵּי', 'ת', 'סֵ', 'פֶ', 'ר'],
+        groupSizes: [2, 3],
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="35" y="90" width="130" height="85" fill="#f0e0b0"/>
+          <path d="M25 90 L100 45 L175 90 Z" fill="#c0392b"/>
+          <rect x="85" y="130" width="30" height="45" fill="#8b5a2b"/>
+          <rect x="50" y="105" width="22" height="22" fill="#5dade2"/>
+          <rect x="128" y="105" width="22" height="22" fill="#5dade2"/>
+          <rect x="92" y="35" width="6" height="18" fill="#7f8c8d"/>
+          <path d="M98 35 L120 42 L98 49 Z" fill="#3498db"/>
+        </svg>`
+      },
+      {
+        name: 'כלב ים',
+        tiles: ['כֶּ', 'לֶ', 'ב', 'יָ', 'ם'],
+        groupSizes: [3, 2],
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="100" cy="170" rx="90" ry="16" fill="#5dade2"/>
+          <path d="M55 170 Q40 110 75 80 Q100 65 125 80 Q160 110 145 170 Z" fill="#7f8c8d"/>
+          <ellipse cx="80" cy="100" rx="10" ry="14" fill="#7f8c8d" transform="rotate(-20 80 100)"/>
+          <ellipse cx="120" cy="100" rx="10" ry="14" fill="#7f8c8d" transform="rotate(20 120 100)"/>
+          <circle cx="88" cy="85" r="4" fill="#2c3e50"/>
+          <circle cx="112" cy="85" r="4" fill="#2c3e50"/>
+          <path d="M75 95 L60 92 M75 98 L58 100 M125 95 L140 92 M125 98 L142 100" stroke="#2c3e50" stroke-width="2"/>
+        </svg>`
+      },
+      {
+        name: 'סוס ים',
+        tiles: ['סוּ', 'ס', 'יָ', 'ם'],
+        groupSizes: [2, 2],
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M110 40 Q140 40 135 70 Q160 75 150 100 Q145 115 125 110 Q130 130 110 140 Q120 155 100 165 Q70 175 65 150 Q50 145 55 125 Q40 120 50 105 Q45 90 65 90 Q60 65 90 55 Q100 50 110 40 Z" fill="#f39c12"/>
+          <circle cx="120" cy="55" r="4" fill="#2c3e50"/>
+          <path d="M95 60 Q85 65 88 75 Q78 78 82 88" stroke="#e67e22" stroke-width="4" fill="none"/>
+        </svg>`
+      }
+    ]
   }
 ];
 
@@ -326,7 +449,7 @@ const stageCardsEl = document.getElementById('stageCards');
 const continueBtn = document.getElementById('continueBtn');
 const homeBtn = document.getElementById('homeBtn');
 
-const STAGE_COLORS = ['#3498db', '#9b59b6', '#e67e22', '#27ae60', '#e74c3c'];
+const STAGE_COLORS = ['#3498db', '#9b59b6', '#e67e22', '#27ae60', '#e74c3c', '#16a085', '#d35400'];
 
 function currentWords() {
   return LEVELS[currentLevel].words;
@@ -427,7 +550,23 @@ function loadWord(index) {
 
   slotState = new Array(currentWord.tiles.length).fill(null);
   slotsEl.innerHTML = '';
+  slotsEl.classList.toggle('compact', currentWord.tiles.length > 5);
+  // groupSizes (e.g. [3, 4]) marks where a two-word phrase splits, so we can
+  // draw a visual gap between the words without affecting slot indices.
+  const groupBoundaries = new Set();
+  if (currentWord.groupSizes) {
+    let sum = 0;
+    for (const size of currentWord.groupSizes.slice(0, -1)) {
+      sum += size;
+      groupBoundaries.add(sum);
+    }
+  }
   for (let i = 0; i < currentWord.tiles.length; i++) {
+    if (groupBoundaries.has(i)) {
+      const gap = document.createElement('div');
+      gap.className = 'wordGap';
+      slotsEl.appendChild(gap);
+    }
     const slot = document.createElement('div');
     slot.className = 'slot';
     slot.dataset.index = i;
@@ -509,7 +648,10 @@ function onPointerUp(e) {
     if (!fromSlot) {
       const emptyIndex = slotState.findIndex(s => s === null);
       if (emptyIndex !== -1) {
-        const targetSlot = slotsEl.children[emptyIndex];
+        // Look up by data-index rather than DOM child position - wordGap
+        // spacer divs (inserted for two-word phrases) shift raw child
+        // indices out of alignment with the logical slot index.
+        const targetSlot = slotsEl.querySelector(`.slot[data-index="${emptyIndex}"]`);
         targetSlot.appendChild(tile);
         targetSlot.classList.add('filled');
         targetSlot.classList.remove('correct', 'wrong');
@@ -578,7 +720,10 @@ function maybeCheck() {
 }
 
 function checkAnswer() {
-  const slots = Array.from(slotsEl.children);
+  // Use .slot specifically, not slotsEl.children - the children list also
+  // includes wordGap spacer divs (for two-word phrases), which would shift
+  // every index out of alignment with slotState/currentWord.tiles.
+  const slots = Array.from(slotsEl.querySelectorAll('.slot'));
   let allCorrect = true;
   slots.forEach((slot, i) => {
     const correct = slotState[i] === currentWord.tiles[i];
