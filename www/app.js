@@ -457,6 +457,7 @@ function attachDrag(tile) {
 function onPointerDown(e) {
   const tile = e.currentTarget;
   if (tile.dataset.locked === '1') return;
+  speakLetter(tile.dataset.letter);
   tile.setPointerCapture(e.pointerId);
   const rect = tile.getBoundingClientRect();
   dragData = {
@@ -675,10 +676,11 @@ function isNativeApp() {
   return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 }
 
-function speakWord(word) {
+function speak(text) {
   if (isNativeApp()) {
     const tts = window.Capacitor.Plugins.TextToSpeech;
-    tts.speak({ text: word, lang: 'he-IL', rate: 0.85, category: 'ambient' })
+    tts.stop().catch(() => {});
+    tts.speak({ text, lang: 'he-IL', rate: 0.85, category: 'ambient' })
       .catch(err => console.error('native TTS error', err));
     return;
   }
@@ -687,22 +689,33 @@ function speakWord(word) {
     console.warn('speechSynthesis not supported in this browser');
     return;
   }
-  speechSynthesis.cancel();
-  // Chrome has a bug where speak() right after cancel() can be silently
-  // dropped, so fire it on the next tick instead of synchronously.
-  setTimeout(() => {
-    const utterance = new SpeechSynthesisUtterance(word);
-    const voices = speechSynthesis.getVoices();
-    // No Hebrew voice on this device? Fall back to whatever voice exists
-    // rather than requesting "he-IL" with no matching voice, which some
-    // browsers silently refuse to speak at all.
-    const voice = hebrewVoice || voices[0] || null;
-    utterance.voice = voice || undefined;
-    utterance.lang = voice ? voice.lang : 'he-IL';
-    utterance.rate = 0.85;
-    utterance.onerror = (e) => console.error('speech error', e.error);
-    speechSynthesis.speak(utterance);
-  }, 50);
+  // Only cancel if something is actually playing - calling speak() right
+  // after cancel() in the same tick is a known Chrome bug that silently
+  // drops the new utterance. Staying synchronous (no setTimeout) also
+  // matters: deferring the call can lose the "user gesture" association
+  // some browsers require to allow audio at all.
+  if (speechSynthesis.speaking || speechSynthesis.pending) {
+    speechSynthesis.cancel();
+  }
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voices = speechSynthesis.getVoices();
+  // No Hebrew voice on this device? Fall back to whatever voice exists
+  // rather than requesting "he-IL" with no matching voice, which some
+  // browsers silently refuse to speak at all.
+  const voice = hebrewVoice || voices[0] || null;
+  utterance.voice = voice || undefined;
+  utterance.lang = voice ? voice.lang : 'he-IL';
+  utterance.rate = 0.85;
+  utterance.onerror = (e) => console.error('speech error', e.error);
+  speechSynthesis.speak(utterance);
+}
+
+function speakWord(word) {
+  speak(word);
+}
+
+function speakLetter(letter) {
+  speak(letter);
 }
 
 // ---- Audio feedback (Web Audio API, no files needed) ----
