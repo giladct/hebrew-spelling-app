@@ -37,6 +37,30 @@ h1 {
   color: #555;
 }
 
+#levelSelect {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 6px 0;
+}
+
+.levelBtn {
+  padding: 6px 12px;
+  font-size: 0.85em;
+  border: 2px solid #b0b0b0;
+  border-radius: 20px;
+  background: #fff;
+  color: #555;
+}
+
+.levelBtn.active {
+  background: #3498db;
+  border-color: #3498db;
+  color: #fff;
+  font-weight: bold;
+}
+
 main {
   flex: 1;
   width: 100%;
@@ -68,6 +92,16 @@ main {
   min-height: 80px;
   align-items: center;
   justify-content: center;
+}
+
+#hintBtn {
+  padding: 6px 16px;
+  font-size: 0.95em;
+  border: none;
+  border-radius: 20px;
+  background: #9b59b6;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .slot {

@@ -10,11 +10,18 @@
   <div id="app">
     <header>
       <h1>לומדים לאיית</h1>
+      <div id="levelSelect">
+        <button class="levelBtn active" data-level="0">שלב 1: קמץ ופתח</button>
+        <button class="levelBtn" data-level="1">שלב 2: חיריק</button>
+        <button class="levelBtn" data-level="2">שלב 3: קמץ, פתח וחיריק</button>
+      </div>
       <div id="progress">מילה <span id="wordIndex">1</span> מתוך <span id="wordTotal">5</span></div>
     </header>
 
     <main>
       <div id="pictureBox"></div>
+
+      <button id="hintBtn">🔊 השמע מילה</button>
 
       <div id="slots"></div>
 
