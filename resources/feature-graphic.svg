@@ -1,0 +1,35 @@
+<svg width="1024" height="500" viewBox="0 0 1024 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fef9e7"/>
+      <stop offset="1" stop-color="#aee4f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="500" fill="url(#bg)"/>
+
+  <!-- camel -->
+  <g transform="translate(610,90) scale(2)">
+    <ellipse cx="100" cy="150" rx="70" ry="14" fill="#f0e0b0"/>
+    <path d="M40 150 Q40 100 70 95 Q75 70 95 75 Q100 55 115 75 Q135 70 140 95 Q165 100 165 150 Z" fill="#d2a679"/>
+    <path d="M40 150 L35 175 L48 175 L52 150 Z" fill="#b8895f"/>
+    <path d="M150 150 L155 175 L142 175 L138 150 Z" fill="#b8895f"/>
+    <path d="M70 150 L65 175 L78 175 L82 150 Z" fill="#b8895f"/>
+    <path d="M120 150 L125 175 L112 175 L108 150 Z" fill="#b8895f"/>
+    <path d="M150 95 Q170 80 175 60 Q160 65 150 80 Z" fill="#d2a679"/>
+    <circle cx="172" cy="58" r="10" fill="#d2a679"/>
+    <circle cx="176" cy="55" r="2" fill="#333"/>
+  </g>
+
+  <!-- letter tiles -->
+  <g font-family="Arial, sans-serif" font-weight="bold" font-size="56" text-anchor="middle">
+    <rect x="80" y="330" width="80" height="90" rx="14" fill="#ffd966"/>
+    <text x="120" y="392" fill="#2c3e50">ג</text>
+    <rect x="170" y="330" width="80" height="90" rx="14" fill="#ffd966"/>
+    <text x="210" y="392" fill="#2c3e50">מ</text>
+    <rect x="260" y="330" width="80" height="90" rx="14" fill="#ffd966"/>
+    <text x="300" y="392" fill="#2c3e50">ל</text>
+  </g>
+
+  <text x="80" y="160" font-family="Arial, sans-serif" font-weight="bold" font-size="84" fill="#2c3e50">לומדים לאיית</text>
+  <text x="80" y="220" font-family="Arial, sans-serif" font-size="34" fill="#555">משחק איות בעברית לילדים</text>
+</svg>
