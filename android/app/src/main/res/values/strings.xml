@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">לומדים לאיית</string>
-    <string name="title_activity_main">לומדים לאיית</string>
+    <string name="app_name">לומדים לקרוא עברית</string>
+    <string name="title_activity_main">לומדים לקרוא עברית</string>
     <string name="package_name">com.giladct.hebrewspelling</string>
     <string name="custom_url_scheme">com.giladct.hebrewspelling</string>
 </resources>
