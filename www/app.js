@@ -403,7 +403,11 @@ hintBtn.addEventListener('click', () => {
   speakWord(currentWord.name);
 });
 
-// ---- Hint: speak the word aloud (Web Speech API) ----
+// ---- Hint: speak the word aloud ----
+// Android's WebView does not implement the Web Speech API, so inside the
+// native app we use the @capacitor-community/text-to-speech plugin (backed
+// by Android's own TextToSpeech engine). In a plain browser (desktop
+// testing) we fall back to window.speechSynthesis.
 let hebrewVoice = null;
 function pickHebrewVoice() {
   const voices = speechSynthesis.getVoices();
@@ -414,9 +418,20 @@ if ('speechSynthesis' in window) {
   speechSynthesis.addEventListener('voiceschanged', pickHebrewVoice);
 }
 
+function isNativeApp() {
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
+
 function speakWord(word) {
+  if (isNativeApp()) {
+    const tts = window.Capacitor.Plugins.TextToSpeech;
+    tts.speak({ text: word, lang: 'he-IL', rate: 0.85, category: 'ambient' })
+      .catch(err => console.error('native TTS error', err));
+    return;
+  }
+
   if (!('speechSynthesis' in window)) {
-    console.warn('speechSynthesis not supported in this browser/WebView');
+    console.warn('speechSynthesis not supported in this browser');
     return;
   }
   speechSynthesis.cancel();
