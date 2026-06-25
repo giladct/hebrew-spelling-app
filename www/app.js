@@ -179,6 +179,130 @@ const LEVELS = [
         </svg>`
       }
     ]
+  },
+  {
+    label: 'שלב 4: חולם, חיריק, קמץ ופתח',
+    words: [
+      {
+        name: 'אור',
+        tiles: ['א', 'וֹ', 'ר'],
+        svg: `<svg viewBox="0 0 200 200">
+          <circle cx="100" cy="85" r="48" fill="#f9d71c"/>
+          <path d="M85 130 L115 130 L112 155 Q100 165 88 155 Z" fill="#bdc3c7"/>
+          <path d="M90 145 L110 145 M92 153 L108 153" stroke="#7f8c8d" stroke-width="3"/>
+          <path d="M100 60 Q90 80 100 95 Q110 80 100 60 Z" fill="#fff" opacity="0.6"/>
+          <path d="M100 20 L100 35 M50 85 L35 85 M150 85 L165 85 M65 45 L55 35 M135 45 L145 35" stroke="#f9d71c" stroke-width="5" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        name: 'דוב',
+        tiles: ['ד', 'וֹ', 'ב'],
+        svg: `<svg viewBox="0 0 200 200">
+          <circle cx="65" cy="55" r="20" fill="#8b5a2b"/>
+          <circle cx="135" cy="55" r="20" fill="#8b5a2b"/>
+          <circle cx="65" cy="55" r="9" fill="#5a3a1b"/>
+          <circle cx="135" cy="55" r="9" fill="#5a3a1b"/>
+          <circle cx="100" cy="115" r="65" fill="#a9744f"/>
+          <ellipse cx="100" cy="135" rx="28" ry="22" fill="#d2a679"/>
+          <circle cx="80" cy="100" r="5" fill="#2c3e50"/>
+          <circle cx="120" cy="100" r="5" fill="#2c3e50"/>
+          <ellipse cx="100" cy="125" rx="8" ry="6" fill="#2c3e50"/>
+        </svg>`
+      },
+      {
+        name: 'חוף',
+        tiles: ['ח', 'וֹ', 'ף'],
+        svg: `<svg viewBox="0 0 200 200">
+          <circle cx="155" cy="40" r="22" fill="#f9d71c"/>
+          <rect x="0" y="140" width="200" height="40" fill="#f0e0b0"/>
+          <path d="M0 130 Q50 110 100 130 Q150 150 200 130 L200 145 Q150 160 100 145 Q50 125 0 145 Z" fill="#5dade2"/>
+          <path d="M30 150 L40 130 L50 150 Z" fill="#3498db" opacity="0.5"/>
+        </svg>`
+      },
+      {
+        name: 'כוכב',
+        tiles: ['כּ', 'וֹ', 'כָ', 'ב'],
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M100 20 L118 75 L178 75 L130 110 L148 168 L100 132 L52 168 L70 110 L22 75 L82 75 Z" fill="#f9d71c" stroke="#e8b923" stroke-width="3"/>
+        </svg>`
+      },
+      {
+        name: 'ציפור',
+        tiles: ['צִי', 'פּוֹ', 'ר'],
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="20" y="150" width="160" height="10" fill="#8b5a2b"/>
+          <ellipse cx="110" cy="110" rx="55" ry="40" fill="#3498db"/>
+          <circle cx="155" cy="85" r="25" fill="#3498db"/>
+          <path d="M178 85 L195 80 L195 92 Z" fill="#f39c12"/>
+          <circle cx="163" cy="78" r="4" fill="#222"/>
+          <path d="M70 110 Q40 105 35 130 Q60 130 80 120 Z" fill="#2980b9"/>
+          <rect x="100" y="148" width="6" height="14" fill="#f39c12"/>
+          <rect x="120" y="148" width="6" height="14" fill="#f39c12"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'שלב 5: צירה, סגול, חיריק, קמץ ופתח',
+    words: [
+      {
+        name: 'כלב',
+        tiles: ['כֶּ', 'לֶ', 'ב'],
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="100" cy="115" rx="55" ry="48" fill="#d2a679"/>
+          <ellipse cx="55" cy="75" rx="20" ry="32" fill="#a9744f" transform="rotate(-20 55 75)"/>
+          <ellipse cx="145" cy="75" rx="20" ry="32" fill="#a9744f" transform="rotate(20 145 75)"/>
+          <ellipse cx="100" cy="135" rx="22" ry="16" fill="#f0e0b0"/>
+          <circle cx="82" cy="105" r="6" fill="#2c3e50"/>
+          <circle cx="118" cy="105" r="6" fill="#2c3e50"/>
+          <ellipse cx="100" cy="125" rx="7" ry="5" fill="#2c3e50"/>
+          <path d="M92 140 Q100 150 108 140" stroke="#e74c3c" stroke-width="4" fill="none"/>
+        </svg>`
+      },
+      {
+        name: 'ספר',
+        tiles: ['סֵ', 'פֶ', 'ר'],
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M100 60 Q60 45 30 60 L30 150 Q60 138 100 150 Z" fill="#e74c3c"/>
+          <path d="M100 60 Q140 45 170 60 L170 150 Q140 138 100 150 Z" fill="#c0392b"/>
+          <path d="M40 75 L90 85 M40 95 L90 103 M40 113 L90 121" stroke="#fff" stroke-width="3" opacity="0.7"/>
+        </svg>`
+      },
+      {
+        name: 'פרח',
+        tiles: ['פֶּ', 'רַ', 'ח'],
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="95" y="120" width="10" height="55" fill="#2ecc71"/>
+          <path d="M95 150 Q70 150 65 170" stroke="#2ecc71" stroke-width="6" fill="none"/>
+          <circle cx="100" cy="90" r="18" fill="#f39c12"/>
+          <ellipse cx="100" cy="55" rx="16" ry="22" fill="#e74c3c"/>
+          <ellipse cx="100" cy="125" rx="16" ry="22" fill="#e74c3c"/>
+          <ellipse cx="65" cy="90" rx="22" ry="16" fill="#e74c3c"/>
+          <ellipse cx="135" cy="90" rx="22" ry="16" fill="#e74c3c"/>
+        </svg>`
+      },
+      {
+        name: 'עצים',
+        tiles: ['עֵ', 'צִי', 'ם'],
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="48" y="110" width="14" height="55" fill="#8b5a2b"/>
+          <circle cx="55" cy="85" r="40" fill="#2ecc71"/>
+          <rect x="138" y="95" width="14" height="70" fill="#8b5a2b"/>
+          <circle cx="145" cy="65" r="48" fill="#27ae60"/>
+        </svg>`
+      },
+      {
+        name: 'מלך',
+        tiles: ['מֶ', 'לֶ', 'ך'],
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M40 130 L40 80 L75 110 L100 70 L125 110 L160 80 L160 130 Z" fill="#f1c40f" stroke="#d4af37" stroke-width="4"/>
+          <rect x="40" y="128" width="120" height="18" fill="#f1c40f" stroke="#d4af37" stroke-width="4"/>
+          <circle cx="100" cy="80" r="9" fill="#e74c3c"/>
+          <circle cx="60" cy="100" r="7" fill="#3498db"/>
+          <circle cx="140" cy="100" r="7" fill="#2ecc71"/>
+        </svg>`
+      }
+    ]
   }
 ];
 
@@ -202,14 +326,18 @@ function currentWords() {
   return LEVELS[currentLevel].words;
 }
 
+function goToLevel(level) {
+  currentLevel = level;
+  currentIndex = 0;
+  levelBtns.forEach(b => b.classList.toggle('active', Number(b.dataset.level) === currentLevel));
+  loadWord(currentIndex);
+}
+
 levelBtns.forEach(btn => {
   btn.addEventListener('click', () => {
     const level = Number(btn.dataset.level);
     if (level === currentLevel) return;
-    currentLevel = level;
-    currentIndex = 0;
-    levelBtns.forEach(b => b.classList.toggle('active', Number(b.dataset.level) === currentLevel));
-    loadWord(currentIndex);
+    goToLevel(level);
   });
 });
 
@@ -222,8 +350,32 @@ function shuffle(arr) {
   return a;
 }
 
+const PROGRESS_KEY = 'hebrewSpellingProgress';
+
+function saveProgress() {
+  try {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify({ level: currentLevel, index: currentIndex }));
+  } catch (e) {
+    // localStorage unavailable (e.g. private mode) - progress just won't persist
+  }
+}
+
+function restoreProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
+    if (saved && LEVELS[saved.level] && LEVELS[saved.level].words[saved.index]) {
+      currentLevel = saved.level;
+      currentIndex = saved.index;
+    }
+  } catch (e) {
+    // ignore corrupt/missing saved progress
+  }
+  levelBtns.forEach(b => b.classList.toggle('active', Number(b.dataset.level) === currentLevel));
+}
+
 function loadWord(index) {
   currentWord = currentWords()[index];
+  saveProgress();
   wordIndexEl.textContent = index + 1;
   wordTotalEl.textContent = currentWords().length;
   pictureBox.innerHTML = currentWord.svg;
@@ -269,6 +421,8 @@ function onPointerDown(e) {
     tile,
     offsetX: e.clientX - rect.left,
     offsetY: e.clientY - rect.top,
+    startX: e.clientX,
+    startY: e.clientY,
     fromSlot: tile.parentElement.classList.contains('slot') ? tile.parentElement : null,
     width: rect.width,
     height: rect.height
@@ -290,21 +444,48 @@ function onPointerMove(e) {
   dragData.tile.style.top = (e.clientY - dragData.offsetY) + 'px';
 }
 
+const TAP_THRESHOLD = 8;
+
 function onPointerUp(e) {
   if (!dragData) return;
-  const { tile, fromSlot } = dragData;
+  const { tile, fromSlot, startX, startY } = dragData;
   tile.classList.remove('dragging');
   tile.removeEventListener('pointermove', onPointerMove);
   tile.removeEventListener('pointerup', onPointerUp);
 
-  tile.style.visibility = 'hidden';
-  const targetEl = document.elementFromPoint(e.clientX, e.clientY);
-  tile.style.visibility = 'visible';
   tile.style.position = '';
   tile.style.left = '';
   tile.style.top = '';
   tile.style.width = '';
   tile.style.height = '';
+
+  const movedDistance = Math.hypot(e.clientX - startX, e.clientY - startY);
+  if (movedDistance < TAP_THRESHOLD) {
+    // Treated as a tap rather than a drag - just drop the tile into the
+    // next empty slot so kids who can't drag precisely can still play.
+    if (!fromSlot) {
+      const emptyIndex = slotState.findIndex(s => s === null);
+      if (emptyIndex !== -1) {
+        const targetSlot = slotsEl.children[emptyIndex];
+        targetSlot.appendChild(tile);
+        targetSlot.classList.add('filled');
+        targetSlot.classList.remove('correct', 'wrong');
+        slotState[emptyIndex] = tile.dataset.letter;
+        clearCheckStateExcept();
+      } else {
+        trayEl.appendChild(tile);
+      }
+    } else {
+      fromSlot.appendChild(tile);
+    }
+    dragData = null;
+    maybeCheck();
+    return;
+  }
+
+  tile.style.visibility = 'hidden';
+  const targetEl = document.elementFromPoint(e.clientX, e.clientY);
+  tile.style.visibility = 'visible';
 
   const targetSlot = targetEl ? targetEl.closest('.slot') : null;
   const targetTray = targetEl ? targetEl.closest('#tray') : null;
@@ -367,10 +548,17 @@ function checkAnswer() {
     slots.forEach(slot => {
       slot.firstElementChild.dataset.locked = '1';
     });
-    feedbackEl.textContent = 'מעולה! ✓';
-    feedbackEl.className = 'success';
     playSuccess();
-    nextBtn.classList.remove('hidden');
+
+    if (currentIndex === currentWords().length - 1) {
+      feedbackEl.textContent = 'כל הכבוד! סיימת את השלב! 🎈';
+      feedbackEl.className = 'success';
+      celebrateStage();
+    } else {
+      feedbackEl.textContent = 'מעולה! ✓';
+      feedbackEl.className = 'success';
+      nextBtn.classList.remove('hidden');
+    }
   } else {
     feedbackEl.textContent = 'נסה שוב';
     feedbackEl.className = 'error';
@@ -392,6 +580,29 @@ function checkAnswer() {
       feedbackEl.className = '';
     }, 800);
   }
+}
+
+const balloonsOverlay = document.getElementById('balloonsOverlay');
+const BALLOON_COLORS = ['#e74c3c', '#3498db', '#f39c12', '#2ecc71', '#9b59b6', '#e67e22'];
+
+function celebrateStage() {
+  for (let i = 0; i < 18; i++) {
+    const balloon = document.createElement('div');
+    balloon.className = 'balloon';
+    balloon.style.left = Math.random() * 96 + '%';
+    balloon.style.background = BALLOON_COLORS[i % BALLOON_COLORS.length];
+    balloon.style.setProperty('--drift', (Math.random() * 60 - 30) + 'px');
+    const duration = 2.6 + Math.random() * 1.4;
+    balloon.style.animationDuration = duration + 's';
+    balloon.style.animationDelay = (Math.random() * 0.6) + 's';
+    balloonsOverlay.appendChild(balloon);
+    setTimeout(() => balloon.remove(), (duration + 1) * 1000);
+  }
+
+  setTimeout(() => {
+    const nextLevel = (currentLevel + 1) % LEVELS.length;
+    goToLevel(nextLevel);
+  }, 2200);
 }
 
 nextBtn.addEventListener('click', () => {
@@ -484,4 +695,5 @@ function playError() {
 }
 
 // kick off
+restoreProgress();
 loadWord(currentIndex);

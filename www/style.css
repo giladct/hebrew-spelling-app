@@ -206,3 +206,36 @@ main {
 .shake {
   animation: shake 0.4s;
 }
+
+#balloonsOverlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2000;
+}
+
+.balloon {
+  position: absolute;
+  bottom: -120px;
+  width: 46px;
+  height: 58px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  animation: rise linear forwards;
+}
+
+.balloon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 1px;
+  height: 30px;
+  background: #999;
+}
+
+@keyframes rise {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(-120vh) translateX(var(--drift, 20px)) rotate(8deg); opacity: 0; }
+}
