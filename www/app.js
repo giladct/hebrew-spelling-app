@@ -290,7 +290,7 @@ const LEVELS = [
       },
       {
         name: 'גדי',
-        tiles: ['גָּ', 'דִי'],
+        tiles: ['גְּ', 'דִי'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="125" rx="40" ry="30" fill="#f5deb3"/>
           <circle cx="140" cy="100" r="22" fill="#f5deb3"/>
@@ -319,8 +319,8 @@ const LEVELS = [
         </svg>`
       },
       {
-        name: 'מטה',
-        tiles: ['מִ', 'טָּה'],
+        name: 'מיטה',
+        tiles: ['מִי', 'טָּה'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="35" y="120" width="130" height="20" fill="#8b5a2b"/>
           <rect x="35" y="140" width="14" height="35" fill="#5a3a1b"/>
@@ -346,7 +346,7 @@ const LEVELS = [
     words: [
       {
         name: 'עוגה',
-        tiles: ['עוֹ', 'גָה'],
+        tiles: ['עוּ', 'גָה'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="45" y="110" width="110" height="55" fill="#e8c4a0"/>
           <rect x="45" y="90" width="110" height="22" fill="#fff"/>
@@ -992,9 +992,21 @@ function loadWord(index) {
     slotsEl.appendChild(slot);
   }
 
-  const shuffled = shuffle(currentWord.tiles);
+  // Track which tile ends each word in the phrase (last tile overall for a
+  // single word, last tile of each group for a word pair) - tapping that
+  // tile needs to know its position to detect furtive patach.
+  const groupSizesForSpeech = currentWord.groupSizes || [currentWord.tiles.length];
+  const finalIndices = new Set();
+  let gIdx = 0;
+  for (const size of groupSizesForSpeech) {
+    finalIndices.add(gIdx + size - 1);
+    gIdx += size;
+  }
+
+  const order = shuffle(currentWord.tiles.map((_, i) => i));
   trayEl.innerHTML = '';
-  tray = shuffled.map((letter, i) => {
+  tray = order.map(tileIndex => {
+    const letter = currentWord.tiles[tileIndex];
     const tile = document.createElement('div');
     tile.className = 'tile';
     // Tiles that merged a vowel-less consonant onto the previous syllable
@@ -1003,6 +1015,7 @@ function loadWord(index) {
     if (isWideTile(letter)) tile.classList.add('wide');
     tile.textContent = letter;
     tile.dataset.letter = letter;
+    tile.dataset.final = finalIndices.has(tileIndex) ? '1' : '0';
     trayEl.appendChild(tile);
     attachDrag(tile);
     return tile;
@@ -1019,7 +1032,7 @@ function attachDrag(tile) {
 function onPointerDown(e) {
   const tile = e.currentTarget;
   if (tile.dataset.locked === '1') return;
-  speakLetter(tile.dataset.letter);
+  speakLetter(tile.dataset.letter, tile.dataset.final === '1');
   tile.setPointerCapture(e.pointerId);
   const rect = tile.getBoundingClientRect();
   dragData = {
@@ -1226,7 +1239,7 @@ nextBtn.addEventListener('click', () => {
 });
 
 hintBtn.addEventListener('click', () => {
-  speakWord(currentWord.name);
+  speakWord(currentWord);
 });
 
 skipBtn.addEventListener('click', () => {
@@ -1287,19 +1300,79 @@ function speak(text) {
   speechSynthesis.speak(utterance);
 }
 
-function speakWord(word) {
-  speak(word);
+const PATACH = 'ַ';
+const DAGESH = 'ּ';
+const RAFE = 'ֿ';
+
+// TTS engines sometimes default ב/כ/פ to their hard (dagesh) sound when the
+// text has no explicit marking either way. Since these tiles never carry a
+// dagesh unless we put one there ourselves, every undageshed ב/כ/פ in our
+// data is supposed to sound soft (v/kh/f) - adding the rafe mark makes that
+// explicit instead of leaving it to the engine's guess.
+function withRafe(tile) {
+  let result = '';
+  for (let i = 0; i < tile.length; i++) {
+    const ch = tile[i];
+    result += ch;
+    if (/[בכפ]/.test(ch)) {
+      // The dagesh isn't always the very next character - some tiles put
+      // the vowel mark before it (e.g. "בְּ" is ב+sheva+dagesh) - so scan
+      // through this letter's combining marks rather than checking only
+      // the immediate neighbor.
+      let j = i + 1;
+      let hasDagesh = false;
+      while (j < tile.length && !/[א-ת]/.test(tile[j])) {
+        if (tile[j] === DAGESH) hasDagesh = true;
+        j++;
+      }
+      if (!hasDagesh) result += RAFE;
+    }
+  }
+  return result;
 }
 
-function speakLetter(letter) {
-  // An "open" tile (ends right on a vowel mark, e.g. "תַּ", with nothing
-  // after it) often gets mispronounced by TTS engines with a trailing
+// A tile/word ending in ח/ע/ה carrying a patach ("furtive patach", e.g. the
+// last syllable of תפוח) is pronounced *before* that consonant ("ach") even
+// though it's written after it. Reordering it for speech as if it were an
+// alef vowel-carrier fixes that without touching what's shown on the tile.
+function isFurtivePatach(tile) {
+  return tile.length === 2 && tile.charAt(1) === PATACH && /[חעה]/.test(tile.charAt(0));
+}
+
+function furtiveToSpeech(tile) {
+  return 'א' + PATACH + tile.charAt(0);
+}
+
+function speakWord(word) {
+  const tiles = word.tiles;
+  const groupSizes = word.groupSizes || [tiles.length];
+  const groups = [];
+  let idx = 0;
+  for (const size of groupSizes) {
+    groups.push(tiles.slice(idx, idx + size));
+    idx += size;
+  }
+  const text = groups.map(group => group.map((tile, i) => {
+    const isLastOfWord = i === group.length - 1;
+    if (isLastOfWord && isFurtivePatach(tile)) return withRafe(furtiveToSpeech(tile));
+    return withRafe(tile);
+  }).join('')).join(' ');
+  speak(text);
+}
+
+function speakLetter(letter, isFinalTile) {
+  if (isFinalTile && isFurtivePatach(letter)) {
+    speak(withRafe(furtiveToSpeech(letter)));
+    return;
+  }
+  // An "open" tile ending right on a patach (e.g. "תַּ"), with nothing
+  // after it, often gets mispronounced by TTS engines with a trailing
   // glide ("tai" instead of "ta"). Appending a silent aleph closes the
-  // syllable the way real Hebrew words do, fixing the pronunciation
-  // without changing what's shown on the tile itself.
-  const lastChar = letter.charAt(letter.length - 1);
-  const isOpenSyllable = !/[א-ת]/.test(lastChar);
-  speak(isOpenSyllable ? letter + 'א' : letter);
+  // syllable the way real Hebrew words do. Other vowels (e.g. sheva)
+  // don't have this problem and sound worse with the aleph appended, so
+  // this is deliberately limited to patach.
+  const endsInBarePatach = letter.charAt(letter.length - 1) === PATACH;
+  speak(withRafe(letter) + (endsInBarePatach ? 'א' : ''));
 }
 
 // ---- Audio feedback (Web Audio API, no files needed) ----
