@@ -6,7 +6,7 @@
     </linearGradient>
   </defs>
   <rect width="1024" height="1024" fill="url(#bg)"/>
-  <g transform="translate(42,8) scale(4.6)">
+  <g transform="translate(42,-60) scale(4.6)">
     <ellipse cx="100" cy="150" rx="70" ry="14" fill="#f0e0b0"/>
     <path d="M40 150 Q40 100 70 95 Q75 70 95 75 Q100 55 115 75 Q135 70 140 95 Q165 100 165 150 Z" fill="#d2a679"/>
     <path d="M40 150 L35 175 L48 175 L52 150 Z" fill="#b8895f"/>
@@ -17,4 +17,5 @@
     <circle cx="172" cy="58" r="10" fill="#d2a679"/>
     <circle cx="176" cy="55" r="2" fill="#333"/>
   </g>
+  <text x="512" y="900" text-anchor="middle" font-family="Arial, sans-serif" font-size="160" font-weight="bold" fill="#2c3e50">גָּמַל</text>
 </svg>
