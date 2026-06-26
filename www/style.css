@@ -188,12 +188,28 @@ main {
   font-size: 1.4em;
 }
 
+#actionRow {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
 #hintBtn {
   padding: 6px 16px;
   font-size: 0.95em;
   border: none;
   border-radius: 20px;
   background: #9b59b6;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#skipBtn {
+  padding: 6px 16px;
+  font-size: 0.95em;
+  border: none;
+  border-radius: 20px;
+  background: #95a5a6;
   color: white;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
