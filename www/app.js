@@ -1,7 +1,7 @@
 // ---- Word data, grouped by level (each level uses a single niqqud) ----
 const LEVELS = [
   {
-    label: 'שלב 1: קמץ ופתח',
+    label: 'קָמָץ וּפַתַח',
     words: [
       {
         name: 'גמל',
@@ -112,7 +112,7 @@ const LEVELS = [
     ]
   },
   {
-    label: 'שלב 2: חיריק',
+    label: 'חִירִיק',
     words: [
       {
         name: 'כיסים',
@@ -226,7 +226,7 @@ const LEVELS = [
     ]
   },
   {
-    label: 'שלב 3: קמץ, פתח וחיריק',
+    label: 'קָמָץ, פַּתַח וְחִירִיק',
     words: [
       {
         name: 'בית',
@@ -334,7 +334,7 @@ const LEVELS = [
     ]
   },
   {
-    label: 'שלב 4: חולם, חיריק, קמץ ופתח',
+    label: 'חוֹלָם',
     words: [
       {
         name: 'אור',
@@ -445,7 +445,7 @@ const LEVELS = [
     ]
   },
   {
-    label: 'שלב 5: צירה, סגול, חיריק, קמץ ופתח',
+    label: 'צֵירֵה וְסֵגוֹל',
     words: [
       {
         name: 'כלב',
@@ -554,11 +554,11 @@ const LEVELS = [
     ]
   },
   {
-    label: 'שלב 6: שורוק וקובוץ',
+    label: 'שׁוּרוּק וְקֻבּוּץ',
     words: [
       {
         name: 'תפוח',
-        tiles: ['תַּ', 'פּוּ', 'ח'],
+        tiles: ['תַּ', 'פּוּ', 'חַ'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M100 70 Q60 60 50 100 Q42 150 100 165 Q158 150 150 100 Q140 60 100 70 Z" fill="#e74c3c"/>
           <path d="M97 70 Q90 50 100 35" stroke="#8b5a2b" stroke-width="5" fill="none"/>
@@ -660,7 +660,7 @@ const LEVELS = [
     ]
   },
   {
-    label: 'שלב 7: צמדי מילים',
+    label: 'צִמְדֵי מִלִּים',
     words: [
       {
         name: 'קשת בענן',
@@ -677,15 +677,14 @@ const LEVELS = [
         </svg>`
       },
       {
-        name: 'מכונית מירוץ',
-        tiles: ['מְ', 'כוֹ', 'נִי', 'ת', 'מֵ', 'רוֹ', 'ץ'],
-        groupSizes: [4, 3],
+        name: 'תיק גב',
+        tiles: ['תִּי', 'ק', 'גַּ', 'ב'],
+        groupSizes: [2, 2],
         svg: `<svg viewBox="0 0 200 200">
-          <path d="M20 120 Q30 95 60 95 L80 75 L150 75 L165 95 Q180 95 180 120 L180 130 L20 130 Z" fill="#e74c3c"/>
-          <rect x="85" y="82" width="55" height="20" fill="#aed6f1"/>
-          <circle cx="55" cy="135" r="16" fill="#2c3e50"/>
-          <circle cx="145" cy="135" r="16" fill="#2c3e50"/>
-          <rect x="20" y="105" width="160" height="8" fill="#fff"/>
+          <path d="M70 55 Q70 30 100 30 Q130 30 130 55" stroke="#8b5a2b" stroke-width="9" fill="none"/>
+          <rect x="45" y="55" width="110" height="120" rx="18" fill="#3498db"/>
+          <rect x="80" y="85" width="40" height="35" rx="8" fill="#2980b9"/>
+          <rect x="45" y="100" width="110" height="10" fill="#2980b9"/>
         </svg>`
       },
       {
