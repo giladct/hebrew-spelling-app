@@ -1292,7 +1292,14 @@ function speakWord(word) {
 }
 
 function speakLetter(letter) {
-  speak(letter);
+  // An "open" tile (ends right on a vowel mark, e.g. "תַּ", with nothing
+  // after it) often gets mispronounced by TTS engines with a trailing
+  // glide ("tai" instead of "ta"). Appending a silent aleph closes the
+  // syllable the way real Hebrew words do, fixing the pronunciation
+  // without changing what's shown on the tile itself.
+  const lastChar = letter.charAt(letter.length - 1);
+  const isOpenSyllable = !/[א-ת]/.test(lastChar);
+  speak(isOpenSyllable ? letter + 'א' : letter);
 }
 
 // ---- Audio feedback (Web Audio API, no files needed) ----
