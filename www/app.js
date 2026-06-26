@@ -5,7 +5,7 @@ const LEVELS = [
     words: [
       {
         name: 'גמל',
-        tiles: ['גָּ', 'מַ', 'ל'],
+        tiles: ['גָּ', 'מַל'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="150" rx="70" ry="14" fill="#f0e0b0"/>
           <path d="M40 150 Q40 100 70 95 Q75 70 95 75 Q100 55 115 75 Q135 70 140 95 Q165 100 165 150 Z" fill="#d2a679"/>
@@ -20,7 +20,7 @@ const LEVELS = [
       },
       {
         name: 'שבת',
-        tiles: ['שַׁ', 'בָּ', 'ת'],
+        tiles: ['שַׁ', 'בָּת'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="55" y="120" width="18" height="55" fill="#f0e0b0"/>
           <rect x="127" y="120" width="18" height="55" fill="#f0e0b0"/>
@@ -32,7 +32,7 @@ const LEVELS = [
       },
       {
         name: 'מצה',
-        tiles: ['מַ', 'צָּ', 'ה'],
+        tiles: ['מַ', 'צָּה'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="40" y="50" width="120" height="100" rx="4" fill="#e8d4a0" stroke="#c9a86a" stroke-width="4"/>
           <path d="M55 70 L145 70 M55 90 L145 90 M55 110 L145 110 M55 130 L145 130" stroke="#c9a86a" stroke-width="3"/>
@@ -40,7 +40,7 @@ const LEVELS = [
       },
       {
         name: 'חלב',
-        tiles: ['חַ', 'לָּ', 'ב'],
+        tiles: ['חַ', 'לָּב'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M75 40 L125 40 L135 175 Q100 190 65 175 Z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="4"/>
           <path d="M70 95 L130 95 L135 175 Q100 190 65 175 Z" fill="#ffffff"/>
@@ -48,7 +48,7 @@ const LEVELS = [
       },
       {
         name: 'גלגל',
-        tiles: ['גַּ', 'ל', 'גַּ', 'ל'],
+        tiles: ['גַּל', 'גַּל'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="100" cy="100" r="70" fill="#2c3e50"/>
           <circle cx="100" cy="100" r="35" fill="#bdc3c7"/>
@@ -58,7 +58,7 @@ const LEVELS = [
       },
       {
         name: 'בקר',
-        tiles: ['בָּ', 'קָ', 'ר'],
+        tiles: ['בָּ', 'קָר'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="55" cy="78" rx="18" ry="24" fill="#3a2a1a"/>
           <ellipse cx="145" cy="78" rx="18" ry="24" fill="#3a2a1a"/>
@@ -75,7 +75,7 @@ const LEVELS = [
       },
       {
         name: 'מפה',
-        tiles: ['מַ', 'פָּ', 'ה'],
+        tiles: ['מַ', 'פָּה'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="40" y="40" width="120" height="120" fill="#f0e6d2" stroke="#c9a86a" stroke-width="4"/>
           <path d="M55 90 Q90 60 110 90 Q130 120 145 100" stroke="#e74c3c" stroke-width="4" fill="none" stroke-dasharray="6 4"/>
@@ -85,7 +85,7 @@ const LEVELS = [
       },
       {
         name: 'כף',
-        tiles: ['כַּ', 'ף'],
+        tiles: ['כַּף'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="70" rx="32" ry="42" fill="#bdc3c7"/>
           <rect x="92" y="105" width="16" height="80" rx="6" fill="#bdc3c7"/>
@@ -93,7 +93,7 @@ const LEVELS = [
       },
       {
         name: 'שק',
-        tiles: ['שַׂ', 'ק'],
+        tiles: ['שַׂק'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M65 60 Q100 75 135 60 L150 160 Q100 180 50 160 Z" fill="#c9a86a"/>
           <path d="M70 60 Q100 45 130 60" stroke="#8b6a3a" stroke-width="6" fill="none"/>
@@ -101,7 +101,7 @@ const LEVELS = [
       },
       {
         name: 'גמד',
-        tiles: ['גַּ', 'מָּ', 'ד'],
+        tiles: ['גַּ', 'מָּד'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M70 90 L100 40 L130 90 Z" fill="#e74c3c"/>
           <circle cx="100" cy="110" r="28" fill="#f0c8a0"/>
@@ -116,7 +116,7 @@ const LEVELS = [
     words: [
       {
         name: 'כיסים',
-        tiles: ['כִּי', 'סִי', 'ם'],
+        tiles: ['כִּי', 'סִים'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="20" y="55" width="75" height="100" rx="8" fill="#5dade2"/>
           <path d="M20 85 Q57 108 95 85 L95 145 Q57 162 20 145 Z" fill="#3498db"/>
@@ -126,7 +126,7 @@ const LEVELS = [
       },
       {
         name: 'סירים',
-        tiles: ['סִי', 'רִי', 'ם'],
+        tiles: ['סִי', 'רִים'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="15" y="105" width="80" height="45" rx="6" fill="#b0b0b0"/>
           <rect x="8" y="92" width="94" height="14" rx="6" fill="#7f8c8d"/>
@@ -140,7 +140,7 @@ const LEVELS = [
       },
       {
         name: 'גירים',
-        tiles: ['גִּי', 'רִי', 'ם'],
+        tiles: ['גִּי', 'רִים'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="55" y="40" width="24" height="120" rx="7" fill="#f5f5f5" stroke="#ccc" stroke-width="3"/>
           <rect x="55" y="40" width="24" height="18" rx="7" fill="#e74c3c"/>
@@ -152,7 +152,7 @@ const LEVELS = [
       },
       {
         name: 'תיקים',
-        tiles: ['תִּי', 'קִי', 'ם'],
+        tiles: ['תִּי', 'קִים'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M40 55 Q40 32 62 32 Q84 32 84 55" stroke="#8b5a2b" stroke-width="8" fill="none"/>
           <rect x="22" y="55" width="80" height="100" rx="14" fill="#f39c12"/>
@@ -164,7 +164,7 @@ const LEVELS = [
       },
       {
         name: 'פילים',
-        tiles: ['פִּי', 'לִי', 'ם'],
+        tiles: ['פִּי', 'לִים'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="75" cy="125" rx="45" ry="34" fill="#95a5a6"/>
           <ellipse cx="38" cy="105" rx="19" ry="23" fill="#7f8c8d"/>
@@ -176,7 +176,7 @@ const LEVELS = [
       },
       {
         name: 'סינית',
-        tiles: ['סִי', 'נִי', 'ת'],
+        tiles: ['סִי', 'נִית'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="120" rx="80" ry="30" fill="#bdc3c7"/>
           <ellipse cx="100" cy="112" rx="62" ry="20" fill="#95a5a6"/>
@@ -186,7 +186,7 @@ const LEVELS = [
       },
       {
         name: 'מיץ',
-        tiles: ['מִי', 'ץ'],
+        tiles: ['מִיץ'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M70 60 L130 60 L122 170 L78 170 Z" fill="#f39c12"/>
           <rect x="93" y="35" width="8" height="35" fill="#ecf0f1"/>
@@ -194,7 +194,7 @@ const LEVELS = [
       },
       {
         name: 'דיו',
-        tiles: ['דִּי', 'ו'],
+        tiles: ['דִּיו'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M75 100 L125 100 L120 165 Q100 175 80 165 Z" fill="#2c3e50"/>
           <rect x="85" y="80" width="30" height="22" fill="#34495e"/>
@@ -204,7 +204,7 @@ const LEVELS = [
       },
       {
         name: 'תיש',
-        tiles: ['תִּי', 'ש'],
+        tiles: ['תִּיש'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="120" rx="48" ry="36" fill="#ecf0f1"/>
           <circle cx="145" cy="95" r="26" fill="#ecf0f1"/>
@@ -215,7 +215,7 @@ const LEVELS = [
       },
       {
         name: 'דיג',
-        tiles: ['דִּי', 'ג'],
+        tiles: ['דִּיג'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M40 170 L160 60" stroke="#8b5a2b" stroke-width="5"/>
           <path d="M160 60 Q165 100 150 130" stroke="#7f8c8d" stroke-width="2" fill="none"/>
@@ -230,7 +230,7 @@ const LEVELS = [
     words: [
       {
         name: 'בית',
-        tiles: ['בַּ', 'יִ', 'ת'],
+        tiles: ['בַּ', 'יִת'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M30 100 L100 40 L170 100 Z" fill="#e74c3c"/>
           <rect x="45" y="100" width="110" height="80" fill="#f0e0b0"/>
@@ -241,7 +241,7 @@ const LEVELS = [
       },
       {
         name: 'מטבח',
-        tiles: ['מִ', 'ט', 'בָּ', 'ח'],
+        tiles: ['מִט', 'בָּח'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="40" y="80" width="120" height="90" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="4"/>
           <circle cx="70" cy="100" r="14" fill="#7f8c8d"/>
@@ -253,7 +253,7 @@ const LEVELS = [
       },
       {
         name: 'צמיד',
-        tiles: ['צָ', 'מִי', 'ד'],
+        tiles: ['צָ', 'מִיד'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="100" cy="100" r="65" fill="none" stroke="#d4af37" stroke-width="18"/>
           <circle cx="100" cy="40" r="13" fill="#e74c3c"/>
@@ -263,7 +263,7 @@ const LEVELS = [
       },
       {
         name: 'כתה',
-        tiles: ['כִּ', 'תָּ', 'ה'],
+        tiles: ['כִּ', 'תָּה'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="20" y="170" width="20" height="10" fill="#8b5a2b"/>
           <rect x="160" y="170" width="20" height="10" fill="#8b5a2b"/>
@@ -274,7 +274,7 @@ const LEVELS = [
       },
       {
         name: 'סכין',
-        tiles: ['סַ', 'כִּי', 'ן'],
+        tiles: ['סַ', 'כִּין'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="95" y="120" width="22" height="60" rx="6" fill="#8b5a2b"/>
           <path d="M95 120 L130 30 Q135 25 130 50 L117 120 Z" fill="#bdc3c7"/>
@@ -294,7 +294,7 @@ const LEVELS = [
       },
       {
         name: 'סירה',
-        tiles: ['סִי', 'רָ', 'ה'],
+        tiles: ['סִי', 'רָה'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M30 120 L170 120 L150 150 Q100 165 50 150 Z" fill="#c0392b"/>
           <rect x="95" y="60" width="6" height="60" fill="#8b5a2b"/>
@@ -304,7 +304,7 @@ const LEVELS = [
       },
       {
         name: 'פטיש',
-        tiles: ['פַּ', 'טִּי', 'ש'],
+        tiles: ['פַּ', 'טִּיש'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="92" y="80" width="16" height="100" rx="6" fill="#8b5a2b"/>
           <rect x="55" y="45" width="90" height="38" rx="8" fill="#7f8c8d"/>
@@ -312,7 +312,7 @@ const LEVELS = [
       },
       {
         name: 'מטה',
-        tiles: ['מִ', 'טָּ', 'ה'],
+        tiles: ['מִ', 'טָּה'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="35" y="120" width="130" height="20" fill="#8b5a2b"/>
           <rect x="35" y="140" width="14" height="35" fill="#5a3a1b"/>
@@ -323,7 +323,7 @@ const LEVELS = [
       },
       {
         name: 'סכינים',
-        tiles: ['סַ', 'כִּי', 'נִי', 'ם'],
+        tiles: ['סַ', 'כִּי', 'נִים'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="80" y="110" width="18" height="55" rx="5" fill="#8b5a2b" transform="rotate(-15 89 137)"/>
           <path d="M80 110 L110 25 Q114 21 110 42 L99 110 Z" fill="#bdc3c7" transform="rotate(-15 89 137)"/>
@@ -338,7 +338,7 @@ const LEVELS = [
     words: [
       {
         name: 'אור',
-        tiles: ['אוֹ', 'ר'],
+        tiles: ['אוֹר'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="100" cy="85" r="48" fill="#f9d71c"/>
           <path d="M85 130 L115 130 L112 155 Q100 165 88 155 Z" fill="#bdc3c7"/>
@@ -349,7 +349,7 @@ const LEVELS = [
       },
       {
         name: 'דוב',
-        tiles: ['דוֹ', 'ב'],
+        tiles: ['דוֹב'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="65" cy="55" r="20" fill="#8b5a2b"/>
           <circle cx="135" cy="55" r="20" fill="#8b5a2b"/>
@@ -364,7 +364,7 @@ const LEVELS = [
       },
       {
         name: 'חוף',
-        tiles: ['חוֹ', 'ף'],
+        tiles: ['חוֹף'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="155" cy="40" r="22" fill="#f9d71c"/>
           <rect x="0" y="140" width="200" height="40" fill="#f0e0b0"/>
@@ -374,14 +374,14 @@ const LEVELS = [
       },
       {
         name: 'כוכב',
-        tiles: ['כּוֹ', 'כָ', 'ב'],
+        tiles: ['כּוֹ', 'כָב'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M100 20 L118 75 L178 75 L130 110 L148 168 L100 132 L52 168 L70 110 L22 75 L82 75 Z" fill="#f9d71c" stroke="#e8b923" stroke-width="3"/>
         </svg>`
       },
       {
         name: 'ציפור',
-        tiles: ['צִי', 'פּוֹ', 'ר'],
+        tiles: ['צִי', 'פּוֹר'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="20" y="150" width="160" height="10" fill="#8b5a2b"/>
           <ellipse cx="110" cy="110" rx="55" ry="40" fill="#3498db"/>
@@ -395,7 +395,7 @@ const LEVELS = [
       },
       {
         name: 'עולם',
-        tiles: ['עוֹ', 'לָ', 'ם'],
+        tiles: ['עוֹ', 'לָם'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="100" cy="100" r="70" fill="#3498db"/>
           <path d="M50 70 Q80 60 100 75 Q130 60 150 80 Q120 100 130 130 Q100 120 90 140 Q70 110 50 70 Z" fill="#27ae60"/>
@@ -403,7 +403,7 @@ const LEVELS = [
       },
       {
         name: 'תוף',
-        tiles: ['תּוֹ', 'ף'],
+        tiles: ['תּוֹף'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="100" rx="65" ry="50" fill="#e74c3c"/>
           <ellipse cx="100" cy="90" rx="65" ry="40" fill="#f5deb3"/>
@@ -412,7 +412,7 @@ const LEVELS = [
       },
       {
         name: 'חומה',
-        tiles: ['חוֹ', 'מָ', 'ה'],
+        tiles: ['חוֹ', 'מָה'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="30" y="90" width="140" height="80" fill="#c9a86a"/>
           <rect x="30" y="70" width="25" height="20" fill="#c9a86a"/>
@@ -427,7 +427,7 @@ const LEVELS = [
       },
       {
         name: 'כובע',
-        tiles: ['כּוֹ', 'בַ', 'ע'],
+        tiles: ['כּוֹ', 'בַע'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="140" rx="80" ry="14" fill="#2c3e50"/>
           <path d="M55 140 Q55 75 100 75 Q145 75 145 140 Z" fill="#34495e"/>
@@ -436,7 +436,7 @@ const LEVELS = [
       },
       {
         name: 'מקום',
-        tiles: ['מָ', 'קוֹ', 'ם'],
+        tiles: ['מָ', 'קוֹם'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M100 30 Q150 30 150 85 Q150 130 100 180 Q50 130 50 85 Q50 30 100 30 Z" fill="#e74c3c"/>
           <circle cx="100" cy="85" r="25" fill="#fff"/>
@@ -449,7 +449,7 @@ const LEVELS = [
     words: [
       {
         name: 'כלב',
-        tiles: ['כֶּ', 'לֶ', 'ב'],
+        tiles: ['כֶּ', 'לֶב'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="115" rx="55" ry="48" fill="#d2a679"/>
           <ellipse cx="55" cy="75" rx="20" ry="32" fill="#a9744f" transform="rotate(-20 55 75)"/>
@@ -463,7 +463,7 @@ const LEVELS = [
       },
       {
         name: 'ספר',
-        tiles: ['סֵ', 'פֶ', 'ר'],
+        tiles: ['סֵ', 'פֶר'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M100 60 Q60 45 30 60 L30 150 Q60 138 100 150 Z" fill="#e74c3c"/>
           <path d="M100 60 Q140 45 170 60 L170 150 Q140 138 100 150 Z" fill="#c0392b"/>
@@ -472,7 +472,7 @@ const LEVELS = [
       },
       {
         name: 'פרח',
-        tiles: ['פֶּ', 'רַ', 'ח'],
+        tiles: ['פֶּ', 'רַח'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="95" y="120" width="10" height="55" fill="#2ecc71"/>
           <path d="M95 150 Q70 150 65 170" stroke="#2ecc71" stroke-width="6" fill="none"/>
@@ -485,7 +485,7 @@ const LEVELS = [
       },
       {
         name: 'עצים',
-        tiles: ['עֵ', 'צִי', 'ם'],
+        tiles: ['עֵ', 'צִים'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="48" y="110" width="14" height="55" fill="#8b5a2b"/>
           <circle cx="55" cy="85" r="40" fill="#2ecc71"/>
@@ -495,7 +495,7 @@ const LEVELS = [
       },
       {
         name: 'מלך',
-        tiles: ['מֶ', 'לֶ', 'ך'],
+        tiles: ['מֶ', 'לֶך'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M40 130 L40 80 L75 110 L100 70 L125 110 L160 80 L160 130 Z" fill="#f1c40f" stroke="#d4af37" stroke-width="4"/>
           <rect x="40" y="128" width="120" height="18" fill="#f1c40f" stroke="#d4af37" stroke-width="4"/>
@@ -506,14 +506,14 @@ const LEVELS = [
       },
       {
         name: 'ביצה',
-        tiles: ['בֵּי', 'צָ', 'ה'],
+        tiles: ['בֵּי', 'צָה'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M100 40 Q140 90 140 130 Q140 170 100 170 Q60 170 60 130 Q60 90 100 40 Z" fill="#fdfdfd" stroke="#e8e8e8" stroke-width="3"/>
         </svg>`
       },
       {
         name: 'עגל',
-        tiles: ['עֵ', 'גֶ', 'ל'],
+        tiles: ['עֵ', 'גֶל'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="48" cy="95" rx="14" ry="22" fill="#d2a679" transform="rotate(-25 48 95)"/>
           <ellipse cx="152" cy="95" rx="14" ry="22" fill="#d2a679" transform="rotate(25 152 95)"/>
@@ -528,7 +528,7 @@ const LEVELS = [
       },
       {
         name: 'גשר',
-        tiles: ['גֶּ', 'שֶׁ', 'ר'],
+        tiles: ['גֶּ', 'שֶׁר'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M20 140 Q100 70 180 140" stroke="#a0522d" stroke-width="12" fill="none"/>
           <rect x="10" y="135" width="180" height="10" fill="#a0522d"/>
@@ -537,14 +537,14 @@ const LEVELS = [
       },
       {
         name: 'בגד',
-        tiles: ['בֶּ', 'גֶ', 'ד'],
+        tiles: ['בֶּ', 'גֶד'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M70 50 L100 65 L130 50 L160 80 L140 100 L130 90 L130 170 L70 170 L70 90 L60 100 L40 80 Z" fill="#3498db"/>
         </svg>`
       },
       {
         name: 'תה',
-        tiles: ['תֵּ', 'ה'],
+        tiles: ['תֵּה'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M50 100 L150 100 L142 150 Q100 165 58 150 Z" fill="#ecf0f1"/>
           <path d="M150 105 Q180 105 180 125 Q180 140 150 138" stroke="#bdc3c7" stroke-width="6" fill="none"/>
@@ -567,7 +567,7 @@ const LEVELS = [
       },
       {
         name: 'תפוז',
-        tiles: ['תַּ', 'פּוּ', 'ז'],
+        tiles: ['תַּ', 'פּוּז'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="100" cy="105" r="62" fill="#f39c12"/>
           <ellipse cx="105" cy="48" rx="13" ry="7" fill="#2ecc71" transform="rotate(-15 105 48)"/>
@@ -576,7 +576,7 @@ const LEVELS = [
       },
       {
         name: 'חומוס',
-        tiles: ['חֻ', 'מּוּ', 'ס'],
+        tiles: ['חֻ', 'מּוּס'],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="120" rx="80" ry="40" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="5"/>
           <ellipse cx="100" cy="110" rx="62" ry="28" fill="#e8c97a"/>
@@ -587,7 +587,7 @@ const LEVELS = [
       },
       {
         name: 'סוכר',
-        tiles: ['סוּ', 'כָּ', 'ר'],
+        tiles: ['סוּ', 'כָּר'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="50" y="80" width="40" height="40" fill="#fff" stroke="#ccc" stroke-width="2"/>
           <rect x="95" y="80" width="40" height="40" fill="#fff" stroke="#ccc" stroke-width="2"/>
@@ -597,7 +597,7 @@ const LEVELS = [
       },
       {
         name: 'כדור',
-        tiles: ['כַּ', 'דּוּ', 'ר'],
+        tiles: ['כַּ', 'דּוּר'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="100" cy="100" r="65" fill="#fff" stroke="#2c3e50" stroke-width="4"/>
           <path d="M100 35 L100 165 M35 100 L165 100" stroke="#2c3e50" stroke-width="3"/>
@@ -607,7 +607,7 @@ const LEVELS = [
       },
       {
         name: 'תות',
-        tiles: ['תּוּ', 'ת'],
+        tiles: ['תּוּת'],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M100 60 Q150 60 145 110 Q140 165 100 175 Q60 165 55 110 Q50 60 100 60 Z" fill="#e74c3c"/>
           <circle cx="80" cy="100" r="4" fill="#fde9a8"/>
@@ -619,7 +619,7 @@ const LEVELS = [
       },
       {
         name: 'חוט',
-        tiles: ['חוּ', 'ט'],
+        tiles: ['חוּט'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="100" cy="120" r="45" fill="#e74c3c"/>
           <circle cx="100" cy="120" r="45" fill="none" stroke="#c0392b" stroke-width="3" stroke-dasharray="10 6"/>
@@ -629,7 +629,7 @@ const LEVELS = [
       },
       {
         name: 'סולם',
-        tiles: ['סוּ', 'לָּ', 'ם'],
+        tiles: ['סוּ', 'לָּם'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="60" y="30" width="10" height="150" fill="#8b5a2b"/>
           <rect x="130" y="30" width="10" height="150" fill="#8b5a2b"/>
@@ -640,7 +640,7 @@ const LEVELS = [
       },
       {
         name: 'צורה',
-        tiles: ['צוּ', 'רָ', 'ה'],
+        tiles: ['צוּ', 'רָה'],
         svg: `<svg viewBox="0 0 200 200">
           <circle cx="55" cy="60" r="30" fill="#3498db"/>
           <rect x="105" y="35" width="55" height="55" fill="#e74c3c"/>
@@ -650,7 +650,7 @@ const LEVELS = [
       },
       {
         name: 'סוכה',
-        tiles: ['סֻ', 'כָּ', 'ה'],
+        tiles: ['סֻ', 'כָּה'],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="40" y="100" width="120" height="70" fill="#e8d4a0" stroke="#c9a86a" stroke-width="3"/>
           <path d="M30 100 L100 60 L170 100 Z" fill="none" stroke="#2ecc71" stroke-width="6" stroke-dasharray="8 6"/>
@@ -664,8 +664,8 @@ const LEVELS = [
     words: [
       {
         name: 'קשת בענן',
-        tiles: ['קֶ', 'שֶׁ', 'ת', 'בְּ', 'עָ', 'נָ', 'ן'],
-        groupSizes: [3, 4],
+        tiles: ['קֶ', 'שֶׁת', 'בְּ', 'עָ', 'נָן'],
+        groupSizes: [2,3],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M20 150 A80 80 0 0 1 180 150" stroke="#e74c3c" stroke-width="10" fill="none"/>
           <path d="M30 150 A70 70 0 0 1 170 150" stroke="#f39c12" stroke-width="10" fill="none"/>
@@ -678,8 +678,8 @@ const LEVELS = [
       },
       {
         name: 'תיק גב',
-        tiles: ['תִּי', 'ק', 'גַּ', 'ב'],
-        groupSizes: [2, 2],
+        tiles: ['תִּיק', 'גַּב'],
+        groupSizes: [1,1],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M70 55 Q70 30 100 30 Q130 30 130 55" stroke="#8b5a2b" stroke-width="9" fill="none"/>
           <rect x="45" y="55" width="110" height="120" rx="18" fill="#3498db"/>
@@ -689,8 +689,8 @@ const LEVELS = [
       },
       {
         name: 'בית ספר',
-        tiles: ['בֵּי', 'ת', 'סֵ', 'פֶ', 'ר'],
-        groupSizes: [2, 3],
+        tiles: ['בֵּית', 'סֵ', 'פֶר'],
+        groupSizes: [1,2],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="35" y="90" width="130" height="85" fill="#f0e0b0"/>
           <path d="M25 90 L100 45 L175 90 Z" fill="#c0392b"/>
@@ -703,8 +703,8 @@ const LEVELS = [
       },
       {
         name: 'כלב ים',
-        tiles: ['כֶּ', 'לֶ', 'ב', 'יָ', 'ם'],
-        groupSizes: [3, 2],
+        tiles: ['כֶּ', 'לֶב', 'יָם'],
+        groupSizes: [2,1],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="170" rx="90" ry="16" fill="#5dade2"/>
           <path d="M55 170 Q40 110 75 80 Q100 65 125 80 Q160 110 145 170 Z" fill="#7f8c8d"/>
@@ -717,8 +717,8 @@ const LEVELS = [
       },
       {
         name: 'סוס ים',
-        tiles: ['סוּ', 'ס', 'יָ', 'ם'],
-        groupSizes: [2, 2],
+        tiles: ['סוּס', 'יָם'],
+        groupSizes: [1,1],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M110 40 Q140 40 135 70 Q160 75 150 100 Q145 115 125 110 Q130 130 110 140 Q120 155 100 165 Q70 175 65 150 Q50 145 55 125 Q40 120 50 105 Q45 90 65 90 Q60 65 90 55 Q100 50 110 40 Z" fill="#f39c12"/>
           <circle cx="120" cy="55" r="4" fill="#2c3e50"/>
@@ -727,8 +727,8 @@ const LEVELS = [
       },
       {
         name: 'דג זהב',
-        tiles: ['דַּ', 'ג', 'זָ', 'הָ', 'ב'],
-        groupSizes: [2, 3],
+        tiles: ['דַּג', 'זָ', 'הָב'],
+        groupSizes: [1,2],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="100" rx="62" ry="38" fill="#f1c40f"/>
           <path d="M158 100 L190 75 L190 125 Z" fill="#e8b923"/>
@@ -739,8 +739,8 @@ const LEVELS = [
       },
       {
         name: 'כוכב ים',
-        tiles: ['כּוֹ', 'כַ', 'ב', 'יָ', 'ם'],
-        groupSizes: [3, 2],
+        tiles: ['כּוֹ', 'כַב', 'יָם'],
+        groupSizes: [2,1],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M100 25 L120 80 L178 85 L128 118 L142 175 L100 140 L58 175 L72 118 L22 85 L80 80 Z" fill="#e67e22" stroke="#c8650f" stroke-width="3"/>
           <circle cx="85" cy="95" r="3" fill="#c8650f"/>
@@ -750,8 +750,8 @@ const LEVELS = [
       },
       {
         name: 'גן חיות',
-        tiles: ['גַּ', 'ן', 'חַ', 'יּוֹ', 'ת'],
-        groupSizes: [2, 3],
+        tiles: ['גַּן', 'חַ', 'יּוֹת'],
+        groupSizes: [1,2],
         svg: `<svg viewBox="0 0 200 200">
           <rect x="20" y="120" width="160" height="12" fill="#8b5a2b"/>
           <rect x="30" y="90" width="8" height="42" fill="#8b5a2b"/>
@@ -767,8 +767,8 @@ const LEVELS = [
       },
       {
         name: 'כובע קסם',
-        tiles: ['כּוֹ', 'בַ', 'ע', 'קֶ', 'סֶ', 'ם'],
-        groupSizes: [3, 3],
+        tiles: ['כּוֹ', 'בַע', 'קֶ', 'סֶם'],
+        groupSizes: [2,2],
         svg: `<svg viewBox="0 0 200 200">
           <ellipse cx="100" cy="150" rx="70" ry="14" fill="#2c3e50"/>
           <path d="M85 150 L105 40 L140 150 Z" fill="#8e44ad"/>
@@ -778,8 +778,8 @@ const LEVELS = [
       },
       {
         name: 'סל פירות',
-        tiles: ['סַ', 'ל', 'פֵּי', 'רוֹ', 'ת'],
-        groupSizes: [2, 3],
+        tiles: ['סַל', 'פֵּי', 'רוֹת'],
+        groupSizes: [1,2],
         svg: `<svg viewBox="0 0 200 200">
           <path d="M40 110 L160 110 L145 170 Q100 182 55 170 Z" fill="#c98b4a"/>
           <path d="M40 110 L160 110 L155 122 L45 122 Z" fill="#a8763a"/>
@@ -862,6 +862,10 @@ function goToLevel(level) {
 homeBtn.addEventListener('click', showHome);
 continueBtn.addEventListener('click', () => startStage(currentLevel, currentIndex));
 
+function isWideTile(letter) {
+  return (letter.match(/[א-ת]/g) || []).length > 1;
+}
+
 function shuffle(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -915,6 +919,7 @@ function loadWord(index) {
   slotState = new Array(currentWord.tiles.length).fill(null);
   slotsEl.innerHTML = '';
   slotsEl.classList.toggle('compact', currentWord.tiles.length > 5);
+  trayEl.classList.toggle('compact', currentWord.tiles.length > 5);
   // groupSizes (e.g. [3, 4]) marks where a two-word phrase splits, so we can
   // draw a visual gap between the words without affecting slot indices.
   const groupBoundaries = new Set();
@@ -934,6 +939,10 @@ function loadWord(index) {
     const slot = document.createElement('div');
     slot.className = 'slot';
     slot.dataset.index = i;
+    // Slots that will hold a "wide" tile (2+ base letters merged together,
+    // e.g. "מַל") need to be widened to match, or the tile placed inside
+    // would overflow the slot's own box.
+    if (isWideTile(currentWord.tiles[i])) slot.classList.add('wide');
     slotsEl.appendChild(slot);
   }
 
@@ -942,6 +951,10 @@ function loadWord(index) {
   tray = shuffled.map((letter, i) => {
     const tile = document.createElement('div');
     tile.className = 'tile';
+    // Tiles that merged a vowel-less consonant onto the previous syllable
+    // (e.g. "מַל") contain 2+ base letters, which don't fit at the normal
+    // single-letter tile size - widen and shrink the font to compensate.
+    if (isWideTile(letter)) tile.classList.add('wide');
     tile.textContent = letter;
     tile.dataset.letter = letter;
     trayEl.appendChild(tile);
@@ -1025,7 +1038,11 @@ function onPointerUp(e) {
         trayEl.appendChild(tile);
       }
     } else {
-      fromSlot.appendChild(tile);
+      // Tapping a tile that's already placed sends it back down to the tray.
+      fromSlot.classList.remove('filled', 'correct', 'wrong');
+      slotState[fromSlot.dataset.index] = null;
+      trayEl.appendChild(tile);
+      clearCheckStateExcept();
     }
     dragData = null;
     maybeCheck();
