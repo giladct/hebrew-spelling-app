@@ -918,8 +918,13 @@ function loadWord(index) {
 
   slotState = new Array(currentWord.tiles.length).fill(null);
   slotsEl.innerHTML = '';
-  slotsEl.classList.toggle('compact', currentWord.tiles.length > 5);
-  trayEl.classList.toggle('compact', currentWord.tiles.length > 5);
+  // Wide tiles (2+ letters merged together) take up noticeably more
+  // horizontal space than normal ones, so a handful of them can overflow a
+  // phone screen even with only 4-5 tiles total - weight them accordingly
+  // instead of just counting tiles.
+  const effectiveWidth = currentWord.tiles.reduce((sum, t) => sum + (isWideTile(t) ? 1.5 : 1), 0);
+  slotsEl.classList.toggle('compact', effectiveWidth > 4);
+  trayEl.classList.toggle('compact', effectiveWidth > 4);
   // groupSizes (e.g. [3, 4]) marks where a two-word phrase splits, so we can
   // draw a visual gap between the words without affecting slot indices.
   const groupBoundaries = new Set();
