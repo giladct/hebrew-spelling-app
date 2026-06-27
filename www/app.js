@@ -1358,20 +1358,16 @@ function furtiveToSpeech(tile) {
 }
 
 function speakWord(word) {
-  const tiles = word.tiles;
-  const groupSizes = word.groupSizes || [tiles.length];
-  const groups = [];
-  let idx = 0;
-  for (const size of groupSizes) {
-    groups.push(tiles.slice(idx, idx + size));
-    idx += size;
-  }
-  const text = groups.map(group => group.map((tile, i) => {
-    const isLastOfWord = i === group.length - 1;
-    if (isLastOfWord && isFurtivePatach(tile)) return withRafe(furtiveToSpeech(tile));
-    return withRafe(tile);
-  }).join('')).join(' ');
-  speak(text);
+  // Earlier this session this spoke the word.tiles reconstructed with their
+  // niqqud, on the theory that explicit niqqud would fix mispronunciations.
+  // On-device testing showed the opposite: Android's Hebrew TTS mostly
+  // ignores niqqud for real words and falls back to its own dictionary/
+  // letter-based guess, and the reconstructed niqqud text introduced new
+  // problems (extra glides between syllables, vowels read as the wrong
+  // quality) on common words it otherwise knows fine. Plain text is the
+  // more reliable default; words where that's genuinely ambiguous get
+  // fixed by respelling word.name itself (e.g. מיטה), not via niqqud here.
+  speak(word.name);
 }
 
 function speakLetter(letter, isFinalTile) {
