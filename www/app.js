@@ -839,6 +839,20 @@ let currentWord = null;
 let tray = [];   // array of {id, letter, el}
 let slotState = []; // array of letter or null, by slot index
 
+const PRAISE_PHRASES = [
+  'מְעוּלֶּה',
+  'מַדְהִים',
+  'כָּל הַכָּבוֹד',
+  'נִפְלָא',
+  'יָפֶה מְאֹד',
+  'מְצֻיָּן',
+  'טוֹב מְאֹד',
+  'נֶהְדָּר'
+];
+function randomPraise() {
+  return PRAISE_PHRASES[Math.floor(Math.random() * PRAISE_PHRASES.length)];
+}
+
 const pictureBox = document.getElementById('pictureBox');
 const slotsEl = document.getElementById('slots');
 const trayEl = document.getElementById('tray');
@@ -1183,7 +1197,7 @@ function checkAnswer() {
       feedbackEl.className = 'success';
       celebrateStage();
     } else {
-      feedbackEl.textContent = 'מעולה! ✓';
+      feedbackEl.textContent = randomPraise() + '! ✓';
       feedbackEl.className = 'success';
       nextBtn.classList.remove('hidden');
     }
