@@ -26,6 +26,15 @@ if (System.getenv("ANDROID_KEYSTORE_PATH")) {
     }
 }
 
+// Play Console requires every uploaded bundle to have a strictly higher
+// versionCode than any build ever uploaded before, across all tracks - not
+// just the latest one. Hand-bumping this after every rejected upload was
+// error-prone (burned several version codes), so it's now derived from the
+// CI run number, which only ever increases. Locally (no CI env var set) it
+// falls back to a fixed low number - fine, since local builds aren't what
+// gets uploaded to Play Console anyway.
+def androidVersionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "4").toInteger()
+
 android {
     namespace = "hebrew_spelling.myapp"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -33,8 +42,8 @@ android {
         applicationId "hebrew_spelling.myapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
-        versionName "1.3"
+        versionCode androidVersionCode
+        versionName "1.0.${androidVersionCode}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

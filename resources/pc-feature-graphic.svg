@@ -1,0 +1,41 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fef9e7"/>
+      <stop offset="1" stop-color="#aee4f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+
+  <!-- rainbow accent, top left -->
+  <g transform="translate(160,120) scale(2.6)">
+    <path d="M0 120 A120 120 0 0 1 240 120" fill="none" stroke="#e74c3c" stroke-width="16"/>
+    <path d="M16 120 A104 104 0 0 1 224 120" fill="none" stroke="#f39c12" stroke-width="16"/>
+    <path d="M32 120 A88 88 0 0 1 208 120" fill="none" stroke="#f1c40f" stroke-width="16"/>
+    <path d="M48 120 A72 72 0 0 1 192 120" fill="none" stroke="#2ecc71" stroke-width="16"/>
+    <path d="M64 120 A56 56 0 0 1 176 120" fill="none" stroke="#3498db" stroke-width="16"/>
+    <ellipse cx="20" cy="122" rx="26" ry="18" fill="#fff"/>
+    <ellipse cx="220" cy="122" rx="26" ry="18" fill="#fff"/>
+  </g>
+
+  <!-- blank letter tiles, bottom left -->
+  <g transform="translate(180,720)">
+    <rect x="0" y="0" width="130" height="150" rx="22" fill="#ffd966"/>
+    <rect x="160" y="0" width="130" height="150" rx="22" fill="#ffd966"/>
+    <rect x="320" y="0" width="130" height="150" rx="22" fill="#ffd966"/>
+    <rect x="480" y="40" width="130" height="150" rx="22" fill="#fff" opacity="0.6" stroke="#b0b0b0" stroke-width="5" stroke-dasharray="10 8"/>
+  </g>
+
+  <!-- two-hump camel, right side -->
+  <g transform="translate(1153,300) scale(4.2)">
+    <ellipse cx="100" cy="150" rx="70" ry="14" fill="#f0e0b0"/>
+    <path d="M35 150 Q35 100 55 92 Q60 55 78 48 Q92 43 97 68 Q100 82 103 68 Q108 43 122 48 Q140 55 145 92 Q165 100 165 150 Z" fill="#d2a679"/>
+    <path d="M40 150 L35 175 L48 175 L52 150 Z" fill="#b8895f"/>
+    <path d="M150 150 L155 175 L142 175 L138 150 Z" fill="#b8895f"/>
+    <path d="M70 150 L65 175 L78 175 L82 150 Z" fill="#b8895f"/>
+    <path d="M120 150 L125 175 L112 175 L108 150 Z" fill="#b8895f"/>
+    <path d="M148 90 Q170 78 175 60 Q160 65 147 82 Z" fill="#d2a679"/>
+    <circle cx="172" cy="58" r="10" fill="#d2a679"/>
+    <circle cx="176" cy="55" r="2" fill="#333"/>
+  </g>
+</svg>
