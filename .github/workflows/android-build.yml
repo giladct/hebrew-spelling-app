@@ -97,4 +97,10 @@ jobs:
           packageName: hebrew_spelling.myapp
           releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
           track: ${{ vars.PLAY_TRACK || 'internal' }}
-          status: completed
+          # While the app itself is still in "draft" status in Play Console
+          # (store listing / content rating / data safety not all submitted
+          # yet), only draft releases can be created on tracks other than
+          # Internal Testing. Uploading as draft always works regardless of
+          # that status - you just need to manually hit "review and roll
+          # out" in Play Console afterwards until the app's setup is complete.
+          status: draft
