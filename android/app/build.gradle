@@ -27,10 +27,10 @@ if (System.getenv("ANDROID_KEYSTORE_PATH")) {
 }
 
 android {
-    namespace = "com.giladct.hebrewspelling"
+    namespace = "hebrew_spelling.myapp"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.giladct.hebrewspelling"
+        applicationId "hebrew_spelling.myapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

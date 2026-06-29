@@ -1,4 +1,4 @@
-package com.giladct.hebrewspelling;
+package hebrew_spelling.myapp;
 
 import com.getcapacitor.BridgeActivity;
 
