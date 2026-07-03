@@ -1358,19 +1358,48 @@ function furtiveToSpeech(tile) {
 }
 
 function speakWord(word) {
-  // Earlier this session this spoke the word.tiles reconstructed with their
-  // niqqud, on the theory that explicit niqqud would fix mispronunciations.
-  // On-device testing showed the opposite: Android's Hebrew TTS mostly
-  // ignores niqqud for real words and falls back to its own dictionary/
-  // letter-based guess, and the reconstructed niqqud text introduced new
-  // problems (extra glides between syllables, vowels read as the wrong
-  // quality) on common words it otherwise knows fine. Plain text is the
-  // more reliable default; words where that's genuinely ambiguous get
-  // fixed by respelling word.name itself (e.g. מיטה), not via niqqud here.
-  speak(word.name);
+  // In the native app use the Capacitor TTS plugin (it works reliably).
+  // In a plain browser, prefer the pre-recorded MP3 file bundled with the
+  // app (audio/<name>.mp3) so the hint works even without a Hebrew TTS
+  // voice installed. Fall back to speechSynthesis if the file is absent.
+  const filename = 'audio/' + word.name.replace(/ /g, '_') + '.mp3';
+  playAudioFile(filename, () => speak(word.name));
+}
+
+let _audioCtx = null;
+function getAudioCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+
+async function playAudioFile(path, fallback) {
+  try {
+    const ctx = getAudioCtx();
+    if (ctx.state === 'suspended') await ctx.resume();
+    const resp = await fetch(path);
+    if (!resp.ok) throw new Error('not found');
+    const buf = await ctx.decodeAudioData(await resp.arrayBuffer());
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+  } catch (e) {
+    fallback();
+  }
 }
 
 function speakLetter(letter, isFinalTile) {
+  if (typeof TILE_AUDIO !== 'undefined') {
+    const filename = TILE_AUDIO[letter + '_' + (isFinalTile ? '1' : '0')];
+    if (filename) {
+      playAudioFile('audio/' + filename, () => speakLetterViaTTS(letter, isFinalTile));
+      return;
+    }
+  }
+  speakLetterViaTTS(letter, isFinalTile);
+}
+
+function speakLetterViaTTS(letter, isFinalTile) {
   if (isFinalTile && isFurtivePatach(letter)) {
     speak(withRafe(furtiveToSpeech(letter)));
     return;
