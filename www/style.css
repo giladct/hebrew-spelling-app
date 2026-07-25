@@ -46,6 +46,12 @@ h1 {
   color: #555;
 }
 
+#attemptsEl {
+  font-size: 0.82em;
+  color: #e74c3c;
+  margin-top: 1px;
+}
+
 .hidden {
   display: none !important;
 }
@@ -374,6 +380,16 @@ main {
   pointer-events: none;
   overflow: hidden;
   z-index: 2000;
+}
+
+#transitionOverlay {
+  position: fixed;
+  inset: 0;
+  background: #fef9e7;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 500;
+  transition: opacity 0.15s ease;
 }
 
 .balloon {

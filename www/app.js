@@ -1410,6 +1410,8 @@ let currentWord = null;
 let tray = [];   // array of {id, letter, el}
 let slotState = []; // array of letter or null, by slot index
 
+let wordAttempts = 0;
+
 let smSet = null;
 let smSetIndex = 0;
 let smEndIndex = 0;
@@ -1453,6 +1455,9 @@ const smTitle = document.getElementById('smTitle');
 const smTileBar = document.getElementById('smTileBar');
 const smRows = document.getElementById('smRows');
 const smFeedbackEl = document.getElementById('smFeedback');
+const transitionOverlay = document.getElementById('transitionOverlay');
+const attemptsEl = document.getElementById('attemptsEl');
+const attemptsCountEl = document.getElementById('attemptsCount');
 
 const dualWordScreen = document.getElementById('dualWordScreen');
 const dw10HomeBtn = document.getElementById('dw10HomeBtn');
@@ -1503,21 +1508,43 @@ function buildStageCards() {
   stageCardsEl.appendChild(dw10Card);
 }
 
-function showHome() {
-  if (hasSavedProgress()) {
-    continueBtn.classList.remove('hidden');
-  } else {
-    continueBtn.classList.add('hidden');
-  }
-  homeScreen.classList.remove('hidden');
-  gameScreen.classList.add('hidden');
-  syllableMatchScreen.classList.add('hidden');
-  dualWordScreen.classList.add('hidden');
+let _fading = false;
+function fadeTransition(fn) {
+  if (_fading) { fn(); return; }
+  _fading = true;
+  transitionOverlay.style.opacity = '1';
+  transitionOverlay.style.pointerEvents = 'all';
+  setTimeout(() => {
+    fn();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      transitionOverlay.style.opacity = '0';
+      transitionOverlay.style.pointerEvents = 'none';
+      _fading = false;
+    }));
+  }, 150);
+}
+
+function showHome(fade = true) {
+  const doIt = () => {
+    if (hasSavedProgress()) {
+      continueBtn.classList.remove('hidden');
+    } else {
+      continueBtn.classList.add('hidden');
+    }
+    homeScreen.classList.remove('hidden');
+    gameScreen.classList.add('hidden');
+    syllableMatchScreen.classList.add('hidden');
+    dualWordScreen.classList.add('hidden');
+  };
+  if (fade) fadeTransition(doIt);
+  else doIt();
 }
 
 function showGame() {
-  homeScreen.classList.add('hidden');
-  gameScreen.classList.remove('hidden');
+  fadeTransition(() => {
+    homeScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+  });
 }
 
 function startStage(level, index = 0) {
@@ -1589,6 +1616,8 @@ function loadWord(index) {
   feedbackEl.textContent = '';
   feedbackEl.className = '';
   nextBtn.classList.add('hidden');
+  wordAttempts = 0;
+  attemptsEl.classList.add('hidden');
 
   slotState = new Array(currentWord.tiles.length).fill(null);
   slotsEl.innerHTML = '';
@@ -1810,6 +1839,8 @@ function checkAnswer() {
       slot.firstElementChild.dataset.locked = '1';
     });
     playSuccess();
+    setTimeout(() => speakWord(currentWord), 350);
+    attemptsEl.classList.add('hidden');
 
     if (currentIndex === currentWords().length - 1) {
       feedbackEl.textContent = 'כָּל הַכָּבוֹד! סִיַּמְתָּ אֶת הַשָּׁלָב! 🎈';
@@ -1824,6 +1855,9 @@ function checkAnswer() {
     feedbackEl.textContent = 'נַסֵּה שׁוּב';
     feedbackEl.className = 'error';
     playError();
+    wordAttempts++;
+    attemptsEl.classList.remove('hidden');
+    attemptsCountEl.textContent = wordAttempts;
     slotsEl.classList.add('shake');
     setTimeout(() => {
       slotsEl.classList.remove('shake');
@@ -2169,15 +2203,18 @@ function onSmTilePointerUp(e) {
   if (slotPairIdx === pairIdx) {
     handleSmDrop(pairIdx);
   } else {
+    playError();
     slot.classList.add('shake');
     slot.addEventListener('animationend', () => slot.classList.remove('shake'), { once: true });
   }
 }
 
 function showSyllableMatchScreen() {
-  homeScreen.classList.add('hidden');
-  gameScreen.classList.add('hidden');
-  syllableMatchScreen.classList.remove('hidden');
+  fadeTransition(() => {
+    homeScreen.classList.add('hidden');
+    gameScreen.classList.add('hidden');
+    syllableMatchScreen.classList.remove('hidden');
+  });
 }
 
 function startSyllableMatch(setIndex, endIndex) {
@@ -2305,10 +2342,12 @@ dw10SkipBtn.addEventListener('click', () => {
 });
 
 function showDualWordScreen() {
-  homeScreen.classList.add('hidden');
-  gameScreen.classList.add('hidden');
-  syllableMatchScreen.classList.add('hidden');
-  dualWordScreen.classList.remove('hidden');
+  fadeTransition(() => {
+    homeScreen.classList.add('hidden');
+    gameScreen.classList.add('hidden');
+    syllableMatchScreen.classList.add('hidden');
+    dualWordScreen.classList.remove('hidden');
+  });
 }
 
 function startDualWord(puzzleIdx) {
@@ -2572,4 +2611,4 @@ function dw10CheckWord(wordIdx) {
 // kick off
 restoreProgress();
 buildStageCards();
-showHome();
+showHome(false);
