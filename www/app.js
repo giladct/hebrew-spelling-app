@@ -1458,6 +1458,7 @@ const smFeedbackEl = document.getElementById('smFeedback');
 const transitionOverlay = document.getElementById('transitionOverlay');
 const attemptsEl = document.getElementById('attemptsEl');
 const attemptsCountEl = document.getElementById('attemptsCount');
+const headerLevelTitle = document.getElementById('headerLevelTitle');
 
 const dualWordScreen = document.getElementById('dualWordScreen');
 const dw10HomeBtn = document.getElementById('dw10HomeBtn');
@@ -1610,6 +1611,7 @@ function restoreProgress() {
 function loadWord(index) {
   currentWord = currentWords()[index];
   saveProgress();
+  headerLevelTitle.textContent = LEVELS[currentLevel].label;
   wordIndexEl.textContent = index + 1;
   wordTotalEl.textContent = currentWords().length;
   pictureBox.innerHTML = currentWord.svg;
@@ -1682,6 +1684,7 @@ function loadWord(index) {
     attachDrag(tile);
     return tile;
   });
+  setTimeout(() => speakWord(currentWord), 600);
 }
 
 // ---- Drag & drop via Pointer Events ----
