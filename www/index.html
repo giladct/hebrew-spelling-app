@@ -12,28 +12,28 @@
 
     <div id="homeScreen">
       <div id="homeLogo">🐫</div>
-      <h1>לומדים לקרוא עברית</h1>
-      <p class="subtitle">בחרו שלב להתחיל</p>
-      <button id="continueBtn" class="hidden">המשך מאיפה שהפסקת ←</button>
+      <h1>לוֹמְדִים לִקְרוֹא עִבְרִית</h1>
+      <p class="subtitle">בִּחֲרוּ שָׁלָב לְהַתְחִיל</p>
+      <button id="continueBtn" class="hidden">הַמְשֵׁךְ מֵאֵיפֹה שֶׁהִפְסַקְתָּ ←</button>
       <div id="stageCards"></div>
     </div>
 
     <div id="gameScreen" class="hidden">
       <header>
-        <button id="homeBtn">🏠 בית</button>
+        <button id="homeBtn">🏠 בַּיִת</button>
         <div id="headerTitle">
-          <h1>לומדים לקרוא עברית</h1>
-          <div id="progress">מילה <span id="wordIndex">1</span> מתוך <span id="wordTotal">5</span></div>
+          <h1>לוֹמְדִים לִקְרוֹא עִבְרִית</h1>
+          <div id="progress">מִלָּה <span id="wordIndex">1</span> מִתּוֹךְ <span id="wordTotal">5</span></div>
         </div>
       </header>
 
       <main>
-        <button id="skipBtn">⏭️ דלג</button>
+        <button id="skipBtn">⏭️ דְּלַג</button>
 
         <div id="pictureBox"></div>
 
         <div id="actionRow">
-          <button id="hintBtn">🔊 השמע מילה</button>
+          <button id="hintBtn">🔊 הַשְׁמַע מִלָּה</button>
         </div>
 
         <div id="slots"></div>
@@ -43,10 +43,38 @@
         <div id="feedback"></div>
       </main>
 
-      <button id="nextBtn" class="hidden">הבא ←</button>
+      <button id="nextBtn" class="hidden">הַבָּא ←</button>
     </div>
 
     <div id="balloonsOverlay"></div>
+
+    <div id="syllableMatchScreen" class="hidden">
+      <header>
+        <button id="smHomeBtn">🏠 בַּיִת</button>
+        <div id="smTitle"></div>
+      </header>
+      <main id="smMain">
+        <p id="smInstruction">גְּרוֹר אֶת הַהַבָרָה הַנְּכוֹנָה לָרִיבּוּעַ הַמַּתְאִים</p>
+        <div id="smRows"></div>
+        <div id="smFeedback"></div>
+        <div id="smTileBar"></div>
+      </main>
+      <button id="smSkipBtn">⏭️ דְּלַג</button>
+    </div>
+
+    <div id="dualWordScreen" class="hidden">
+      <header>
+        <button id="dw10HomeBtn">🏠 בַּיִת</button>
+        <div id="dw10Title"></div>
+      </header>
+      <main id="dw10Main">
+        <p id="dw10Instruction">גְּרוֹר כָּל הַבְרָה אֶל הַצִּיּוּר הַנָּכוֹן</p>
+        <div id="dw10Rows"></div>
+        <div id="dw10Feedback"></div>
+        <div id="dw10Tray"></div>
+      </main>
+      <button id="dw10SkipBtn">⏭️ דְּלַג</button>
+    </div>
   </div>
 
   <script src="audio/tiles.js"></script>

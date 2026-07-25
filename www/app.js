@@ -833,11 +833,590 @@ const LEVELS = [
   }
 ];
 
+// ---- Syllable Match data ----
+const SYLLABLE_MATCH_SETS = [
+  {
+    label: 'הַבָּרוֹת',
+    fixed: 'כֶּ',
+    pairs: [
+      {
+        syllable: 'לֶב',
+        name: 'כלב',
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="100" cy="115" rx="55" ry="48" fill="#d2a679"/>
+          <ellipse cx="55" cy="75" rx="20" ry="32" fill="#a9744f" transform="rotate(-20 55 75)"/>
+          <ellipse cx="145" cy="75" rx="20" ry="32" fill="#a9744f" transform="rotate(20 145 75)"/>
+          <ellipse cx="100" cy="135" rx="22" ry="16" fill="#f0e0b0"/>
+          <circle cx="82" cy="105" r="6" fill="#2c3e50"/>
+          <circle cx="118" cy="105" r="6" fill="#2c3e50"/>
+          <ellipse cx="100" cy="125" rx="7" ry="5" fill="#2c3e50"/>
+          <path d="M92 140 Q100 150 108 140" stroke="#e74c3c" stroke-width="4" fill="none"/>
+        </svg>`
+      },
+      {
+        syllable: 'תֶר',
+        name: 'כתר',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="28" y="145" width="144" height="28" rx="6" fill="#f1c40f" stroke="#d4a017" stroke-width="3"/>
+          <path d="M28 145 L28 92 L66 122 L100 58 L134 122 L172 92 L172 145 Z"
+                fill="#f1c40f" stroke="#d4a017" stroke-width="3" stroke-linejoin="round"/>
+          <circle cx="100" cy="70" r="10" fill="#e74c3c"/>
+          <circle cx="57" cy="113" r="8" fill="#3498db"/>
+          <circle cx="143" cy="113" r="8" fill="#2ecc71"/>
+          <circle cx="60" cy="155" r="6" fill="#9b59b6"/>
+          <circle cx="140" cy="155" r="6" fill="#e67e22"/>
+        </svg>`
+      },
+      {
+        syllable: 'בֶשׂ',
+        name: 'כֶּבֶשׂ',
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="95" cy="125" rx="56" ry="38" fill="#ecf0f1"/>
+          <circle cx="48" cy="108" r="26" fill="#ecf0f1"/>
+          <circle cx="75" cy="90" r="28" fill="#ecf0f1"/>
+          <circle cx="115" cy="88" r="28" fill="#ecf0f1"/>
+          <circle cx="145" cy="106" r="24" fill="#ecf0f1"/>
+          <rect x="67" y="158" width="12" height="24" rx="5" fill="#7f8c8d"/>
+          <rect x="110" y="158" width="12" height="24" rx="5" fill="#7f8c8d"/>
+          <ellipse cx="158" cy="105" rx="22" ry="19" fill="#7f8c8d"/>
+          <ellipse cx="147" cy="90" rx="7" ry="12" fill="#7f8c8d" transform="rotate(-15 147 90)"/>
+          <circle cx="164" cy="99" r="3.5" fill="#2c3e50"/>
+          <path d="M151 113 Q158 118 164 113" stroke="#2c3e50" stroke-width="2.5" fill="none"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה שֶׁ',
+    fixed: 'שֶׁ',
+    pairs: [
+      {
+        syllable: 'מֶשׁ',
+        name: 'שֶׁמֶשׁ',
+        svg: `<svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="42" fill="#f1c40f"/>
+          <g stroke="#f39c12" stroke-width="8" stroke-linecap="round">
+            <line x1="100" y1="18" x2="100" y2="42"/>
+            <line x1="100" y1="158" x2="100" y2="182"/>
+            <line x1="18" y1="100" x2="42" y2="100"/>
+            <line x1="158" y1="100" x2="182" y2="100"/>
+            <line x1="43" y1="43" x2="60" y2="60"/>
+            <line x1="140" y1="140" x2="157" y2="157"/>
+            <line x1="157" y1="43" x2="140" y2="60"/>
+            <line x1="60" y1="140" x2="43" y2="157"/>
+          </g>
+        </svg>`
+      },
+      {
+        syllable: 'לֶג',
+        name: 'שֶׁלֶג',
+        svg: `<svg viewBox="0 0 200 200">
+          <circle cx="100" cy="158" r="36" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
+          <circle cx="100" cy="103" r="27" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
+          <circle cx="100" cy="60" r="19" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="3"/>
+          <circle cx="92" cy="57" r="3" fill="#2c3e50"/>
+          <circle cx="108" cy="57" r="3" fill="#2c3e50"/>
+          <line x1="100" y1="60" x2="114" y2="64" stroke="#e67e22" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="100" cy="96" r="4" fill="#7f8c8d"/>
+          <circle cx="100" cy="107" r="4" fill="#7f8c8d"/>
+          <circle cx="100" cy="118" r="4" fill="#7f8c8d"/>
+          <line x1="73" y1="98" x2="52" y2="85" stroke="#8b5a2b" stroke-width="5" stroke-linecap="round"/>
+          <line x1="127" y1="98" x2="148" y2="85" stroke="#8b5a2b" stroke-width="5" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        syllable: 'קֶל',
+        name: 'שֶׁקֶל',
+        svg: `<svg viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="72" fill="#c8a020" stroke="#a07818" stroke-width="5"/>
+          <circle cx="100" cy="100" r="62" fill="#d4b030" stroke="#b09020" stroke-width="2"/>
+          <rect x="82" y="62" width="9" height="64" rx="4" fill="#8b6914"/>
+          <rect x="109" y="62" width="9" height="64" rx="4" fill="#8b6914"/>
+          <path d="M76 82 Q100 92 124 82" stroke="#8b6914" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M76 102 Q100 112 124 102" stroke="#8b6914" stroke-width="6" fill="none" stroke-linecap="round"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה נָ',
+    fixed: 'נָ',
+    pairs: [
+      {
+        syllable: 'חָשׁ',
+        name: 'נָחָשׁ',
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M28 155 Q55 125 75 148 Q95 170 118 142 Q140 112 162 135 Q178 150 172 170"
+                stroke="#2ecc71" stroke-width="22" fill="none" stroke-linecap="round"/>
+          <path d="M28 155 Q55 125 75 148 Q95 170 118 142 Q140 112 162 135 Q178 150 172 170"
+                stroke="#27ae60" stroke-width="14" fill="none" stroke-linecap="round"/>
+          <circle cx="172" cy="170" r="14" fill="#27ae60"/>
+          <circle cx="165" cy="163" r="3.5" fill="#2c3e50"/>
+          <circle cx="178" cy="163" r="3.5" fill="#2c3e50"/>
+          <path d="M165 177 L158 185 M165 177 L172 185" stroke="#e74c3c" stroke-width="3" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        syllable: 'מֵר',
+        name: 'נָמֵר',
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="92" cy="132" rx="57" ry="34" fill="#e8a020"/>
+          <circle cx="148" cy="102" r="28" fill="#e8a020"/>
+          <path d="M130 78 L124 60 L138 70 Z" fill="#c07810"/>
+          <path d="M163 78 L169 60 L156 70 Z" fill="#c07810"/>
+          <circle cx="154" cy="97" r="3.5" fill="#2c3e50"/>
+          <line x1="136" y1="114" x2="124" y2="118" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="162" y1="114" x2="174" y2="118" stroke="#2c3e50" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="68" cy="122" r="9" fill="#7a4800" opacity="0.55"/>
+          <circle cx="105" cy="140" r="8" fill="#7a4800" opacity="0.55"/>
+          <circle cx="128" cy="118" r="9" fill="#7a4800" opacity="0.55"/>
+          <rect x="57" y="160" width="12" height="26" rx="5" fill="#e8a020"/>
+          <rect x="92" y="162" width="12" height="26" rx="5" fill="#e8a020"/>
+          <rect x="128" y="158" width="12" height="26" rx="5" fill="#e8a020"/>
+          <path d="M40 130 Q22 148 20 168" stroke="#c07810" stroke-width="10" fill="none" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        syllable: 'הָר',
+        name: 'נָהָר',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="0" y="0" width="200" height="200" fill="#5a9e3a"/>
+          <path d="M0 72 Q30 86 65 72 Q100 58 135 72 Q170 86 200 72 L200 128 Q170 114 135 128 Q100 142 65 128 Q30 114 0 128 Z" fill="#5dade2"/>
+          <path d="M0 90 Q30 104 65 90 Q100 76 135 90 Q170 104 200 90" stroke="#3498db" stroke-width="3" fill="none"/>
+          <path d="M0 110 Q30 124 65 110 Q100 96 135 110 Q170 124 200 110" stroke="#2980b9" stroke-width="2" fill="none"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה מָ',
+    fixed: 'מָ',
+    pairs: [
+      {
+        syllable: 'יִם',
+        name: 'מָיִם',
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M65 30 Q65 12 55 22 Q42 35 65 48 Q88 35 75 22 Q65 12 65 30 Z" fill="#5dade2"/>
+          <path d="M135 45 Q135 27 125 37 Q112 50 135 63 Q158 50 145 37 Q135 27 135 45 Z" fill="#3498db"/>
+          <path d="M100 68 Q100 50 90 60 Q77 73 100 86 Q123 73 110 60 Q100 50 100 68 Z" fill="#5dade2"/>
+          <rect x="0" y="115" width="200" height="85" fill="#3498db"/>
+          <path d="M0 115 Q25 100 50 115 Q75 130 100 115 Q125 100 150 115 Q175 130 200 115" fill="#5dade2"/>
+          <path d="M0 145 Q25 133 50 145 Q75 157 100 145 Q125 133 150 145 Q175 157 200 145" stroke="#2980b9" stroke-width="3" fill="none"/>
+        </svg>`
+      },
+      {
+        syllable: 'טָר',
+        name: 'מָטָר',
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="100" cy="68" rx="58" ry="36" fill="#7f8c8d"/>
+          <ellipse cx="63" cy="78" rx="34" ry="24" fill="#95a5a6"/>
+          <ellipse cx="140" cy="78" rx="32" ry="23" fill="#95a5a6"/>
+          <line x1="55" y1="112" x2="48" y2="145" stroke="#5dade2" stroke-width="5" stroke-linecap="round"/>
+          <line x1="80" y1="110" x2="73" y2="145" stroke="#5dade2" stroke-width="5" stroke-linecap="round"/>
+          <line x1="105" y1="108" x2="98" y2="143" stroke="#5dade2" stroke-width="5" stroke-linecap="round"/>
+          <line x1="130" y1="110" x2="123" y2="145" stroke="#5dade2" stroke-width="5" stroke-linecap="round"/>
+          <line x1="155" y1="112" x2="148" y2="145" stroke="#5dade2" stroke-width="5" stroke-linecap="round"/>
+          <line x1="68" y1="155" x2="60" y2="185" stroke="#3498db" stroke-width="4" stroke-linecap="round"/>
+          <line x1="100" y1="153" x2="92" y2="183" stroke="#3498db" stroke-width="4" stroke-linecap="round"/>
+          <line x1="132" y1="155" x2="124" y2="185" stroke="#3498db" stroke-width="4" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        syllable: 'גֵן',
+        name: 'מָגֵן',
+        svg: `<svg viewBox="0 0 200 200">
+          <polygon points="100,22 156,118 44,118" fill="none" stroke="#3498db" stroke-width="10" stroke-linejoin="round"/>
+          <polygon points="100,178 44,82 156,82" fill="none" stroke="#3498db" stroke-width="10" stroke-linejoin="round"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה סוּ',
+    fixed: 'סוּ',
+    pairs: [
+      {
+        syllable: 'סָה',
+        name: 'סוּסָה',
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="92" cy="132" rx="54" ry="32" fill="#c8924c"/>
+          <rect x="137" y="87" width="16" height="48" rx="7" fill="#c8924c" transform="rotate(-22 145 111)"/>
+          <ellipse cx="148" cy="92" rx="23" ry="17" fill="#c8924c"/>
+          <path d="M163 82 L180 78 L165 93 Z" fill="#c8924c"/>
+          <path d="M137 76 L132 58 L144 68 Z" fill="#a07038"/>
+          <circle cx="156" cy="87" r="3" fill="#2c3e50"/>
+          <rect x="53" y="159" width="13" height="26" rx="5" fill="#c8924c"/>
+          <rect x="77" y="161" width="13" height="26" rx="5" fill="#c8924c"/>
+          <rect x="116" y="157" width="13" height="26" rx="5" fill="#c8924c"/>
+          <rect x="140" y="157" width="13" height="26" rx="5" fill="#c8924c"/>
+          <path d="M43 130 Q26 142 23 165" stroke="#a07038" stroke-width="9" fill="none" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        syllable: 'כָּה',
+        name: 'סוּכָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="38" y="108" width="124" height="74" fill="#e8d4a0" stroke="#c9a86a" stroke-width="4"/>
+          <rect x="83" y="138" width="34" height="44" fill="#8b5a2b"/>
+          <rect x="33" y="98" width="134" height="12" rx="4" fill="#8b5a2b"/>
+          <path d="M38 98 Q58 76 80 86 Q100 76 122 86 Q142 76 162 98" fill="#2ecc71" stroke="#27ae60" stroke-width="2"/>
+          <path d="M42 98 Q62 72 84 84 Q100 72 118 84 Q140 72 158 98" fill="none" stroke="#27ae60" stroke-width="5" stroke-dasharray="8 5"/>
+          <circle cx="68" cy="68" r="5" fill="#f1c40f"/>
+          <line x1="68" y1="68" x2="68" y2="84" stroke="#2ecc71" stroke-width="2"/>
+          <circle cx="132" cy="68" r="5" fill="#e74c3c"/>
+          <line x1="132" y1="68" x2="132" y2="83" stroke="#2ecc71" stroke-width="2"/>
+        </svg>`
+      },
+      {
+        syllable: 'לָּם',
+        name: 'סוּלָּם',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="55" y="18" width="13" height="170" rx="5" fill="#8b5a2b"/>
+          <rect x="132" y="18" width="13" height="170" rx="5" fill="#8b5a2b"/>
+          <rect x="55" y="46" width="90" height="11" rx="4" fill="#a07038"/>
+          <rect x="55" y="86" width="90" height="11" rx="4" fill="#a07038"/>
+          <rect x="55" y="126" width="90" height="11" rx="4" fill="#a07038"/>
+          <rect x="55" y="166" width="90" height="11" rx="4" fill="#a07038"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה חָ',
+    fixed: 'חָ',
+    pairs: [
+      {
+        syllable: 'לָב',
+        name: 'חָלָב',
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M65 55 L75 165 H125 L135 55 Z" fill="white" stroke="#bbb" stroke-width="3"/>
+          <ellipse cx="100" cy="56" rx="35" ry="9" fill="white" stroke="#ccc" stroke-width="2"/>
+          <path d="M72 80 L75 148" stroke="rgba(150,180,220,0.4)" stroke-width="9" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        syllable: 'מוֹר',
+        name: 'חֲמוֹר',
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="108" cy="130" rx="56" ry="36" fill="#a09080"/>
+          <ellipse cx="50" cy="95" rx="30" ry="25" fill="#a09080"/>
+          <ellipse cx="37" cy="66" rx="7" ry="20" fill="#a09080" transform="rotate(-15 37 66)"/>
+          <ellipse cx="37" cy="66" rx="4" ry="15" fill="#e8c0c0" transform="rotate(-15 37 66)"/>
+          <ellipse cx="58" cy="64" rx="7" ry="20" fill="#a09080" transform="rotate(12 58 64)"/>
+          <ellipse cx="58" cy="64" rx="4" ry="15" fill="#e8c0c0" transform="rotate(12 58 64)"/>
+          <ellipse cx="32" cy="103" rx="17" ry="12" fill="#c0b0a0"/>
+          <circle cx="47" cy="90" r="5" fill="#2c3e50"/>
+          <circle cx="49" cy="88" r="2" fill="white"/>
+          <ellipse cx="26" cy="106" rx="3" ry="2" fill="#7a6050"/>
+          <ellipse cx="36" cy="108" rx="3" ry="2" fill="#7a6050"/>
+          <rect x="75" y="158" width="14" height="26" rx="5" fill="#8a7060"/>
+          <rect x="100" y="162" width="14" height="22" rx="5" fill="#8a7060"/>
+          <rect x="130" y="158" width="14" height="26" rx="5" fill="#8a7060"/>
+          <rect x="148" y="158" width="14" height="26" rx="5" fill="#8a7060"/>
+          <path d="M162 128 Q182 115 176 135 Q170 150 160 142" stroke="#7a6050" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        syllable: 'צִיל',
+        name: 'חָצִיל',
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="100" cy="128" rx="54" ry="58" fill="#7d3c98"/>
+          <ellipse cx="82" cy="102" rx="17" ry="24" fill="#9b59b6" opacity="0.5"/>
+          <ellipse cx="100" cy="70" rx="28" ry="13" fill="#27ae60"/>
+          <path d="M100 57 Q82 42 79 56" fill="#2ecc71"/>
+          <path d="M100 57 Q118 42 121 56" fill="#2ecc71"/>
+          <line x1="100" y1="57" x2="100" y2="30" stroke="#1e8449" stroke-width="6" stroke-linecap="round"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה לוֹן',
+    fixed: 'לוֹן',
+    fixedEnd: true,
+    pairs: [
+      {
+        syllable: 'בָּ',
+        name: 'בָּלוֹן',
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="100" cy="90" rx="55" ry="68" fill="#e74c3c"/>
+          <ellipse cx="80" cy="65" rx="18" ry="25" fill="#f1948a" opacity="0.5"/>
+          <path d="M91 158 Q95 168 100 172 Q105 168 109 158" fill="#c0392b"/>
+          <path d="M100 172 Q96 183 100 196" stroke="#7f8c8d" stroke-width="2" fill="none"/>
+        </svg>`
+      },
+      {
+        syllable: 'חַ',
+        name: 'חַלּוֹן',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="28" y="22" width="144" height="156" rx="8" fill="#85c1e9" stroke="#7f8c8d" stroke-width="10"/>
+          <line x1="100" y1="22" x2="100" y2="178" stroke="#7f8c8d" stroke-width="8"/>
+          <line x1="28" y1="100" x2="172" y2="100" stroke="#7f8c8d" stroke-width="8"/>
+          <path d="M44 34 L56 34 L44 62 Z" fill="white" opacity="0.5"/>
+          <path d="M116 34 L128 34 L116 62 Z" fill="white" opacity="0.5"/>
+        </svg>`
+      },
+      {
+        syllable: 'סָ',
+        name: 'סָלוֹן',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="35" y="118" width="130" height="52" rx="12" fill="#8e44ad"/>
+          <rect x="18" y="103" width="30" height="67" rx="10" fill="#9b59b6"/>
+          <rect x="152" y="103" width="30" height="67" rx="10" fill="#9b59b6"/>
+          <rect x="35" y="78" width="130" height="46" rx="10" fill="#9b59b6"/>
+          <line x1="100" y1="118" x2="100" y2="165" stroke="#7d3c98" stroke-width="3"/>
+          <rect x="48" y="163" width="14" height="18" rx="4" fill="#7d3c98"/>
+          <rect x="138" y="163" width="14" height="18" rx="4" fill="#7d3c98"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה רָה',
+    fixed: 'רָה',
+    fixedEnd: true,
+    pairs: [
+      {
+        syllable: 'סִי',
+        name: 'סִירָה',
+        svg: `<svg viewBox="0 0 200 200">
+          <line x1="100" y1="30" x2="100" y2="136" stroke="#8b5a2b" stroke-width="5"/>
+          <path d="M100 36 L162 102 L100 112 Z" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>
+          <path d="M28 136 Q100 160 172 136 L160 166 Q100 178 40 166 Z" fill="#2980b9"/>
+          <path d="M18 158 Q100 170 182 158" stroke="#5dade2" stroke-width="3" fill="none"/>
+        </svg>`
+      },
+      {
+        syllable: 'תּוֹ',
+        name: 'תּוֹרָה',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="24" y="34" width="22" height="132" rx="11" fill="#7d3c98"/>
+          <rect x="154" y="34" width="22" height="132" rx="11" fill="#7d3c98"/>
+          <rect x="38" y="48" width="124" height="104" fill="#f5e6c8" stroke="#c9a86a" stroke-width="3"/>
+          <line x1="55" y1="72" x2="145" y2="72" stroke="#8b7355" stroke-width="2.5"/>
+          <line x1="55" y1="90" x2="145" y2="90" stroke="#8b7355" stroke-width="2.5"/>
+          <line x1="55" y1="108" x2="145" y2="108" stroke="#8b7355" stroke-width="2.5"/>
+          <line x1="55" y1="126" x2="118" y2="126" stroke="#8b7355" stroke-width="2.5"/>
+        </svg>`
+      },
+      {
+        syllable: 'מְנוֹ',
+        name: 'מְנוֹרָה',
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M65 178 Q100 168 135 178 L128 185 Q100 190 72 185 Z" fill="#f1c40f"/>
+          <rect x="94" y="110" width="12" height="65" rx="5" fill="#f1c40f"/>
+          <rect x="22" y="110" width="156" height="9" rx="4" fill="#f1c40f"/>
+          <path d="M36 110 Q36 82 44 68" stroke="#f1c40f" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <path d="M62 110 Q62 90 68 78" stroke="#f1c40f" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <path d="M83 110 Q83 94 87 84" stroke="#f1c40f" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <line x1="100" y1="110" x2="100" y2="62" stroke="#f1c40f" stroke-width="8" stroke-linecap="round"/>
+          <path d="M117 110 Q117 94 113 84" stroke="#f1c40f" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <path d="M138 110 Q138 90 132 78" stroke="#f1c40f" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <path d="M164 110 Q164 82 156 68" stroke="#f1c40f" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <ellipse cx="44" cy="63" rx="5" ry="8" fill="#e67e22"/>
+          <ellipse cx="68" cy="73" rx="5" ry="8" fill="#e67e22"/>
+          <ellipse cx="87" cy="79" rx="5" ry="8" fill="#e67e22"/>
+          <ellipse cx="100" cy="57" rx="5" ry="8" fill="#e67e22"/>
+          <ellipse cx="113" cy="79" rx="5" ry="8" fill="#e67e22"/>
+          <ellipse cx="132" cy="73" rx="5" ry="8" fill="#e67e22"/>
+          <ellipse cx="156" cy="63" rx="5" ry="8" fill="#e67e22"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה פָּה',
+    fixed: 'פָּה',
+    fixedEnd: true,
+    pairs: [
+      {
+        syllable: 'מַ',
+        name: 'מַפָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="22" y="42" width="156" height="116" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="4"/>
+          <rect x="27" y="47" width="68" height="50" rx="4" fill="#5dade2" opacity="0.75"/>
+          <rect x="100" y="47" width="73" height="50" rx="4" fill="#2ecc71" opacity="0.75"/>
+          <rect x="27" y="102" width="48" height="50" rx="4" fill="#e67e22" opacity="0.75"/>
+          <rect x="80" y="102" width="93" height="50" rx="4" fill="#9b59b6" opacity="0.75"/>
+        </svg>`
+      },
+      {
+        syllable: 'כִּ',
+        name: 'כִּפָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M28 145 Q28 55 100 38 Q172 55 172 145 Z" fill="#2c3e50"/>
+          <path d="M28 145 Q35 105 100 92 Q165 105 172 145" stroke="#3498db" stroke-width="7" fill="none"/>
+          <path d="M34 145 Q42 118 100 108 Q158 118 166 145" stroke="#e74c3c" stroke-width="4" fill="none"/>
+          <ellipse cx="100" cy="42" rx="5" ry="5" fill="#f1c40f"/>
+        </svg>`
+      },
+      {
+        syllable: 'חֻ',
+        name: 'חֻפָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="26" y="90" width="9" height="90" rx="4" fill="#8b5a2b"/>
+          <rect x="165" y="90" width="9" height="90" rx="4" fill="#8b5a2b"/>
+          <rect x="86" y="90" width="9" height="90" rx="4" fill="#8b5a2b"/>
+          <rect x="105" y="90" width="9" height="90" rx="4" fill="#8b5a2b"/>
+          <rect x="23" y="53" width="154" height="40" rx="5" fill="#fff" stroke="#bdc3c7" stroke-width="3"/>
+          <rect x="25" y="55" width="150" height="7" fill="#f1c40f"/>
+          <rect x="25" y="80" width="150" height="7" fill="#f1c40f"/>
+          <circle cx="62" cy="69" r="8" fill="#e74c3c" opacity="0.8"/>
+          <circle cx="100" cy="69" r="8" fill="#e74c3c" opacity="0.8"/>
+          <circle cx="138" cy="69" r="8" fill="#e74c3c" opacity="0.8"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה כָּה',
+    fixed: 'כָּה',
+    fixedEnd: true,
+    pairs: [
+      {
+        syllable: 'סֻ',
+        name: 'סֻכָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="38" y="108" width="124" height="74" fill="#e8d4a0" stroke="#c9a86a" stroke-width="4"/>
+          <rect x="83" y="138" width="34" height="44" fill="#8b5a2b"/>
+          <rect x="33" y="98" width="134" height="12" rx="4" fill="#8b5a2b"/>
+          <path d="M38 98 Q58 76 80 86 Q100 76 122 86 Q142 76 162 98" fill="#2ecc71" stroke="#27ae60" stroke-width="2"/>
+          <circle cx="65" cy="72" r="5" fill="#f1c40f"/>
+          <circle cx="100" cy="68" r="5" fill="#e74c3c"/>
+          <circle cx="135" cy="72" r="5" fill="#3498db"/>
+        </svg>`
+      },
+      {
+        syllable: 'מַ',
+        name: 'מַכָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="28" y="82" width="144" height="36" rx="18" fill="#f0c080"/>
+          <rect x="68" y="90" width="64" height="20" rx="5" fill="#f5dba0"/>
+          <rect x="92" y="93" width="12" height="14" rx="3" fill="#e74c3c" opacity="0.75"/>
+          <rect x="85" y="98" width="26" height="5" rx="2" fill="#e74c3c" opacity="0.75"/>
+          <circle cx="46" cy="96" r="4" fill="#d4a060" opacity="0.6"/>
+          <circle cx="46" cy="104" r="3" fill="#d4a060" opacity="0.6"/>
+          <circle cx="154" cy="96" r="4" fill="#d4a060" opacity="0.6"/>
+          <circle cx="154" cy="104" r="3" fill="#d4a060" opacity="0.6"/>
+        </svg>`
+      },
+      {
+        syllable: 'חֲנֻ',
+        name: 'חֲנֻכָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M62 174 Q100 164 138 174 L132 181 Q100 187 68 181 Z" fill="#f1c40f"/>
+          <rect x="95" y="100" width="10" height="72" rx="4" fill="#f1c40f"/>
+          <rect x="18" y="100" width="164" height="8" rx="3" fill="#f1c40f"/>
+          <line x1="100" y1="100" x2="100" y2="48" stroke="#f1c40f" stroke-width="7"/>
+          <line x1="30" y1="103" x2="30" y2="66" stroke="#f1c40f" stroke-width="6"/>
+          <line x1="49" y1="103" x2="49" y2="70" stroke="#f1c40f" stroke-width="6"/>
+          <line x1="68" y1="103" x2="68" y2="74" stroke="#f1c40f" stroke-width="6"/>
+          <line x1="84" y1="103" x2="84" y2="77" stroke="#f1c40f" stroke-width="6"/>
+          <line x1="116" y1="103" x2="116" y2="77" stroke="#f1c40f" stroke-width="6"/>
+          <line x1="132" y1="103" x2="132" y2="74" stroke="#f1c40f" stroke-width="6"/>
+          <line x1="151" y1="103" x2="151" y2="70" stroke="#f1c40f" stroke-width="6"/>
+          <line x1="170" y1="103" x2="170" y2="66" stroke="#f1c40f" stroke-width="6"/>
+          <ellipse cx="100" cy="44" rx="5" ry="7" fill="#e67e22"/>
+          <ellipse cx="30" cy="62" rx="4" ry="6" fill="#e67e22"/>
+          <ellipse cx="49" cy="66" rx="4" ry="6" fill="#e67e22"/>
+          <ellipse cx="68" cy="70" rx="4" ry="6" fill="#e67e22"/>
+          <ellipse cx="84" cy="73" rx="4" ry="6" fill="#e67e22"/>
+          <ellipse cx="116" cy="73" rx="4" ry="6" fill="#e67e22"/>
+          <ellipse cx="132" cy="70" rx="4" ry="6" fill="#e67e22"/>
+          <ellipse cx="151" cy="66" rx="4" ry="6" fill="#e67e22"/>
+          <ellipse cx="170" cy="62" rx="4" ry="6" fill="#e67e22"/>
+        </svg>`
+      }
+    ]
+  },
+  {
+    label: 'הַבָרָה לָּה',
+    fixed: 'לָּה',
+    fixedEnd: true,
+    pairs: [
+      {
+        syllable: 'כַּ',
+        name: 'כַּלָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <path d="M58 52 Q100 30 142 52 L146 132 Q100 148 54 132 Z" fill="#ecf0f1" opacity="0.85"/>
+          <circle cx="100" cy="72" r="26" fill="#fde3c8"/>
+          <path d="M74 94 Q54 138 44 178 Q100 185 156 178 Q146 138 126 94 Z" fill="#fff" stroke="#ecf0f1" stroke-width="2"/>
+          <circle cx="84" cy="48" r="6" fill="#f1c40f"/>
+          <circle cx="100" cy="43" r="6" fill="#f1c40f"/>
+          <circle cx="116" cy="48" r="6" fill="#f1c40f"/>
+          <circle cx="91" cy="70" r="3" fill="#2c3e50"/>
+          <circle cx="109" cy="70" r="3" fill="#2c3e50"/>
+          <path d="M93 82 Q100 88 107 82" stroke="#2c3e50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        syllable: 'חַ',
+        name: 'חַלָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <ellipse cx="100" cy="122" rx="82" ry="44" fill="#d4a850"/>
+          <ellipse cx="68" cy="112" rx="30" ry="20" fill="#e8c060" opacity="0.9"/>
+          <ellipse cx="100" cy="120" rx="30" ry="20" fill="#c49040" opacity="0.9"/>
+          <ellipse cx="132" cy="112" rx="30" ry="20" fill="#e8c060" opacity="0.9"/>
+          <ellipse cx="84" cy="130" rx="28" ry="18" fill="#c49040" opacity="0.8"/>
+          <ellipse cx="116" cy="130" rx="28" ry="18" fill="#e8c060" opacity="0.8"/>
+          <ellipse cx="70" cy="107" rx="5" ry="2" fill="#f5e8c0" transform="rotate(-25 70 107)"/>
+          <ellipse cx="100" cy="114" rx="5" ry="2" fill="#f5e8c0" transform="rotate(10 100 114)"/>
+          <ellipse cx="130" cy="107" rx="5" ry="2" fill="#f5e8c0" transform="rotate(25 130 107)"/>
+        </svg>`
+      },
+      {
+        syllable: 'תְּפִ',
+        name: 'תְּפִלָּה',
+        svg: `<svg viewBox="0 0 200 200">
+          <rect x="42" y="38" width="116" height="148" rx="8" fill="#2c3e50" stroke="#1a252f" stroke-width="3"/>
+          <rect x="42" y="38" width="16" height="148" rx="4" fill="#1a252f"/>
+          <polygon points="100,65 117,95 83,95" fill="none" stroke="#f1c40f" stroke-width="4"/>
+          <polygon points="100,103 83,73 117,73" fill="none" stroke="#f1c40f" stroke-width="4"/>
+          <line x1="67" y1="122" x2="150" y2="122" stroke="#34495e" stroke-width="2"/>
+          <line x1="67" y1="138" x2="150" y2="138" stroke="#34495e" stroke-width="2"/>
+          <line x1="67" y1="154" x2="150" y2="154" stroke="#34495e" stroke-width="2"/>
+          <line x1="67" y1="170" x2="130" y2="170" stroke="#34495e" stroke-width="2"/>
+        </svg>`
+      }
+    ]
+  }
+];
+
+// ---- Stage 10: Two Words data ----
+const DUAL_WORD_PUZZLES = [
+  ['גמל', 'שבת'],
+  ['מצה', 'חלב'],
+  ['כיסים', 'פילים'],
+  ['בית', 'מיטה'],
+  ['עוגה', 'כוכב'],
+  ['כלב', 'ספר'],
+  ['פרח', 'עגל'],
+  ['תפוח', 'כדור'],
+  ['סכינים', 'מפה'],
+  ['ציפור', 'חומה'],
+];
+
+function lookupWord(name) {
+  for (const level of LEVELS) {
+    const found = level.words.find(w => w.name === name);
+    if (found) return found;
+  }
+  return null;
+}
+
 let currentLevel = 0;
 let currentIndex = 0;
 let currentWord = null;
 let tray = [];   // array of {id, letter, el}
 let slotState = []; // array of letter or null, by slot index
+
+let smSet = null;
+let smSetIndex = 0;
+let smEndIndex = 0;
+let smCompleted = [];
+let smPicOrder = [];
+let smPairQueue = [];
+let smQueuePos = 0;
 
 const PRAISE_PHRASES = [
   'מְעוּלֶּה',
@@ -867,8 +1446,24 @@ const gameScreen = document.getElementById('gameScreen');
 const stageCardsEl = document.getElementById('stageCards');
 const continueBtn = document.getElementById('continueBtn');
 const homeBtn = document.getElementById('homeBtn');
+const syllableMatchScreen = document.getElementById('syllableMatchScreen');
+const smHomeBtn = document.getElementById('smHomeBtn');
+const smSkipBtn = document.getElementById('smSkipBtn');
+const smTitle = document.getElementById('smTitle');
+const smTileBar = document.getElementById('smTileBar');
+const smRows = document.getElementById('smRows');
+const smFeedbackEl = document.getElementById('smFeedback');
+
+const dualWordScreen = document.getElementById('dualWordScreen');
+const dw10HomeBtn = document.getElementById('dw10HomeBtn');
+const dw10SkipBtn = document.getElementById('dw10SkipBtn');
+const dw10TitleEl = document.getElementById('dw10Title');
+const dw10RowsEl = document.getElementById('dw10Rows');
+const dw10TrayEl = document.getElementById('dw10Tray');
+const dw10FeedbackEl = document.getElementById('dw10Feedback');
 
 const STAGE_COLORS = ['#3498db', '#9b59b6', '#e67e22', '#27ae60', '#e74c3c', '#16a085', '#d35400'];
+const STAGE_ICONS  = ['🐫', '🐘', '🏠', '⭐', '📚', '🍎', '🌈', '🧩', '🔡', '🎯'];
 
 function currentWords() {
   return LEVELS[currentLevel].words;
@@ -880,10 +1475,32 @@ function buildStageCards() {
     const card = document.createElement('button');
     card.className = 'stageCard';
     card.style.setProperty('--card-color', STAGE_COLORS[i % STAGE_COLORS.length]);
-    card.innerHTML = `<span class="stageNum">${i + 1}</span><span class="stageLabel">${lvl.label}</span>`;
+    card.innerHTML = `<span class="stageIcon">${STAGE_ICONS[i] || ''}</span><span class="stageLabelRow"><span class="stageNum">${i + 1}</span><span class="stageLabel">${lvl.label}</span></span>`;
     card.addEventListener('click', () => startStage(i));
     stageCardsEl.appendChild(card);
   });
+  const fixedEndStart = SYLLABLE_MATCH_SETS.findIndex(s => s.fixedEnd);
+
+  const smCard = document.createElement('button');
+  smCard.className = 'stageCard';
+  smCard.style.setProperty('--card-color', '#c0392b');
+  smCard.innerHTML = `<span class="stageIcon">${STAGE_ICONS[LEVELS.length] || '🧩'}</span><span class="stageLabelRow"><span class="stageNum">${LEVELS.length + 1}</span><span class="stageLabel">הַתְאָמַת הַבָרוֹת</span></span>`;
+  smCard.addEventListener('click', () => startSyllableMatch(0, fixedEndStart - 1));
+  stageCardsEl.appendChild(smCard);
+
+  const smCard2 = document.createElement('button');
+  smCard2.className = 'stageCard';
+  smCard2.style.setProperty('--card-color', '#16a085');
+  smCard2.innerHTML = `<span class="stageIcon">${STAGE_ICONS[LEVELS.length + 1] || '🔡'}</span><span class="stageLabelRow"><span class="stageNum">${LEVELS.length + 2}</span><span class="stageLabel">הַבָרָה רִאשׁוֹנָה מִשְׁתַּנָּה</span></span>`;
+  smCard2.addEventListener('click', () => startSyllableMatch(fixedEndStart));
+  stageCardsEl.appendChild(smCard2);
+
+  const dw10Card = document.createElement('button');
+  dw10Card.className = 'stageCard';
+  dw10Card.style.setProperty('--card-color', '#8e44ad');
+  dw10Card.innerHTML = `<span class="stageIcon">${STAGE_ICONS[LEVELS.length + 2] || '🎯'}</span><span class="stageLabelRow"><span class="stageNum">${LEVELS.length + 3}</span><span class="stageLabel">שְׁתֵּי מִלִּים</span></span>`;
+  dw10Card.addEventListener('click', () => startDualWord(0));
+  stageCardsEl.appendChild(dw10Card);
 }
 
 function showHome() {
@@ -894,6 +1511,8 @@ function showHome() {
   }
   homeScreen.classList.remove('hidden');
   gameScreen.classList.add('hidden');
+  syllableMatchScreen.classList.add('hidden');
+  dualWordScreen.classList.add('hidden');
 }
 
 function showGame() {
@@ -1193,7 +1812,7 @@ function checkAnswer() {
     playSuccess();
 
     if (currentIndex === currentWords().length - 1) {
-      feedbackEl.textContent = 'כל הכבוד! סיימת את השלב! 🎈';
+      feedbackEl.textContent = 'כָּל הַכָּבוֹד! סִיַּמְתָּ אֶת הַשָּׁלָב! 🎈';
       feedbackEl.className = 'success';
       celebrateStage();
     } else {
@@ -1202,7 +1821,7 @@ function checkAnswer() {
       nextBtn.classList.remove('hidden');
     }
   } else {
-    feedbackEl.textContent = 'נסה שוב';
+    feedbackEl.textContent = 'נַסֵּה שׁוּב';
     feedbackEl.className = 'error';
     playError();
     slotsEl.classList.add('shake');
@@ -1227,7 +1846,7 @@ function checkAnswer() {
 const balloonsOverlay = document.getElementById('balloonsOverlay');
 const BALLOON_COLORS = ['#e74c3c', '#3498db', '#f39c12', '#2ecc71', '#9b59b6', '#e67e22'];
 
-function celebrateStage() {
+function celebrateStage(onDone) {
   for (let i = 0; i < 18; i++) {
     const balloon = document.createElement('div');
     balloon.className = 'balloon';
@@ -1242,8 +1861,12 @@ function celebrateStage() {
   }
 
   setTimeout(() => {
-    const nextLevel = (currentLevel + 1) % LEVELS.length;
-    goToLevel(nextLevel);
+    if (onDone) {
+      onDone();
+    } else {
+      const nextLevel = (currentLevel + 1) % LEVELS.length;
+      goToLevel(nextLevel);
+    }
   }, 2200);
 }
 
@@ -1443,6 +2066,507 @@ function playSuccess() {
 
 function playError() {
   playTone(180, 0, 0.3, 'sawtooth');
+}
+
+// ---- Syllable Match game logic ----
+smHomeBtn.addEventListener('click', showHome);
+
+smSkipBtn.addEventListener('click', () => {
+  const nextIdx = smSetIndex + 1;
+  if (nextIdx <= smEndIndex) {
+    startSyllableMatch(nextIdx, smEndIndex);
+  } else {
+    showHome();
+  }
+});
+
+let smDragData = null;
+
+function attachSmTileDrag(tile) {
+  tile.addEventListener('pointerdown', onSmTilePointerDown);
+}
+
+function onSmTilePointerDown(e) {
+  if (!smSet || smCompleted.length >= smSet.pairs.length) return;
+  const tile = e.currentTarget;
+  speakWord({ name: tile.textContent });
+  tile.setPointerCapture(e.pointerId);
+  const rect = tile.getBoundingClientRect();
+  smDragData = {
+    el: tile,
+    pairIdx: parseInt(tile.dataset.pairIdx),
+    offsetX: e.clientX - rect.left,
+    offsetY: e.clientY - rect.top,
+    startX: e.clientX,
+    startY: e.clientY,
+  };
+  tile.classList.add('dragging');
+  tile.style.left = rect.left + 'px';
+  tile.style.top = rect.top + 'px';
+  tile.style.width = rect.width + 'px';
+  tile.style.height = rect.height + 'px';
+  document.body.appendChild(tile);
+  tile.addEventListener('pointermove', onSmTilePointerMove);
+  tile.addEventListener('pointerup', onSmTilePointerUp);
+}
+
+function onSmTilePointerMove(e) {
+  if (!smDragData) return;
+  const tile = smDragData.el;
+  tile.style.left = (e.clientX - smDragData.offsetX) + 'px';
+  tile.style.top  = (e.clientY - smDragData.offsetY) + 'px';
+  const tileRect = tile.getBoundingClientRect();
+  document.querySelectorAll('.smSlot').forEach(s => {
+    const sr = s.getBoundingClientRect();
+    const touches = Math.min(tileRect.right, sr.right) > Math.max(tileRect.left, sr.left) &&
+                    Math.min(tileRect.bottom, sr.bottom) > Math.max(tileRect.top, sr.top);
+    s.classList.toggle('drag-over', touches);
+  });
+}
+
+function onSmTilePointerUp(e) {
+  if (!smDragData) return;
+  const { el: tile, pairIdx, startX, startY } = smDragData;
+  smDragData = null;
+  document.querySelectorAll('.smSlot').forEach(s => s.classList.remove('drag-over'));
+  tile.removeEventListener('pointermove', onSmTilePointerMove);
+  tile.removeEventListener('pointerup', onSmTilePointerUp);
+
+  const movedDistance = Math.hypot(e.clientX - startX, e.clientY - startY);
+
+  // Check overlap while tile is still position:fixed (dragging class intact)
+  let bestSlot = null;
+  if (movedDistance >= TAP_THRESHOLD) {
+    const tileRect = tile.getBoundingClientRect();
+    let bestOverlap = 0;
+    document.querySelectorAll('.smSlot').forEach(s => {
+      const sr = s.getBoundingClientRect();
+      const ox = Math.min(tileRect.right, sr.right) - Math.max(tileRect.left, sr.left);
+      const oy = Math.min(tileRect.bottom, sr.bottom) - Math.max(tileRect.top, sr.top);
+      if (ox > 0 && oy > 0 && ox * oy > bestOverlap) {
+        bestOverlap = ox * oy;
+        bestSlot = s;
+      }
+    });
+  }
+
+  tile.classList.remove('dragging');
+  tile.style.position = '';
+  tile.style.left = '';
+  tile.style.top = '';
+  tile.style.width = '';
+  tile.style.height = '';
+  smTileBar.appendChild(tile);
+
+  if (movedDistance < TAP_THRESHOLD) {
+    speakWord({ name: smSet.pairs[pairIdx].syllable });
+    return;
+  }
+
+  const slot = bestSlot;
+  if (!slot) return;
+  const slotPairIdx = parseInt(slot.dataset.pairIdx);
+  if (slotPairIdx === pairIdx) {
+    handleSmDrop(pairIdx);
+  } else {
+    slot.classList.add('shake');
+    slot.addEventListener('animationend', () => slot.classList.remove('shake'), { once: true });
+  }
+}
+
+function showSyllableMatchScreen() {
+  homeScreen.classList.add('hidden');
+  gameScreen.classList.add('hidden');
+  syllableMatchScreen.classList.remove('hidden');
+}
+
+function startSyllableMatch(setIndex, endIndex) {
+  smSetIndex = setIndex;
+  smEndIndex = (endIndex !== undefined) ? endIndex : SYLLABLE_MATCH_SETS.length - 1;
+  smSet = SYLLABLE_MATCH_SETS[setIndex];
+  smCompleted = [];
+  smPicOrder = shuffle([0, 1, 2]);
+  smTitle.textContent = smSet.label;
+  smFeedbackEl.textContent = '';
+  showSyllableMatchScreen();
+  renderSmRows();
+  renderSmTileBar();
+}
+
+function renderSmRows() {
+  smRows.innerHTML = '';
+  smPicOrder.forEach(pairIdx => {
+    const pair = smSet.pairs[pairIdx];
+    const isMatched = smCompleted.includes(pairIdx);
+
+    const row = document.createElement('div');
+    row.className = 'smRow';
+
+    const cardCol = document.createElement('div');
+    cardCol.className = 'smCardCol';
+
+    const card = document.createElement('div');
+    card.className = 'smCard' + (isMatched ? ' matched' : '');
+    card.dataset.pairIdx = pairIdx;
+    card.innerHTML = pair.svg;
+    card.addEventListener('click', () => speakWord({ name: pair.name }));
+    if (isMatched) {
+      const wordLabel = document.createElement('div');
+      wordLabel.className = 'smCardWord';
+      wordLabel.textContent = smSet.fixedEnd
+        ? pair.name
+        : smSet.fixed + pair.syllable;
+      card.appendChild(wordLabel);
+    }
+
+    const speakBtn = document.createElement('button');
+    speakBtn.className = 'smSpeakBtn';
+    speakBtn.textContent = '🔊 הַשְׁמַע מִלָּה';
+    speakBtn.addEventListener('click', () => speakWord({ name: pair.name }));
+
+    cardCol.appendChild(card);
+    cardCol.appendChild(speakBtn);
+
+    const fixedTile = document.createElement('div');
+    fixedTile.className = 'smTile smFixed';
+    fixedTile.textContent = smSet.fixed;
+    fixedTile.addEventListener('pointerdown', () => speakWord({ name: smSet.fixed }));
+
+    const slot = document.createElement('div');
+    slot.className = 'smSlot' + (isMatched ? ' filled' : '');
+    slot.dataset.pairIdx = pairIdx;
+    if (isMatched) slot.textContent = pair.syllable;
+
+    row.appendChild(cardCol);
+    if (smSet.fixedEnd) {
+      row.appendChild(slot);
+      row.appendChild(fixedTile);
+    } else {
+      row.appendChild(fixedTile);
+      row.appendChild(slot);
+    }
+    smRows.appendChild(row);
+  });
+}
+
+function renderSmTileBar() {
+  smTileBar.innerHTML = '';
+  smSet.pairs.forEach((pair, idx) => {
+    if (smCompleted.includes(idx)) return;
+    const tile = document.createElement('div');
+    tile.className = 'smTile';
+    tile.dataset.pairIdx = idx;
+    tile.textContent = pair.syllable;
+    attachSmTileDrag(tile);
+    smTileBar.appendChild(tile);
+  });
+}
+
+function handleSmDrop(pairIdx) {
+  if (smCompleted.includes(pairIdx)) return;
+  smCompleted.push(pairIdx);
+  playSuccess();
+  renderSmRows();
+  renderSmTileBar();
+  speakWord({ name: smSet.pairs[pairIdx].name });
+  if (smCompleted.length >= smSet.pairs.length) {
+    smFeedbackEl.textContent = 'כָּל הַכָּבוֹד! 🎉';
+    const nextIdx = smSetIndex + 1;
+    if (nextIdx <= smEndIndex) {
+      setTimeout(() => celebrateStage(() => startSyllableMatch(nextIdx, smEndIndex)), 1500);
+    } else {
+      setTimeout(() => celebrateStage(showHome), 1500);
+    }
+  }
+}
+
+function playSmCurrent() {
+  if (!smSet || smQueuePos >= smSet.pairs.length) return;
+  const pair = smSet.pairs[smPairQueue[smQueuePos]];
+  speakWord({ name: pair.name });
+}
+
+// ---- Stage 10: Two Words game logic ----
+let dw10PuzzleIdx = 0;
+let dw10Words = [];
+let dw10SlotState = [];
+let dw10WordDone = [];
+let dw10DragData = null;
+
+dw10HomeBtn.addEventListener('click', showHome);
+
+dw10SkipBtn.addEventListener('click', () => {
+  const next = dw10PuzzleIdx + 1;
+  if (next < DUAL_WORD_PUZZLES.length) {
+    startDualWord(next);
+  } else {
+    showHome();
+  }
+});
+
+function showDualWordScreen() {
+  homeScreen.classList.add('hidden');
+  gameScreen.classList.add('hidden');
+  syllableMatchScreen.classList.add('hidden');
+  dualWordScreen.classList.remove('hidden');
+}
+
+function startDualWord(puzzleIdx) {
+  dw10PuzzleIdx = puzzleIdx;
+  dw10Words = DUAL_WORD_PUZZLES[puzzleIdx].map(lookupWord);
+  dw10SlotState = dw10Words.map(w => new Array(w.tiles.length).fill(null));
+  dw10WordDone = [false, false];
+  dw10TitleEl.textContent = `${puzzleIdx + 1} / ${DUAL_WORD_PUZZLES.length}`;
+  dw10FeedbackEl.textContent = '';
+  showDualWordScreen();
+  renderDw10Rows();
+  renderDw10Tray();
+}
+
+function renderDw10Rows() {
+  dw10RowsEl.innerHTML = '';
+  dw10Words.forEach((word, wordIdx) => {
+    const row = document.createElement('div');
+    row.className = 'dw10Row';
+
+    // Picture col — DOM-first = visual RIGHT in RTL
+    const picCol = document.createElement('div');
+    picCol.className = 'dw10PicCol';
+
+    const pic = document.createElement('div');
+    pic.className = 'dw10Pic';
+    pic.innerHTML = word.svg;
+    pic.addEventListener('click', () => speakWord(word));
+
+    const speakBtn = document.createElement('button');
+    speakBtn.className = 'dw10SpeakBtn';
+    speakBtn.textContent = '🔊 הַשְׁמַע';
+    speakBtn.addEventListener('click', () => speakWord(word));
+
+    picCol.appendChild(pic);
+    picCol.appendChild(speakBtn);
+
+    // Slots — after pic = visual LEFT in RTL
+    const slotsDiv = document.createElement('div');
+    slotsDiv.className = 'dw10Slots';
+
+    word.tiles.forEach((tile, slotIdx) => {
+      const slot = document.createElement('div');
+      slot.className = 'dw10Slot';
+      if (isWideTile(tile)) slot.classList.add('wide');
+      slot.dataset.wordIdx = wordIdx;
+      slot.dataset.slotIdx = slotIdx;
+      slotsDiv.appendChild(slot);
+    });
+
+    row.appendChild(picCol);
+    row.appendChild(slotsDiv);
+    dw10RowsEl.appendChild(row);
+  });
+}
+
+function renderDw10Tray() {
+  dw10TrayEl.innerHTML = '';
+  const allTiles = [];
+  dw10Words.forEach((word, wordIdx) => {
+    const lastIdx = word.tiles.length - 1;
+    word.tiles.forEach((letter, tileIdx) => {
+      allTiles.push({ letter, wordIdx, tileIdx, isFinal: tileIdx === lastIdx });
+    });
+  });
+  shuffle(allTiles).forEach(({ letter, wordIdx, tileIdx, isFinal }) => {
+    const tile = document.createElement('div');
+    tile.className = 'dw10Tile';
+    if (isWideTile(letter)) tile.classList.add('wide');
+    tile.textContent = letter;
+    tile.dataset.letter = letter;
+    tile.dataset.wordIdx = wordIdx;
+    tile.dataset.tileIdx = tileIdx;
+    tile.dataset.final = isFinal ? '1' : '0';
+    attachDw10Drag(tile);
+    dw10TrayEl.appendChild(tile);
+  });
+}
+
+function attachDw10Drag(tile) {
+  tile.addEventListener('pointerdown', onDw10PointerDown);
+}
+
+function onDw10PointerDown(e) {
+  const tile = e.currentTarget;
+  if (tile.dataset.locked === '1') return;
+  speakLetter(tile.dataset.letter, tile.dataset.final === '1');
+  tile.setPointerCapture(e.pointerId);
+  const rect = tile.getBoundingClientRect();
+  const fromSlot = tile.parentElement.classList.contains('dw10Slot') ? tile.parentElement : null;
+  dw10DragData = { tile, fromSlot,
+    offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
+    startX: e.clientX, startY: e.clientY };
+  tile.classList.add('dragging');
+  tile.style.left = rect.left + 'px';
+  tile.style.top = rect.top + 'px';
+  tile.style.width = rect.width + 'px';
+  tile.style.height = rect.height + 'px';
+  document.body.appendChild(tile);
+  tile.addEventListener('pointermove', onDw10PointerMove);
+  tile.addEventListener('pointerup', onDw10PointerUp);
+}
+
+function onDw10PointerMove(e) {
+  if (!dw10DragData) return;
+  const tile = dw10DragData.tile;
+  tile.style.left = (e.clientX - dw10DragData.offsetX) + 'px';
+  tile.style.top  = (e.clientY - dw10DragData.offsetY) + 'px';
+  const tr = tile.getBoundingClientRect();
+  document.querySelectorAll('.dw10Slot').forEach(s => {
+    if (s.classList.contains('filled')) { s.classList.remove('drag-over'); return; }
+    const sr = s.getBoundingClientRect();
+    const overlaps = Math.min(tr.right, sr.right) > Math.max(tr.left, sr.left) &&
+                     Math.min(tr.bottom, sr.bottom) > Math.max(tr.top, sr.top);
+    s.classList.toggle('drag-over', overlaps);
+  });
+}
+
+function onDw10PointerUp(e) {
+  if (!dw10DragData) return;
+  const { tile, fromSlot, startX, startY } = dw10DragData;
+  dw10DragData = null;
+  document.querySelectorAll('.dw10Slot').forEach(s => s.classList.remove('drag-over'));
+  tile.removeEventListener('pointermove', onDw10PointerMove);
+  tile.removeEventListener('pointerup', onDw10PointerUp);
+
+  const movedDistance = Math.hypot(e.clientX - startX, e.clientY - startY);
+
+  // Find best overlapping empty slot (while still dragging = position:fixed)
+  let bestSlot = null;
+  if (movedDistance >= TAP_THRESHOLD) {
+    const tr = tile.getBoundingClientRect();
+    let bestOverlap = 0;
+    document.querySelectorAll('.dw10Slot').forEach(s => {
+      if (s.classList.contains('filled')) return;
+      const sr = s.getBoundingClientRect();
+      const ox = Math.min(tr.right, sr.right) - Math.max(tr.left, sr.left);
+      const oy = Math.min(tr.bottom, sr.bottom) - Math.max(tr.top, sr.top);
+      if (ox > 0 && oy > 0 && ox * oy > bestOverlap) {
+        bestOverlap = ox * oy;
+        bestSlot = s;
+      }
+    });
+  }
+
+  tile.classList.remove('dragging');
+  tile.style.position = '';
+  tile.style.left = '';
+  tile.style.top = '';
+  tile.style.width = '';
+  tile.style.height = '';
+
+  if (movedDistance < TAP_THRESHOLD) {
+    // Tap: return placed tile to tray, or fill next empty slot from tray
+    if (fromSlot) {
+      const wi = parseInt(fromSlot.dataset.wordIdx);
+      const si = parseInt(fromSlot.dataset.slotIdx);
+      fromSlot.classList.remove('filled');
+      dw10SlotState[wi][si] = null;
+      dw10TrayEl.appendChild(tile);
+    } else {
+      let placed = false;
+      for (let wi = 0; wi < dw10Words.length && !placed; wi++) {
+        if (dw10WordDone[wi]) continue;
+        for (let si = 0; si < dw10Words[wi].tiles.length && !placed; si++) {
+          if (dw10SlotState[wi][si] !== null) continue;
+          const target = dw10RowsEl.querySelector(`.dw10Slot[data-word-idx="${wi}"][data-slot-idx="${si}"]`);
+          if (target) {
+            target.appendChild(tile);
+            target.classList.add('filled');
+            dw10SlotState[wi][si] = tile.dataset.letter;
+            placed = true;
+            dw10MaybeCheck(wi);
+          }
+        }
+      }
+      if (!placed) dw10TrayEl.appendChild(tile);
+    }
+    return;
+  }
+
+  if (bestSlot) {
+    if (fromSlot) {
+      const wi = parseInt(fromSlot.dataset.wordIdx);
+      const si = parseInt(fromSlot.dataset.slotIdx);
+      fromSlot.classList.remove('filled');
+      dw10SlotState[wi][si] = null;
+    }
+    const twi = parseInt(bestSlot.dataset.wordIdx);
+    const tsi = parseInt(bestSlot.dataset.slotIdx);
+    bestSlot.appendChild(tile);
+    bestSlot.classList.add('filled');
+    dw10SlotState[twi][tsi] = tile.dataset.letter;
+    dw10MaybeCheck(twi);
+  } else {
+    if (fromSlot) {
+      fromSlot.appendChild(tile);
+    } else {
+      dw10TrayEl.appendChild(tile);
+    }
+  }
+}
+
+function dw10MaybeCheck(wordIdx) {
+  if (dw10WordDone[wordIdx]) return;
+  if (dw10SlotState[wordIdx].every(s => s !== null)) {
+    dw10CheckWord(wordIdx);
+  }
+}
+
+function dw10CheckWord(wordIdx) {
+  const word = dw10Words[wordIdx];
+  const slots = Array.from(dw10RowsEl.querySelectorAll(`.dw10Slot[data-word-idx="${wordIdx}"]`));
+  let allCorrect = true;
+  slots.forEach((slot, si) => {
+    const correct = dw10SlotState[wordIdx][si] === word.tiles[si];
+    slot.classList.toggle('correct', correct);
+    slot.classList.toggle('wrong', !correct);
+    if (!correct) allCorrect = false;
+  });
+
+  if (allCorrect) {
+    slots.forEach(slot => {
+      if (slot.firstElementChild) slot.firstElementChild.dataset.locked = '1';
+    });
+    dw10WordDone[wordIdx] = true;
+    playSuccess();
+    speakWord(word);
+    if (dw10WordDone.every(Boolean)) {
+      dw10FeedbackEl.textContent = 'כָּל הַכָּבוֹד! 🎉';
+      const nextIdx = dw10PuzzleIdx + 1;
+      setTimeout(() => {
+        if (nextIdx < DUAL_WORD_PUZZLES.length) {
+          celebrateStage(() => startDualWord(nextIdx));
+        } else {
+          celebrateStage(showHome);
+        }
+      }, 1200);
+    }
+  } else {
+    playError();
+    slots.forEach(slot => {
+      if (slot.classList.contains('wrong')) {
+        slot.classList.add('shake');
+        slot.addEventListener('animationend', () => slot.classList.remove('shake'), { once: true });
+      }
+    });
+    setTimeout(() => {
+      slots.forEach((slot, si) => {
+        if (slot.classList.contains('wrong')) {
+          const t = slot.firstElementChild;
+          if (t) dw10TrayEl.appendChild(t);
+          slot.classList.remove('filled', 'wrong');
+          dw10SlotState[wordIdx][si] = null;
+        }
+      });
+    }, 700);
+  }
 }
 
 // kick off

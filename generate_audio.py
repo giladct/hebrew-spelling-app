@@ -164,12 +164,47 @@ LEVELS = [
 audio_dir = Path('www') / 'audio'
 audio_dir.mkdir(parents=True, exist_ok=True)
 
+# gTTS mispronounces some syllables — use alternative text that sounds correct
+PRONOUNCE_AS = {
+    'סוּ': 'סֻ',   # shuruk on vav → gTTS says "sui"; kubutz reads as "su"
+    'בֶשׂ': 'וֶשׂ',  # bet without dagesh = vet (v), but gTTS reads as "b"; vav forces "v"
+    'מפה': 'מַפָּה',  # without niqqud gTTS says "mipa"; with patach gives "mapa"
+    'כָֿבֿ': 'חָב',  # כָב (kaf without dagesh) → het forces "kh" sound → "khav"
+}
+
 def gen(text, path):
     if path.exists():
         return False
-    tts = gTTS(text=text.replace(RAFE, ''), lang='iw')
+    spoken = PRONOUNCE_AS.get(text, text)
+    tts = gTTS(text=spoken.replace(RAFE, ''), lang='iw')
     tts.save(str(path))
     return True
+
+# ---- Syllable Match: all words and syllables ----
+SM_CONTENT = [
+    # Set 1 (כֶּ) syllables — words כלב/כתר already in WORD_NAMES, כֶּבֶשׂ already generated
+    'לֶב', 'תֶר', 'בֶשׂ',
+    # Set 2 (שֶׁ)
+    'שֶׁמֶשׁ', 'שֶׁלֶג', 'שֶׁקֶל', 'שֶׁ', 'מֶשׁ', 'לֶג', 'קֶל',
+    # Set 3 (נָ)
+    'נָחָשׁ', 'נָמֵר', 'נָהָר', 'נָ', 'חָשׁ', 'מֵר', 'הָר',
+    # Set 4 (מָ)
+    'מָיִם', 'מָטָר', 'מָגֵן', 'מָ', 'יִם', 'טָר', 'גֵן',
+    # Set 5 (סוּ)
+    'סוּסָה', 'סוּכָּה', 'סוּלָּם', 'סוּ', 'סָה', 'כָּה', 'לָּם',
+    # Set 6 (חָ)
+    'חָלָב', 'חֲמוֹר', 'חָצִיל', 'חָ', 'לָב', 'מוֹר', 'צִיל',
+    # Set 7 (לוֹן)
+    'בָּלוֹן', 'חַלּוֹן', 'סָלוֹן', 'לוֹן', 'בָּ', 'חַ', 'סָ',
+    # Set 8 (רָה)
+    'סִירָה', 'תּוֹרָה', 'מְנוֹרָה', 'רָה', 'סִי', 'תּוֹ', 'מְנוֹ',
+    # Set 9 (פָּה)
+    'מַפָּה', 'כִּפָּה', 'חֻפָּה', 'פָּה', 'מַ', 'כִּ', 'חֻ',
+    # Set 10 (כָּה)
+    'סֻכָּה', 'מַכָּה', 'חֲנֻכָּה', 'כָּה', 'סֻ', 'חֲנֻ',
+    # Set 11 (לָּה)
+    'כַּלָּה', 'חַלָּה', 'תְּפִלָּה', 'לָּה', 'כַּ', 'תְּפִ',
+]
 
 # ---- 1. Word files ----
 print('=== Words ===')
@@ -177,6 +212,12 @@ for word in WORD_NAMES:
     path = audio_dir / (word.replace(' ', '_') + '.mp3')
     status = 'ok' if gen(word, path) else 'skip'
     print(f'  {status}  {word}')
+
+print('\n=== Syllable Match ===')
+for item in SM_CONTENT:
+    path = audio_dir / (item + '.mp3')
+    status = 'ok' if gen(item, path) else 'skip'
+    print(f'  {status}  {item}')
 
 # ---- 2. Tile files ----
 print('\n=== Tiles ===')

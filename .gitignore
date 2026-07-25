@@ -6,3 +6,5 @@ keystore.properties
 *.jks
 *.keystore
 release-key.*
+*.apk
+*.aab
