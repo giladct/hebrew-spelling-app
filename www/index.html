@@ -15,6 +15,7 @@
       <h1>לוֹמְדִים לִקְרוֹא עִבְרִית</h1>
       <p class="subtitle">בִּחֲרוּ שָׁלָב לְהַתְחִיל</p>
       <button id="continueBtn" class="hidden">הַמְשֵׁךְ מֵאֵיפֹה שֶׁהִפְסַקְתָּ ←</button>
+      <button id="nextLevelBtn" class="hidden">לְשָׁלָב הַבָּא ←</button>
       <div id="stageCards"></div>
     </div>
 
@@ -23,7 +24,7 @@
         <button id="homeBtn">🏠 בַּיִת</button>
         <div id="headerTitle">
           <h1 id="headerLevelTitle">לוֹמְדִים לִקְרוֹא עִבְרִית</h1>
-          <div id="progress">מִלָּה <span id="wordIndex">1</span> מִתּוֹךְ <span id="wordTotal">5</span></div>
+          <div id="progress">שלב <span id="gameStageNum">1</span> - מָסָךְ <span id="wordIndex">1</span> מִתּוֹךְ <span id="wordTotal">5</span></div>
           <div id="attemptsEl" class="hidden">❌ <span id="attemptsCount">0</span></div>
         </div>
       </header>
@@ -47,21 +48,19 @@
       <button id="nextBtn" class="hidden">הַבָּא ←</button>
     </div>
 
-    <div id="balloonsOverlay"></div>
-    <div id="transitionOverlay"></div>
-
     <div id="syllableMatchScreen" class="hidden">
       <header>
         <button id="smHomeBtn">🏠 בַּיִת</button>
         <div id="smTitle"></div>
       </header>
       <main id="smMain">
+        <button id="smSkipBtn">⏭️ דְּלַג</button>
         <p id="smInstruction">גְּרוֹר אֶת הַהַבָרָה הַנְּכוֹנָה לָרִיבּוּעַ הַמַּתְאִים</p>
         <div id="smRows"></div>
         <div id="smFeedback"></div>
         <div id="smTileBar"></div>
       </main>
-      <button id="smSkipBtn">⏭️ דְּלַג</button>
+      <button id="smNextBtn" class="hidden">הַבָּא ←</button>
     </div>
 
     <div id="dualWordScreen" class="hidden">
@@ -70,16 +69,17 @@
         <div id="dw10Title"></div>
       </header>
       <main id="dw10Main">
+        <button id="dw10SkipBtn">⏭️ דְּלַג</button>
         <p id="dw10Instruction">גְּרוֹר כָּל הַבְרָה אֶל הַצִּיּוּר הַנָּכוֹן</p>
         <div id="dw10Rows"></div>
         <div id="dw10Feedback"></div>
         <div id="dw10Tray"></div>
       </main>
-      <button id="dw10SkipBtn">⏭️ דְּלַג</button>
+      <button id="dw10NextBtn" class="hidden">הַבָּא ←</button>
     </div>
   </div>
 
-  <script src="audio/tiles.js"></script>
-  <script src="app.js"></script>
+  <script src="audio/tiles.js?v=3"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>

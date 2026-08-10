@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Generate Hebrew TTS MP3 files for all words AND syllable tiles.
 Outputs:
@@ -46,7 +46,18 @@ def is_furtive_patach(tile):
 def furtive_to_speech(tile):
     return 'א' + PATACH + tile[0]
 
+# Per-tile pronunciation overrides — applied to original tile text before with_rafe
+TILE_PRONOUNCE_AS = {
+    'בִים': 'וִים',  # בִים → וִים (vet not bet, for ענבים tile)
+    'בִימ': 'וִימ',  # variant with regular mem
+    'מִגְ': 'מִג',   # shva causes gTTS to add trailing vowel; bare gimel = "mig"
+    'מִכְ': 'מִח',   # kaf without vowel → gTTS adds "a"; het forces clean "ch" stop
+    'בַע': 'וַע',    # vet (v) not bet (b); vav forces correct "v" sound for כובע
+    'פֶר': 'ףֶר',   # fe (f) not pe (p); sofit pe always "f" for ספר tile
+}
+
 def get_spoken_text(letter, is_final):
+    letter = TILE_PRONOUNCE_AS.get(letter, letter)
     if is_final and is_furtive_patach(letter):
         return with_rafe(furtive_to_speech(letter))
     ends_in_bare_patach = bool(letter) and letter[-1] == PATACH
@@ -63,14 +74,14 @@ def get_final_indices(word):
 
 # ---- Word names (for hint button) ----
 WORD_NAMES = [
-    'גמל','שבת','מצה','חלב','גלגל','בקר','מפה','חלה','סבא','גמד',
-    'כיסים','סירים','גירים','תיקים','פילים','סינית','מיצים','תינוק','כיסא','סיפור',
-    'בית','מטבח','צמיד','כתה','סכין','גדי','סירה','פטיש','מיטה','סכינים',
+    'גמל','שבת','תמר','חלב','גלגל','בקר','מפה','חלה','סבא','מתנה',
+    'כפית','סירים','גירים','תיקים','פילים','סינית','מיצים','טיפה','חללית','ענבים',
+    'בית','מגדל','צמיד','מכתב','סכין','גדי','סירה','פטיש','מיטה','סכינים',
     'עוגה','עורב','עוגן','כוכב','ציפור','עולם','עופות','חומה','כובע','מקום',
     'כלב','ספר','פרח','עצים','מלך','ביצה','עגל','גשר','בגד','עדר',
-    'תפוח','תפוז','חומוס','סוכר','כדור','לולב','סוסים','סולם','צורה','סוכה',
-    'קשת בענן','תיק גב','בית ספר','כלב ים','סוס ים',
-    'דג זהב','כוכב ים','גן חיות','כובע קסם','סל פירות',
+    'תפוח','תפוז','חומוס','סוכריה','כדור','קוקוס','סוסים','סולם','צורה','סיכה',
+    'קשת בענן','תיק גב','בית ספר','כלב ים','דב קוטב',
+    'ירח מלא','גלגל ענק','גן חיות','כובע קסם','סל פירות',
 ]
 
 # ---- All levels data (mirrors app.js LEVELS) ----
@@ -78,32 +89,32 @@ LEVELS = [
   [
     {'name':'גמל','tiles':['גָּ','מַל']},
     {'name':'שבת','tiles':['שַׁ','בָּת']},
-    {'name':'מצה','tiles':['מַ','צָּה']},
+    {'name':'תמר','tiles':['תָּ','מָר']},
     {'name':'חלב','tiles':['חַ','לָּב']},
     {'name':'גלגל','tiles':['גַּל','גַּל']},
     {'name':'בקר','tiles':['בָּ','קָר']},
     {'name':'מפה','tiles':['מַ','פָּה']},
     {'name':'חלה','tiles':['חַ','לָּה']},
     {'name':'סבא','tiles':['סַ','בָּא']},
-    {'name':'גמד','tiles':['גַּ','מָּד']},
+    {'name':'מתנה','tiles':['מַ','תָּ','נָה']},
   ],
   [
-    {'name':'כיסים','tiles':['כִּי','סִים']},
+    {'name':'כפית','tiles':['כַּ','פִּית']},
     {'name':'סירים','tiles':['סִי','רִים']},
     {'name':'גירים','tiles':['גִּי','רִים']},
     {'name':'תיקים','tiles':['תִּי','קִים']},
     {'name':'פילים','tiles':['פִּי','לִים']},
     {'name':'סינית','tiles':['סִי','נִית']},
     {'name':'מיצים','tiles':['מִי','צִים']},
-    {'name':'תינוק','tiles':['תִּי','נוֹק']},
-    {'name':'כיסא','tiles':['כִּ','סֵּא']},
-    {'name':'סיפור','tiles':['סִי','פּוּר']},
+    {'name':'טיפה','tiles':['טִי','פָּה']},
+    {'name':'חללית','tiles':['חַ','לָ','לִית']},
+    {'name':'ענבים','tiles':['עֲ','נָ','בִים']},
   ],
   [
     {'name':'בית','tiles':['בַּ','יִת']},
-    {'name':'מטבח','tiles':['מִט','בָּח']},
+    {'name':'מגדל','tiles':['מִגְ','דָּל']},
     {'name':'צמיד','tiles':['צָ','מִיד']},
-    {'name':'כתה','tiles':['כִּ','תָּה']},
+    {'name':'מכתב','tiles':['מִכְ','תָּב']},
     {'name':'סכין','tiles':['סַ','כִּין']},
     {'name':'גדי','tiles':['גְּ','דִי']},
     {'name':'סירה','tiles':['סִי','רָה']},
@@ -139,22 +150,22 @@ LEVELS = [
     {'name':'תפוח','tiles':['תַּ','פּוּ','חַ']},
     {'name':'תפוז','tiles':['תַּ','פּוּז']},
     {'name':'חומוס','tiles':['חֻ','מּוּס']},
-    {'name':'סוכר','tiles':['סוּ','כָּר']},
+    {'name':'סוכריה','tiles':['סוּ','כָּ','רִיָּה']},
     {'name':'כדור','tiles':['כַּ','דּוּר']},
-    {'name':'לולב','tiles':['לוּ','לָב']},
+    {'name':'קוקוס','tiles':['קוֹ','קוּס']},
     {'name':'סוסים','tiles':['סוּ','סִים']},
     {'name':'סולם','tiles':['סוּ','לָּם']},
     {'name':'צורה','tiles':['צוּ','רָה']},
-    {'name':'סוכה','tiles':['סֻ','כָּה']},
+    {'name':'סיכה','tiles':['סִי','כָּה']},
   ],
   [
     {'name':'קשת בענן','tiles':['קֶ','שֶׁת','בְּ','עָ','נָן'],'groupSizes':[2,3]},
     {'name':'תיק גב','tiles':['תִּיק','גַּב'],'groupSizes':[1,1]},
     {'name':'בית ספר','tiles':['בֵּית','סֵ','פֶר'],'groupSizes':[1,2]},
     {'name':'כלב ים','tiles':['כֶּ','לֶב','יָם'],'groupSizes':[2,1]},
-    {'name':'סוס ים','tiles':['סוּס','יָם'],'groupSizes':[1,1]},
-    {'name':'דג זהב','tiles':['דַּג','זָ','הָב'],'groupSizes':[1,2]},
-    {'name':'כוכב ים','tiles':['כּוֹ','כַב','יָם'],'groupSizes':[2,1]},
+    {'name':'דב קוטב','tiles':['דֹּב','קוֹ','טֶב'],'groupSizes':[1,2]},
+    {'name':'ירח מלא','tiles':['יָ','רֵחַ','מָ','לֵא'],'groupSizes':[2,2]},
+    {'name':'גלגל ענק','tiles':['גַּל','גַּל','עָ','נָק'],'groupSizes':[2,2]},
     {'name':'גן חיות','tiles':['גַּן','חַ','יּוֹת'],'groupSizes':[1,2]},
     {'name':'כובע קסם','tiles':['כּוֹ','בַע','קֶ','סֶם'],'groupSizes':[2,2]},
     {'name':'סל פירות','tiles':['סַל','פֵּי','רוֹת'],'groupSizes':[1,2]},
@@ -166,15 +177,38 @@ audio_dir.mkdir(parents=True, exist_ok=True)
 
 # gTTS mispronounces some syllables — use alternative text that sounds correct
 PRONOUNCE_AS = {
-    'סוּ': 'סֻ',   # shuruk on vav → gTTS says "sui"; kubutz reads as "su"
     'בֶשׂ': 'וֶשׂ',  # bet without dagesh = vet (v), but gTTS reads as "b"; vav forces "v"
     'מפה': 'מַפָּה',  # without niqqud gTTS says "mipa"; with patach gives "mapa"
     'כָֿבֿ': 'חָב',  # כָב (kaf without dagesh) → het forces "kh" sound → "khav"
+    'בקר': 'בָּקָר',  # without niqqud gTTS says bakar
+    'גדי': 'גָּדִי',   # without niqqud gTTS says gdi; kamatz gives gadi
+    'סבא': 'סַֽבָּא',  # mileil stress: SA-ba not sa-BA
+    'רֵחַא': 'רֵאַח',  # furtive patach: reorder so gTTS says 'reakh' not 'rekha'
+    'וַע': 'וַ',  # ayin at end causes gTTS to add extra syllable; bare va = 'va'
+}
+
+# gTTS can't say certain isolated syllables correctly; extract first syllable from a full word instead
+TRIM_FROM = {
+    'סוּ': 'סוּכָּה',  # isolated "su" → gTTS says "svi"; split_on_silence gives clean first syllable
 }
 
 def gen(text, path):
     if path.exists():
         return False
+    if text in TRIM_FROM:
+        source_text = TRIM_FROM[text]
+        source_path = path.parent / (source_text + '.mp3')
+        if not source_path.exists():
+            tts = gTTS(text=source_text, lang='iw')
+            tts.save(str(source_path))
+        from pydub import AudioSegment, silence as pydub_silence
+        audio = AudioSegment.from_mp3(str(source_path))
+        chunks = pydub_silence.split_on_silence(audio, min_silence_len=20, silence_thresh=-35, keep_silence=0)
+        if chunks:
+            chunks[0].export(str(path), format='mp3')
+        else:
+            audio[:280].export(str(path), format='mp3')
+        return True
     spoken = PRONOUNCE_AS.get(text, text)
     tts = gTTS(text=spoken.replace(RAFE, ''), lang='iw')
     tts.save(str(path))
@@ -189,7 +223,7 @@ SM_CONTENT = [
     # Set 3 (נָ)
     'נָחָשׁ', 'נָמֵר', 'נָהָר', 'נָ', 'חָשׁ', 'מֵר', 'הָר',
     # Set 4 (מָ)
-    'מָיִם', 'מָטָר', 'מָגֵן', 'מָ', 'יִם', 'טָר', 'גֵן',
+    'מָיִם', 'מַפָּה', 'מָגֵן', 'מָ', 'יִם', 'פָּה', 'גֵן',
     # Set 5 (סוּ)
     'סוּסָה', 'סוּכָּה', 'סוּלָּם', 'סוּ', 'סָה', 'כָּה', 'לָּם',
     # Set 6 (חָ)
@@ -198,10 +232,10 @@ SM_CONTENT = [
     'בָּלוֹן', 'חַלּוֹן', 'סָלוֹן', 'לוֹן', 'בָּ', 'חַ', 'סָ',
     # Set 8 (רָה)
     'סִירָה', 'תּוֹרָה', 'מְנוֹרָה', 'רָה', 'סִי', 'תּוֹ', 'מְנוֹ',
-    # Set 9 (פָּה)
-    'מַפָּה', 'כִּפָּה', 'חֻפָּה', 'פָּה', 'מַ', 'כִּ', 'חֻ',
+    # Set 9 (צָה)
+    'בֵּיצָה', 'פִּיצָה', 'פְּצָצָה', 'צָה', 'בֵּי', 'פִּי', 'פְּצָ',
     # Set 10 (כָּה)
-    'סֻכָּה', 'מַכָּה', 'חֲנֻכָּה', 'כָּה', 'סֻ', 'חֲנֻ',
+    'סִיכָּה', 'מַכָּה', 'חֲנֻכָּה', 'כָּה', 'סִי', 'חֲנֻ',
     # Set 11 (לָּה)
     'כַּלָּה', 'חַלָּה', 'תְּפִלָּה', 'לָּה', 'כַּ', 'תְּפִ',
 ]
