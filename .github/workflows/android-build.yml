@@ -68,6 +68,12 @@ jobs:
       - name: Decode signing keystore
         run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release-key.jks
 
+      - name: Compute next Play Console version code
+        id: version_code
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON_INLINE: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: node get-next-version-code.mjs
+
       - name: Build signed release App Bundle
         working-directory: android
         env:
@@ -75,10 +81,12 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          # Run number only ever increases, so this can never collide with a
-          # version code already used on a previous upload (see commit
-          # history for how much manual bumping that saved us from).
-          ANDROID_VERSION_CODE: ${{ github.run_number }}
+          # Asked Play Console for the highest versionCode across every track
+          # and used max+1 (see get-next-version-code.mjs) - github.run_number
+          # used to be used here, but that broke once a manual upload pushed
+          # a versionCode higher than run_number had reached, and every CI
+          # publish since collided with an already-used number.
+          ANDROID_VERSION_CODE: ${{ steps.version_code.outputs.next_version_code }}
         run: ./gradlew bundleRelease
 
       - name: Upload signed AAB artifact
