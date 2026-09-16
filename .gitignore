@@ -8,3 +8,8 @@ keystore.properties
 release-key.*
 *.apk
 *.aab
+ios/App/Pods
+ios/App/build
+ios/App/DerivedData
+.DS_Store
+*.xcuserstate
