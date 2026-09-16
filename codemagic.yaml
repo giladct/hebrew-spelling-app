@@ -8,7 +8,7 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: hebrew_spelling.myapp
+        bundle_identifier: hebrew-spelling.myapp
       node: 22
     scripts:
       - name: Install npm dependencies
