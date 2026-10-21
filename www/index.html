@@ -13,7 +13,6 @@
     <div id="homeScreen">
       <div id="homeLogo">🐫</div>
       <h1>לוֹמְדִים לִקְרוֹא עִבְרִית</h1>
-      <p class="subtitle">בִּחֲרוּ שָׁלָב לְהַתְחִיל</p>
       <button id="continueBtn" class="hidden">הַמְשֵׁךְ מֵאֵיפֹה שֶׁהִפְסַקְתָּ ←</button>
       <button id="nextLevelBtn" class="hidden">לְשָׁלָב הַבָּא ←</button>
       <div id="stageCards"></div>
@@ -77,9 +76,75 @@
       </main>
       <button id="dw10NextBtn" class="hidden">הַבָּא ←</button>
     </div>
+
+    <div id="camelScreen" class="hidden">
+      <header>
+        <button id="camelHomeBtn">🏠 בַּיִת</button>
+        <div id="camelTitle"></div>
+      </header>
+      <main id="camelMain">
+        <div id="camelScene">
+          <div class="camelSun">☀️</div>
+          <div class="camelCloud c1">☁️</div>
+          <div class="camelCloud c2">☁️</div>
+          <div class="camelDune d1"></div>
+          <div class="camelDune d2"></div>
+          <div id="camelOasis"><span class="oasisTree">🌴</span></div>
+          <div id="camelWalker"><span id="camelBody"><span id="camelSway">🐪</span></span></div>
+        </div>
+        <p id="camelInstruction">הַקְשִׁיבוּ לַמִּלָּה וּבִחֲרוּ אֶת הַמִּלָּה הַכְּתוּבָה</p>
+        <button id="camelHearBtn">🔊 הַשְׁמַע מִלָּה</button>
+        <div id="camelOptions"></div>
+        <div id="camelFeedback"></div>
+      </main>
+      <button id="camelNextBtn" class="hidden">חֲזָרָה לַבַּיִת ←</button>
+    </div>
+
+    <div id="sentenceScreen" class="hidden">
+      <header>
+        <button id="sentHomeBtn">🏠 בַּיִת</button>
+        <div id="sentTitle"></div>
+      </header>
+      <main id="sentMain">
+        <div id="sentPic"></div>
+        <p id="sentInstruction">סַדְּרוּ אֶת הַמִּלִּים לְמִשְׁפָּט</p>
+        <div id="sentSlots"></div>
+        <div id="sentTray"></div>
+        <div id="sentFeedback"></div>
+      </main>
+      <button id="sentNextBtn" class="hidden">הַבָּא ←</button>
+    </div>
+
+    <div id="memScreen" class="hidden">
+      <header>
+        <button id="memHomeBtn">🏠 בַּיִת</button>
+        <div id="memTitle"></div>
+      </header>
+      <main id="memMain">
+        <p id="memInstruction">מִצְאוּ זוּגוֹת: מִלָּה וּתְמוּנָה</p>
+        <div id="memGrid"></div>
+        <div id="memFeedback"></div>
+      </main>
+      <button id="memNextBtn" class="hidden">הַבָּא ←</button>
+    </div>
+
+    <div id="xwScreen" class="hidden">
+      <header>
+        <button id="xwHomeBtn">🏠 בַּיִת</button>
+        <div id="xwTitle"></div>
+      </header>
+      <main id="xwMain">
+        <button id="xwSkipBtn">⏭️ דְּלַג</button>
+        <p id="xwInstruction">הַשְׁלִימוּ אֶת הַמִּלִּים בְּעֶזְרַת הַהֲבָרוֹת</p>
+        <div id="xwGrid"></div>
+        <div id="xwBank"></div>
+        <div id="xwFeedback"></div>
+      </main>
+      <button id="xwNextBtn" class="hidden">הַבָּא ←</button>
+    </div>
   </div>
 
   <script src="audio/tiles.js?v=3"></script>
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=35"></script>
 </body>
 </html>

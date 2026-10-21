@@ -7,4 +7,5 @@ class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-http.server.HTTPServer(('', 8181), NoCacheHandler).serve_forever()
+# Threading: the single-threaded HTTPServer hung when a browser kept a connection open.
+http.server.ThreadingHTTPServer(('', 8181), NoCacheHandler).serve_forever()

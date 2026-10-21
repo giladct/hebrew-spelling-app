@@ -555,19 +555,35 @@ const DUAL_WORD_PUZZLES = [
 
 // ============================================================
 // APP STRUCTURE
-// Four screens: homeScreen → gameScreen | syllableMatchScreen | dualWordScreen
-// Navigation via showHome() / showGame() / showSyllableMatchScreen() / showDualWordScreen()
+// One <div> per screen, all direct children of #app (index.html). showScreen(el) shows one and hides
+// the rest; showHome() rebuilds the stage cards and shows the home screen.
+//
+// STAGES  (number shown = LEVELS.length + stageOffset; LEVELS.length is 7)
+//   #     screen               game                                   COMPLETED_KEY entry
+//   1-7   gameScreen           build the word from syllables (LEVELS)   0-6
+//   8     syllableMatchScreen  last syllable varies                     7
+//   9     syllableMatchScreen  first syllable varies                    8
+//   10    dualWordScreen       two words                                9
+//   11-12 camelScreen          hear a word, pick it (CAMEL_STAGES)      10, 11
+//   13    sentenceScreen       order a 3-word sentence                  12
+//   14-15 memScreen            memory word<->picture (MEM_STAGES)       13, 16
+//   16-17 xwScreen             syllable crossword (CROSSWORD_STAGES)    14, 15
+//   Home-screen sections: STAGE_GROUPS (by shown number).
+//   COMPLETED_KEY entries are stored in users' devices, so never renumber them; renumbering the shown
+//   stage number (stageOffset) is safe. Adding a level to LEVELS would shift every LEVELS.length-based
+//   key - avoid, or migrate saved progress.
 //
 // AUDIO SYSTEM
-//   Tile taps:  TILE_AUDIO[syllable + "_" + (isFinal?"1":"0")] → tile_NNN.mp3  (+TTS fallback)
-//   Word hints: playAudioFile("audio/{name}.mp3")                               (+TTS fallback)
+//   Tile taps:  TILE_AUDIO[syllable + "_" + (isFinal?"1":"0")] -> tile_NNN.mp3  (+TTS fallback)
+//   Words:      playAudioFile("audio/{name}.mp3") via speakWord / speakAudio     (+TTS fallback)
 //   Both share a single AudioContext (_audioCtx / getAudioCtx)
 //   Tile sounds use is_final to get the right pronunciation for syllable position in the word
+//   New audio: generate_audio.py (stages 1-10), generate_camel_audio.py, generate_sentence_audio.py,
+//   generate_crossword_audio.py - each skips files that already exist.
 //
 // LOCALSTORAGE
-//   PROGRESS_KEY:  { level, index } — which word the user was on (restored on resume)
-//   COMPLETED_KEY: [0,1,...] — completed stage indices:
-//     0–6 = LEVELS[i], 7 = SM "last syllable varies", 8 = SM "first syllable varies", 9 = DualWord
+//   PROGRESS_KEY:  { level, index } - which word the user was on in stages 1-7 (restored on resume)
+//   COMPLETED_KEY: [0,1,...] - completed stage entries (table above)
 // ============================================================
 
 function lookupWord(name) {
@@ -648,6 +664,7 @@ const attemptsCountEl = document.getElementById('attemptsCount');
 const headerLevelTitle = document.getElementById('headerLevelTitle');
 
 const dualWordScreen = document.getElementById('dualWordScreen');
+const camelScreen = document.getElementById('camelScreen');
 const dw10HomeBtn = document.getElementById('dw10HomeBtn');
 const dw10SkipBtn = document.getElementById('dw10SkipBtn');
 const dw10TitleEl = document.getElementById('dw10Title');
@@ -699,37 +716,73 @@ function currentWords() {
   return LEVELS[currentLevel].words;
 }
 
+// One home-screen card. num = stage number shown, completedKey = its COMPLETED_KEY entry.
+function makeStageCard(num, completedKey, icon, color, label, onClick, completed) {
+  const card = document.createElement('button');
+  card.className = 'stageCard' + (completed.has(completedKey) ? ' completed' : '');
+  card.style.setProperty('--card-color', color);
+  card.innerHTML = `<span class="stageIcon">${icon}</span><span class="stageLabelRow"><span class="stageNum">${num}</span><span class="stageLabel">${label}</span></span>`;
+  card.addEventListener('click', onClick);
+  stageCardsEl.appendChild(card);
+}
+
+// Creates every stage card (any order), then groupStageCards() sorts them into STAGE_GROUPS.
 function buildStageCards() {
   const completed = getCompletedLevels();
+  const L = LEVELS.length;
   stageCardsEl.innerHTML = '';
   LEVELS.forEach((lvl, i) => {
-    const card = document.createElement('button');
-    card.className = 'stageCard' + (completed.has(i) ? ' completed' : '');
-    card.style.setProperty('--card-color', STAGE_COLORS[i % STAGE_COLORS.length]);
-    card.innerHTML = `<span class="stageIcon">${STAGE_ICONS[i] || ''}</span><span class="stageLabelRow"><span class="stageNum">${i + 1}</span><span class="stageLabel">${lvl.label}</span></span>`;
-    card.addEventListener('click', () => startStage(i));
-    stageCardsEl.appendChild(card);
+    makeStageCard(i + 1, i, STAGE_ICONS[i] || '', STAGE_COLORS[i % STAGE_COLORS.length], lvl.label, () => startStage(i), completed);
   });
-  const smCard = document.createElement('button');
-  smCard.className = 'stageCard' + (completed.has(LEVELS.length) ? ' completed' : '');
-  smCard.style.setProperty('--card-color', '#b02878');
-  smCard.innerHTML = `<span class="stageIcon">${STAGE_ICONS[LEVELS.length] || '🧩'}</span><span class="stageLabelRow"><span class="stageNum">${LEVELS.length + 1}</span><span class="stageLabel">הַבָרָה אַחֲרוֹנָה מִשְׁתַּנָּה</span></span>`;
-  smCard.addEventListener('click', () => startSyllableMatch(0, SM_FIXED_END_START - 1));
-  stageCardsEl.appendChild(smCard);
+  makeStageCard(L + 1, L, STAGE_ICONS[L] || '🧩', '#b02878', 'הַבָרָה אַחֲרוֹנָה מִשְׁתַּנָּה',
+    () => startSyllableMatch(0, SM_FIXED_END_START - 1), completed);
+  makeStageCard(L + 2, L + 1, STAGE_ICONS[L + 1] || '🔡', '#6aa014', 'הַבָרָה רִאשׁוֹנָה מִשְׁתַּנָּה',
+    () => startSyllableMatch(SM_FIXED_END_START), completed);
+  makeStageCard(L + 3, L + 2, STAGE_ICONS[L + 2] || '🎯', '#3838a8', 'שְׁתֵּי מִלִּים', () => startDualWord(0), completed);
+  CAMEL_STAGES.forEach(cfg => {
+    makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startCamel(cfg), completed);
+  });
+  makeStageCard(L + 6, L + 5, '📝', '#2f8f83', 'סַדְּרוּ אֶת הַמִּשְׁפָּט', startSentences, completed);
+  MEM_STAGES.forEach(cfg => {
+    makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startMemory(cfg), completed);
+  });
+  CROSSWORD_STAGES.forEach(cfg => {
+    makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startCrossword(cfg), completed);
+  });
+  groupStageCards();
+}
 
-  const smCard2 = document.createElement('button');
-  smCard2.className = 'stageCard' + (completed.has(LEVELS.length + 1) ? ' completed' : '');
-  smCard2.style.setProperty('--card-color', '#6aa014');
-  smCard2.innerHTML = `<span class="stageIcon">${STAGE_ICONS[LEVELS.length + 1] || '🔡'}</span><span class="stageLabelRow"><span class="stageNum">${LEVELS.length + 2}</span><span class="stageLabel">הַבָרָה רִאשׁוֹנָה מִשְׁתַּנָּה</span></span>`;
-  smCard2.addEventListener('click', () => startSyllableMatch(SM_FIXED_END_START));
-  stageCardsEl.appendChild(smCard2);
+// Home-screen sections. Each card is found by the stage number it shows, then regrouped here.
+const STAGE_GROUPS = [
+  { title: 'קְרִיאָה – מַתְחִילִים', stages: [1, 2, 3, 4, 5, 6] },
+  { title: 'קְרִיאָה – מִתְקַדְּמִים', stages: [7, 8, 9, 10] },
+  { title: 'קְרִיאָה מְדֻיֶּקֶת', stages: [11, 12] },
+  { title: 'מִשְׁפָּטִים', stages: [13] },
+  { title: 'מִשְׂחָקִים', stages: [14, 15, 16, 17] },
+];
 
-  const dw10Card = document.createElement('button');
-  dw10Card.className = 'stageCard' + (completed.has(LEVELS.length + 2) ? ' completed' : '');
-  dw10Card.style.setProperty('--card-color', '#3838a8');
-  dw10Card.innerHTML = `<span class="stageIcon">${STAGE_ICONS[LEVELS.length + 2] || '🎯'}</span><span class="stageLabelRow"><span class="stageNum">${LEVELS.length + 3}</span><span class="stageLabel">שְׁתֵּי מִלִּים</span></span>`;
-  dw10Card.addEventListener('click', () => startDualWord(0));
-  stageCardsEl.appendChild(dw10Card);
+function groupStageCards() {
+  const byNum = {};
+  Array.from(stageCardsEl.children).forEach(c => { byNum[c.querySelector('.stageNum').textContent.trim()] = c; });
+  stageCardsEl.innerHTML = '';
+  STAGE_GROUPS.forEach(group => {
+    const section = document.createElement('section');
+    section.className = 'stageGroup';
+    const title = document.createElement('h2');
+    title.className = 'stageGroupTitle';
+    title.textContent = group.title;
+    const grid = document.createElement('div');
+    grid.className = 'stageGroupGrid';
+    group.stages.forEach(n => { if (byNum[n]) grid.appendChild(byNum[n]); });
+    section.appendChild(title);
+    section.appendChild(grid);
+    stageCardsEl.appendChild(section);
+  });
+}
+
+// Show one screen (a direct child <div> of #app) and hide all the others.
+function showScreen(screen) {
+  document.querySelectorAll('#app > div').forEach(d => d.classList.toggle('hidden', d !== screen));
 }
 
 function showHome() {
@@ -743,15 +796,11 @@ function showHome() {
     nextLevelBtn.classList.add('hidden');
   }
   continueBtn.classList.toggle('hidden', !hasSavedProgress());
-  homeScreen.classList.remove('hidden');
-  gameScreen.classList.add('hidden');
-  syllableMatchScreen.classList.add('hidden');
-  dualWordScreen.classList.add('hidden');
+  showScreen(homeScreen);
 }
 
 function showGame() {
-  homeScreen.classList.add('hidden');
-  gameScreen.classList.remove('hidden');
+  showScreen(gameScreen);
 }
 
 function startStage(level, index = 0) {
@@ -1261,6 +1310,48 @@ function playError() {
   playTone(180, 0, 0.3, 'sawtooth');
 }
 
+// ---- Shared helpers used by several games ----
+// Plays audio/<text>.mp3 (text may carry niqqud - it is the file name); device TTS if the file is missing.
+function speakAudio(text) {
+  playAudioFile('audio/' + text + '.mp3', () => speak(text));
+}
+
+// Stars flying out of an element (the element must be position: relative).
+function sparkle(btn) {
+  const icons = ['⭐', '✨'];
+  for (let i = 0; i < 8; i++) {
+    const sp = document.createElement('span');
+    sp.className = 'sparkle';
+    sp.textContent = icons[i % 2];
+    const angle = (i / 8) * Math.PI * 2;
+    sp.style.setProperty('--dx', Math.round(Math.cos(angle) * 70) + 'px');
+    sp.style.setProperty('--dy', Math.round(Math.sin(angle) * 34) + 'px');
+    btn.appendChild(sp);
+    setTimeout(() => sp.remove(), 950);
+  }
+}
+
+// Full-screen confetti for finishing a stage; removed by itself after ~5 s.
+function showConfetti() {
+  const old = document.getElementById('confetti');
+  if (old) old.remove();
+  const box = document.createElement('div');
+  box.id = 'confetti';
+  const colors = ['#ef5350', '#ffca28', '#66bb6a', '#42a5f5', '#ab47bc', '#ff7043'];
+  for (let i = 0; i < 48; i++) {
+    const p = document.createElement('span');
+    p.className = 'confettiPiece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.setProperty('--color', colors[i % colors.length]);
+    p.style.setProperty('--dur', (2.2 + Math.random() * 1.6).toFixed(2) + 's');
+    p.style.setProperty('--delay', (Math.random() * 0.8).toFixed(2) + 's');
+    p.style.setProperty('--drift', Math.round(Math.random() * 120 - 60) + 'px');
+    box.appendChild(p);
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 4800);
+}
+
 // ---- Syllable Match game logic ----
 smHomeBtn.addEventListener('click', showHome);
 
@@ -1374,9 +1465,7 @@ function onSmTilePointerUp(e) {
 }
 
 function showSyllableMatchScreen() {
-  homeScreen.classList.add('hidden');
-  gameScreen.classList.add('hidden');
-  syllableMatchScreen.classList.remove('hidden');
+  showScreen(syllableMatchScreen);
 }
 
 function startSyllableMatch(setIndex, endIndex) {
@@ -1508,10 +1597,7 @@ dw10SkipBtn.addEventListener('click', () => {
 });
 
 function showDualWordScreen() {
-  homeScreen.classList.add('hidden');
-  gameScreen.classList.add('hidden');
-  syllableMatchScreen.classList.add('hidden');
-  dualWordScreen.classList.remove('hidden');
+  showScreen(dualWordScreen);
 }
 
 function startDualWord(puzzleIdx) {
@@ -1779,7 +1865,824 @@ function dw10CheckWord(wordIdx) {
   }
 }
 
+// ---- Stages 11-12: camel walks to the oasis ----
+// Each set: three similar-sounding words (written with niqqud). The app says one of them,
+// the child picks the written word. Audio: audio/<word>.mp3 (see generate_camel_audio.py).
+const CAMEL_SETS = [
+  ['גַּנָּן', 'עָנָן', 'גַּנָּב'],
+  ['שֶׁמֶשׁ', 'שֶׁלֶג', 'שֶׁקֶל'],
+  ['נָחָשׁ', 'נָמֵר', 'נָהָר'],
+  ['סוּסָה', 'סוּכָּה', 'סוּלָּם'],
+  ['חָלָב', 'חָצִיל', 'חֲמוֹר'],
+  ['בָּלוֹן', 'חַלּוֹן', 'סָלוֹן'],
+  ['מַפָּה', 'מַכָּה', 'מַצָּה'],
+  ['כִּסֵּא', 'כִּפָּה', 'כִּתָּה'],
+  ['תַּפּוּחַ', 'תַּפּוּז', 'תַּנּוּר'],
+  ['גֶּשֶׁר', 'גֶּזֶר', 'גֶּשֶׁם'],
+];
+// Stage 12 (hard): longer, more similar words
+const CAMEL_HARD_SETS = [
+  ['עַכְבָּר', 'עַכְבִּישׁ', 'עַכְשָׁו'],
+  ['מִסְפָּר', 'מִסְפָּרָה', 'מִסְפָּרַיִם'],
+  ['מְכוֹנִית', 'מְכוֹנָה', 'מְנוֹרָה'],
+  ['תַּפּוּזִים', 'תַּפּוּחִים', 'תַּנּוּרִים'],
+  ['פַּרְפָּרִים', 'פַּרְדֵּסִים', 'פַּרְצוּפִים'],
+  ['מִטְרִיָּה', 'מִטְפַּחַת', 'מִטְבָּח'],
+  ['שׁוֹמֵר', 'שׁוֹטֵר', 'שׁוֹפֵט'],
+  ['כַּדּוּרֶגֶל', 'כַּדּוּרְסַל', 'כַּדּוּרִים'],
+  ['חַלּוֹנוֹת', 'חֲלוֹמוֹת', 'חֲבִילוֹת'],
+  ['מִשְׁפָּחָה', 'מִשְׁקָפַיִם', 'מִקְלַחַת'],
+];
+// Stage number shown = LEVELS.length + stageOffset; COMPLETED_KEY entry = LEVELS.length + completedOffset.
+const CAMEL_STAGES = [
+  { sets: CAMEL_SETS,      stageOffset: 4, completedOffset: 3, title: 'הַגָּמָל וְהָאוֹאָזִיס', icon: '🏝️', color: '#c9892b' },
+  { sets: CAMEL_HARD_SETS, stageOffset: 5, completedOffset: 4, title: 'הַגָּמָל וְהָאוֹאָזִיס – קָשֶׁה', icon: '🌵', color: '#a8571f' },
+];
+const CAMEL_STEPS_TO_OASIS = 6;
+const CAMEL_START_RIGHT_PCT = 3;   // start position, % of the scene width from the right edge
+
+const camelHomeBtn = document.getElementById('camelHomeBtn');
+const camelTitleEl = document.getElementById('camelTitle');
+const camelWalkerEl = document.getElementById('camelWalker');
+const camelHearBtn = document.getElementById('camelHearBtn');
+const camelOptionsEl = document.getElementById('camelOptions');
+const camelFeedbackEl = document.getElementById('camelFeedback');
+const camelNextBtn = document.getElementById('camelNextBtn');
+const camelInstructionEl = document.getElementById('camelInstruction');
+
+let camelCfg = CAMEL_STAGES[0];
+let camelStep = 0;
+let camelQueue = [];
+let camelLastSet = -1;
+let camelTarget = '';
+let camelLocked = false;
+let camelTimer = null;
+
+function camelNextSet() {
+  if (camelQueue.length === 0) {
+    camelQueue = shuffle(camelCfg.sets.map((_, i) => i));
+    if (camelQueue[0] === camelLastSet) camelQueue.push(camelQueue.shift());
+  }
+  camelLastSet = camelQueue.shift();
+  return camelCfg.sets[camelLastSet];
+}
+
+const camelBodyEl = document.getElementById('camelBody');
+const camelSceneEl = document.getElementById('camelScene');
+const camelOasisEl = document.getElementById('camelOasis');
+let camelAnimTimer = null;
+
+// Distance (px, from the scene's right edge) for the camel at a given step. The last step stops right
+// next to the tree, measured from the real tree/camel widths so it works at any screen width.
+function camelRightPx(step) {
+  const sceneW = camelSceneEl.clientWidth;
+  const start = sceneW * CAMEL_START_RIGHT_PCT / 100;
+  const treeEdge = camelOasisEl.offsetLeft + camelOasisEl.offsetWidth;
+  const end = Math.max(start, sceneW - treeEdge - camelWalkerEl.offsetWidth + 8);
+  return start + (step / CAMEL_STEPS_TO_OASIS) * (end - start);
+}
+
+function camelDust(rightPx) {
+  const dust = document.createElement('span');
+  dust.className = 'camelDust';
+  dust.textContent = '💨';
+  dust.style.right = rightPx + 'px';
+  camelSceneEl.appendChild(dust);
+  setTimeout(() => dust.remove(), 850);
+}
+
+function camelCelebrate() {
+  showConfetti();
+  camelOasisEl.classList.add('shake');
+  setTimeout(() => {
+    camelWalkerEl.classList.remove('walking');
+    camelWalkerEl.classList.add('cheer');
+  }, 950);
+}
+
+function camelResetAnim() {
+  clearTimeout(camelAnimTimer);
+  camelWalkerEl.classList.remove('walking', 'oops', 'cheer');
+  camelBodyEl.classList.remove('flip');
+  camelOasisEl.classList.remove('shake');
+  const conf = document.getElementById('confetti');
+  if (conf) conf.remove();
+}
+
+function renderCamelStep(animate, back) {
+  const right = camelRightPx(camelStep);
+  const oldRight = parseFloat(camelWalkerEl.style.right) || right;
+  camelWalkerEl.style.right = right + 'px';
+  if (animate) {
+    clearTimeout(camelAnimTimer);
+    camelWalkerEl.classList.remove('oops');
+    camelWalkerEl.classList.add('walking');
+    if (back) {
+      camelBodyEl.classList.add('flip');
+      camelWalkerEl.classList.add('oops');
+      camelDust(oldRight);
+    } else {
+      camelBodyEl.classList.remove('flip');
+    }
+    camelAnimTimer = setTimeout(() => {
+      camelWalkerEl.classList.remove('walking', 'oops');
+      camelBodyEl.classList.remove('flip');
+    }, 900);
+  }
+  camelTitleEl.innerHTML = `${camelCfg.title}<br><span class="stageProgress">שלב ${LEVELS.length + camelCfg.stageOffset} - צַעַד ${camelStep} מִתּוֹךְ ${CAMEL_STEPS_TO_OASIS}</span>`;
+}
+
+function startCamel(cfg) {
+  clearTimeout(camelTimer);
+  camelCfg = cfg;
+  camelResetAnim();
+  camelStep = 0;
+  camelQueue = [];
+  camelLastSet = -1;
+  camelNextBtn.classList.add('hidden');
+  camelHearBtn.classList.remove('hidden');
+  camelInstructionEl.classList.remove('hidden');
+  showScreen(camelScreen);
+  camelWalkerEl.style.transition = 'none';
+  renderCamelStep(false);
+  void camelWalkerEl.offsetWidth;
+  camelWalkerEl.style.transition = '';
+  camelNewRound();
+}
+
+function camelNewRound() {
+  camelLocked = false;
+  camelFeedbackEl.textContent = '';
+  camelFeedbackEl.classList.remove('bad');
+  const set = camelNextSet();
+  camelTarget = set[Math.floor(Math.random() * set.length)];
+  camelOptionsEl.innerHTML = '';
+  shuffle(set).forEach(word => {
+    const btn = document.createElement('button');
+    btn.className = 'camelOption';
+    btn.textContent = word;
+    btn.addEventListener('click', () => camelPick(btn, word));
+    camelOptionsEl.appendChild(btn);
+  });
+  speakAudio(camelTarget);
+}
+
+function camelPick(btn, word) {
+  if (camelLocked || btn.classList.contains('wrong')) return;
+  if (word === camelTarget) {
+    camelLocked = true;
+    btn.classList.add('correct');
+    playSuccess();
+    camelStep++;
+    sparkle(btn);
+    renderCamelStep(true, false);
+    if (camelStep >= CAMEL_STEPS_TO_OASIS) {
+      camelFeedbackEl.textContent = 'הַגָּמָל הִגִּיעַ לָאוֹאָזִיס! 🎉';
+      camelHearBtn.classList.add('hidden');
+      camelInstructionEl.classList.add('hidden');
+      markLevelComplete(LEVELS.length + camelCfg.completedOffset);
+      camelCelebrate();
+      camelNextBtn.classList.remove('hidden');
+    } else {
+      camelFeedbackEl.textContent = randomPraise() + '!';
+      camelTimer = setTimeout(camelNewRound, 1300);
+    }
+  } else {
+    btn.classList.add('wrong');
+    playError();
+    if (camelStep > 0) {
+      camelStep--;
+      renderCamelStep(true, true);
+    }
+    camelFeedbackEl.textContent = 'נַסוּ שׁוּב';
+    camelFeedbackEl.classList.add('bad');
+    speakAudio(camelTarget);
+  }
+}
+
+camelHomeBtn.addEventListener('click', () => { clearTimeout(camelTimer); camelResetAnim(); showHome(); });
+camelNextBtn.addEventListener('click', () => { camelResetAnim(); showHome(); });
+camelHearBtn.addEventListener('click', () => speakAudio(camelTarget));
+
+window.addEventListener('resize', () => {
+  if (camelScreen.classList.contains('hidden')) return;
+  camelWalkerEl.style.transition = 'none';
+  camelWalkerEl.style.right = camelRightPx(camelStep) + 'px';
+  void camelWalkerEl.offsetWidth;
+  camelWalkerEl.style.transition = '';
+});
+
+// ---- Stage 13: order the sentence (3 words) ----
+// Audio: audio/<word>.mp3 for each word and audio/<w1>_<w2>_<w3>.mp3 for the sentence
+// (see generate_sentence_audio.py).
+const SENTENCES = [
+  { words: ['סַבָּא', 'אוֹכֵל', 'תַּפּוּחַ'], pic: '👴🍎' },
+  { words: ['אִמָּא', 'אוֹפָה', 'עוּגָה'], pic: '👩🎂' },
+  { words: ['הַיֶּלֶד', 'קוֹרֵא', 'סֵפֶר'], pic: '👦📖' },
+  { words: ['הַכֶּלֶב', 'אוֹכֵל', 'עֶצֶם'], pic: '🐕🦴' },
+  { words: ['הַגָּמָל', 'שׁוֹתֶה', 'מַיִם'], pic: '🐪💧' },
+  { words: ['הַצִּפּוֹר', 'שָׁרָה', 'שִׁיר'], pic: '🐦🎵' },
+  { words: ['הַיַּלְדָּה', 'אוֹכֶלֶת', 'פִּיצָה'], pic: '👧🍕' },
+  { words: ['אַבָּא', 'פּוֹתֵחַ', 'חַלּוֹן'], pic: '👨🪟' },
+  { words: ['הַיֶּלֶד', 'שׁוֹתֶה', 'חָלָב'], pic: '👦🥛' },
+  { words: ['הַנָּמֵר', 'רָץ', 'מַהֵר'], pic: '🐆💨' },
+];
+
+const sentenceScreen = document.getElementById('sentenceScreen');
+const sentHomeBtn = document.getElementById('sentHomeBtn');
+const sentTitleEl = document.getElementById('sentTitle');
+const sentPicEl = document.getElementById('sentPic');
+const sentSlotsEl = document.getElementById('sentSlots');
+const sentTrayEl = document.getElementById('sentTray');
+const sentFeedbackEl = document.getElementById('sentFeedback');
+const sentNextBtn = document.getElementById('sentNextBtn');
+
+let sentOrder = [];     // shuffled indices into SENTENCES
+let sentPos = 0;        // position in sentOrder
+let sentCur = null;     // current SENTENCES entry
+let sentSlots = [];     // per slot: word or null
+let sentLocked = [];    // per slot: true once the word is correct
+let sentTray = [];      // words still below the slots
+let sentTimer = null;
+let sentDone = false;
+
+function speakSentence(words) {
+  playAudioFile('audio/' + words.join('_') + '.mp3', () => speak(words.join(' ')));
+}
+
+function startSentences() {
+  clearTimeout(sentTimer);
+  sentOrder = shuffle(SENTENCES.map((_, i) => i));
+  sentPos = 0;
+  showScreen(sentenceScreen);
+  sentLoad();
+}
+
+function sentLoad() {
+  sentCur = SENTENCES[sentOrder[sentPos]];
+  sentSlots = sentCur.words.map(() => null);
+  sentLocked = sentCur.words.map(() => false);
+  sentDone = false;
+  sentNextBtn.classList.add('hidden');
+  sentFeedbackEl.textContent = '';
+  sentPicEl.textContent = sentCur.pic;
+  sentTitleEl.innerHTML = `סַדְּרוּ אֶת הַמִּשְׁפָּט<br><span class="stageProgress">שלב ${LEVELS.length + 6} - מִשְׁפָּט ${sentPos + 1} מִתּוֹךְ ${sentOrder.length}</span>`;
+  // shuffled tray, never already in the right order
+  let tray = shuffle(sentCur.words);
+  while (tray.every((w, i) => w === sentCur.words[i])) tray = shuffle(sentCur.words);
+  sentTray = tray;
+  sentRender();
+}
+
+
+function sentRender() {
+  sentSlotsEl.innerHTML = '';
+  sentSlots.forEach((word, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'sentSlot' + (word ? ' filled' : '');
+    if (word) {
+      const chip = document.createElement('button');
+      chip.className = 'sentChip' + (sentLocked[i] ? ' ok' : '');
+      chip.textContent = word;
+      chip.addEventListener('click', () => {
+        if (sentLocked[i] || sentDone) { speakAudio(word); return; }
+        sentSlots[i] = null;
+        sentTray.push(word);
+        sentRender();
+      });
+      slot.appendChild(chip);
+    }
+    sentSlotsEl.appendChild(slot);
+  });
+  sentTrayEl.innerHTML = '';
+  sentTray.forEach(word => {
+    const chip = document.createElement('button');
+    chip.className = 'sentChip';
+    chip.textContent = word;
+    chip.addEventListener('click', () => sentPlace(word));
+    sentTrayEl.appendChild(chip);
+  });
+}
+
+function sentPlace(word) {
+  if (sentDone) return;
+  const i = sentSlots.indexOf(null);
+  if (i === -1) return;
+  sentSlots[i] = word;
+  sentTray.splice(sentTray.indexOf(word), 1);
+  speakAudio(word);
+  sentRender();
+  if (sentSlots.every(w => w !== null)) sentCheck();
+}
+
+function sentCheck() {
+  const wrong = [];
+  sentSlots.forEach((w, i) => { if (w !== sentCur.words[i]) wrong.push(i); });
+  if (wrong.length === 0) {
+    sentDone = true;
+    sentSlots.forEach((_, i) => { sentLocked[i] = true; });
+    sentRender();
+    sentSlotsEl.querySelectorAll('.sentSlot').forEach(sparkle);
+    playSuccess();
+    sentFeedbackEl.textContent = randomPraise() + '!';
+    sentTimer = setTimeout(() => speakSentence(sentCur.words), 500);
+    const last = sentPos === sentOrder.length - 1;
+    if (last) {
+      markLevelComplete(LEVELS.length + 5);
+      showConfetti();
+      sentNextBtn.textContent = 'חֲזָרָה לַבַּיִת ←';
+    } else {
+      sentNextBtn.textContent = 'הַבָּא ←';
+    }
+    sentNextBtn.classList.remove('hidden');
+    return;
+  }
+  playError();
+  sentFeedbackEl.textContent = '';
+  sentSlots.forEach((_, i) => { if (!wrong.includes(i)) sentLocked[i] = true; });
+  sentRender();
+  const chips = sentSlotsEl.querySelectorAll('.sentChip');
+  wrong.forEach(i => chips[i].classList.add('bad'));
+  sentTimer = setTimeout(() => {
+    wrong.forEach(i => { sentTray.push(sentSlots[i]); sentSlots[i] = null; });
+    sentRender();
+  }, 800);
+}
+
+sentHomeBtn.addEventListener('click', () => { clearTimeout(sentTimer); showHome(); });
+sentNextBtn.addEventListener('click', () => {
+  clearTimeout(sentTimer);
+  if (sentPos === sentOrder.length - 1) { showHome(); return; }
+  sentPos++;
+  sentLoad();
+});
+
+// ---- Stages 14-15: memory game (written word <-> picture) ----
+// Words come from stages 1-6 that have a single, unambiguous emoji (see MEM_EXCLUDE).
+// cols x rows = pairs * 2 cards. The hard stage uses only the longer words (stages 3-6) on a 4-wide x 5-tall
+// board. In both stages a wrong pair stays face up until the child taps the first card of the next pair.
+const MEM_STAGES = [
+  { cols: 3, pairs: 6, boards: 3, levelFrom: 0, levelTo: 6, stageOffset: 7, completedOffset: 6,
+    title: 'מִשְׂחָק זִכָּרוֹן', icon: '🃏', color: '#8e44ad' },
+  { cols: 4, pairs: 10, boards: 2, levelFrom: 2, levelTo: 6, stageOffset: 8, completedOffset: 9,
+    title: 'מִשְׂחָק זִכָּרוֹן – קָשֶׁה', icon: '🎴', color: '#6c3483' },
+];
+// near-duplicate or abstract pictures that would confuse a child
+const MEM_EXCLUDE = new Set(['עגל', 'בקר', 'עורב', 'מקום', 'צורה', 'מלך', 'חומוס']);
+
+const memScreen = document.getElementById('memScreen');
+const memHomeBtn = document.getElementById('memHomeBtn');
+const memTitleEl = document.getElementById('memTitle');
+const memGridEl = document.getElementById('memGrid');
+const memFeedbackEl = document.getElementById('memFeedback');
+const memNextBtn = document.getElementById('memNextBtn');
+
+let memCfg = MEM_STAGES[0];
+let memPool = [];
+let memBoard = 0;
+let memCards = [];
+let memFlipped = [];
+let memPending = null;   // wrong pair still face up
+
+function memBuildPool() {
+  const pool = [];
+  LEVELS.slice(memCfg.levelFrom, memCfg.levelTo).forEach(level => {
+    level.words.forEach(w => {
+      const emoji = EMOJI_MAP[w.name];
+      if (!emoji || MEM_EXCLUDE.has(w.name) || /\s/.test(w.name)) return;
+      const chars = Array.from(emoji);   // "two of the same" emoji means a plural word - skip
+      const half = chars.length / 2;
+      if (chars.length % 2 === 0 && chars.slice(0, half).join('') === chars.slice(half).join('')) return;
+      pool.push({ name: w.name, text: w.tiles.join(''), emoji });
+    });
+  });
+  return shuffle(pool);
+}
+
+function startMemory(cfg) {
+  memCfg = cfg;
+  memPool = memBuildPool();
+  memBoard = 0;
+  showScreen(memScreen);
+  memLoadBoard();
+}
+
+function memLoadBoard() {
+  memFlipped = [];
+  memPending = null;
+  memNextBtn.classList.add('hidden');
+  memFeedbackEl.textContent = '';
+  memTitleEl.innerHTML = `${memCfg.title}<br><span class="stageProgress">שלב ${LEVELS.length + memCfg.stageOffset} - לוּחַ ${memBoard + 1} מִתּוֹךְ ${memCfg.boards}</span>`;
+  const pairs = memPool.slice(memBoard * memCfg.pairs, (memBoard + 1) * memCfg.pairs);
+  memGridEl.style.gridTemplateColumns = `repeat(${memCfg.cols}, 1fr)`;
+  memGridEl.dataset.cols = memCfg.cols;
+  const cards = [];
+  pairs.forEach(p => {
+    cards.push({ key: p.name, type: 'word', label: p.text });
+    cards.push({ key: p.name, type: 'pic', label: p.emoji });
+  });
+  memCards = shuffle(cards);
+  memGridEl.innerHTML = '';
+  memCards.forEach(card => {
+    const el = document.createElement('button');
+    el.className = 'memCard ' + card.type;
+    el.innerHTML = '<span class="memInner"><span class="memFront">❓</span><span class="memBack"></span></span>';
+    el.querySelector('.memBack').textContent = card.label;
+    if (card.type === 'word' && (card.label.match(/[א-ת]/g) || []).length >= 6) el.classList.add('long');
+    el.addEventListener('click', () => memFlip(card, el));
+    card.el = el;
+    card.matched = false;
+    memGridEl.appendChild(el);
+  });
+}
+
+function memFlip(card, el) {
+  if (card.matched || memFlipped.includes(card)) return;
+  if (memPending) {
+    if (memPending.includes(card)) return;
+    memPending.forEach(c => c.el.classList.remove('flipped'));
+    memPending = null;
+  }
+  el.classList.add('flipped');
+  memFlipped.push(card);
+  if (card.type === 'pic') speakWord({ name: card.key });
+  if (memFlipped.length < 2) return;
+  const [a, b] = memFlipped;
+  if (a.key === b.key && a.type !== b.type) {
+    a.matched = b.matched = true;
+    a.el.classList.add('matched');
+    b.el.classList.add('matched');
+    sparkle(a.el);
+    sparkle(b.el);
+    playSuccess();
+    memFlipped = [];
+    if (memCards.every(c => c.matched)) memBoardDone();
+  } else {
+    memPending = [a, b];
+    memFlipped = [];
+  }
+}
+
+function memBoardDone() {
+  memFeedbackEl.textContent = randomPraise() + '!';
+  const last = memBoard === memCfg.boards - 1;
+  if (last) {
+    markLevelComplete(LEVELS.length + memCfg.completedOffset);
+    showConfetti();
+    memNextBtn.textContent = 'חֲזָרָה לַבַּיִת ←';
+  } else {
+    memNextBtn.textContent = 'הַלּוּחַ הַבָּא ←';
+  }
+  memNextBtn.classList.remove('hidden');
+}
+
+memHomeBtn.addEventListener('click', showHome);
+memNextBtn.addEventListener('click', () => {
+  if (memBoard === memCfg.boards - 1) { showHome(); return; }
+  memBoard++;
+  memLoadBoard();
+});
+
+// ---- Stages 16-17: syllable crossword ----
+// Words are written right-to-left (dir 'h') or top-to-bottom (dir 'v'), one syllable per cell.
+// r/c are 1-based grid coordinates of the first syllable (c = 1 is the right-most column).
+// Words that cross share a cell, so the shared syllable must be identical in both words.
+// The picture clue sits in the cell before the first syllable (row/col 0 is the clue gutter).
+// Word audio: audio/<name>.mp3 ("בננה" is generated by generate_crossword_audio.py).
+const CROSSWORDS_EASY = [
+  [
+    { name: 'חלב', syl: ['חַ', 'לָּב'], r: 1, c: 1, dir: 'h' },
+    { name: 'חלה', syl: ['חַ', 'לָּה'], r: 1, c: 1, dir: 'v' },
+  ],
+  [
+    { name: 'בננה', syl: ['בָּ', 'נָ', 'נָה'], r: 2, c: 1, dir: 'h', emoji: '🍌' },
+    { name: 'ענבים', syl: ['עֲ', 'נָ', 'בִים'], r: 1, c: 2, dir: 'v' },
+  ],
+  [
+    { name: 'מתנה', syl: ['מַ', 'תָּ', 'נָה'], r: 3, c: 1, dir: 'h' },
+    { name: 'בננה', syl: ['בָּ', 'נָ', 'נָה'], r: 1, c: 3, dir: 'v', emoji: '🍌' },
+  ],
+  [
+    { name: 'מתנה', syl: ['מַ', 'תָּ', 'נָה'], r: 1, c: 2, dir: 'h' },
+    { name: 'מפה', syl: ['מַ', 'פָּה'], r: 1, c: 2, dir: 'v' },
+    { name: 'טיפה', syl: ['טִי', 'פָּה'], r: 2, c: 1, dir: 'h' },
+  ],
+  [
+    { name: 'סירים', syl: ['סִי', 'רִים'], r: 2, c: 1, dir: 'h' },
+    { name: 'גירים', syl: ['גִּי', 'רִים'], r: 1, c: 2, dir: 'v' },
+    { name: 'סירה', syl: ['סִי', 'רָה'], r: 2, c: 1, dir: 'v' },
+  ],  [
+    { name: 'ביצה', syl: ['בֵּי', 'צָה'], r: 1, c: 2, dir: 'v' },
+    { name: 'פִּיצָה', syl: ['פִּי', 'צָה'], r: 2, c: 1, dir: 'h' },
+    { name: 'פילים', syl: ['פִּי', 'לִים'], r: 2, c: 1, dir: 'v' },
+  ],
+  [
+    { name: 'מיטה', syl: ['מִי', 'טָּה'], r: 1, c: 2, dir: 'h' },
+    { name: 'מיצים', syl: ['מִי', 'צִים'], r: 1, c: 2, dir: 'v' },
+    { name: 'עצים', syl: ['עֵ', 'צִים'], r: 2, c: 1, dir: 'h' },
+  ],  [
+    { name: 'חלב', syl: ['חַ', 'לָּב'], r: 1, c: 2, dir: 'h' },
+    { name: 'חלה', syl: ['חַ', 'לָּה'], r: 1, c: 2, dir: 'v' },
+    { name: 'קולה', syl: ['קוֹ', 'לָּה'], r: 2, c: 1, dir: 'h', emoji: '🥤' },
+  ],
+  [
+    { name: 'מפה', syl: ['מַ', 'פָּה'], r: 2, c: 1, dir: 'h' },
+    { name: 'מתנה', syl: ['מַ', 'תָּ', 'נָה'], r: 2, c: 1, dir: 'v' },
+    { name: 'ספה', syl: ['סַ', 'פָּה'], r: 1, c: 2, dir: 'v', emoji: '🛋️' },
+  ],
+];
+
+// Stage 17 (hard): 3 and 4 words per crossword. Shared syllables must sound the same in both words
+// (same text AND same final/non-final position). Layouts were found with a search script over the
+// words that have audio; ask before adding words without audio.
+const CROSSWORDS_HARD = [
+  [
+    { name: 'תמר', syl: ['תָּ', 'מָר'], r: 3, c: 2, dir: 'v' },
+    { name: 'מתנה', syl: ['מַ', 'תָּ', 'נָה'], r: 3, c: 1, dir: 'h' },
+    { name: 'בננה', syl: ['בָּ', 'נָ', 'נָה'], r: 1, c: 3, dir: 'v', emoji: '🍌' },
+  ],
+  [
+    { name: 'חללית', syl: ['חַ', 'לָ', 'לִית'], r: 1, c: 2, dir: 'h' },
+    { name: 'חלה', syl: ['חַ', 'לָּה'], r: 1, c: 2, dir: 'v' },
+    { name: 'כַּלָּה', syl: ['כַּ', 'לָּה'], r: 2, c: 1, dir: 'h' },
+  ],
+  [
+    { name: 'סוּכָּה', syl: ['סוּ', 'כָּה'], r: 1, c: 2, dir: 'v' },
+    { name: 'סוכריה', syl: ['סוּ', 'כָּ', 'רִיָּה'], r: 1, c: 2, dir: 'h' },
+    { name: 'סיכה', syl: ['סִי', 'כָּה'], r: 2, c: 1, dir: 'h' },
+  ],
+  [
+    { name: 'סירים', syl: ['סִי', 'רִים'], r: 2, c: 2, dir: 'h' },
+    { name: 'סיכה', syl: ['סִי', 'כָּה'], r: 2, c: 2, dir: 'v' },
+    { name: 'גירים', syl: ['גִּי', 'רִים'], r: 1, c: 3, dir: 'v' },
+    { name: 'סוּכָּה', syl: ['סוּ', 'כָּה'], r: 3, c: 1, dir: 'h' },
+  ],
+  [
+    { name: 'מפה', syl: ['מַ', 'פָּה'], r: 2, c: 3, dir: 'h' },
+    { name: 'מתנה', syl: ['מַ', 'תָּ', 'נָה'], r: 2, c: 3, dir: 'v' },
+    { name: 'בננה', syl: ['בָּ', 'נָ', 'נָה'], r: 4, c: 1, dir: 'h', emoji: '🍌' },
+    { name: 'טיפה', syl: ['טִי', 'פָּה'], r: 1, c: 4, dir: 'v' },
+  ],  [
+    { name: 'מפה', syl: ['מַ', 'פָּה'], r: 1, c: 3, dir: 'h' },
+    { name: 'מתנה', syl: ['מַ', 'תָּ', 'נָה'], r: 1, c: 3, dir: 'v' },
+    { name: 'בננה', syl: ['בָּ', 'נָ', 'נָה'], r: 3, c: 1, dir: 'h', emoji: '🍌' },
+  ],
+  [
+    { name: 'מתנה', syl: ['מַ', 'תָּ', 'נָה'], r: 3, c: 2, dir: 'h' },
+    { name: 'בננה', syl: ['בָּ', 'נָ', 'נָה'], r: 1, c: 4, dir: 'v', emoji: '🍌' },
+    { name: 'מפה', syl: ['מַ', 'פָּה'], r: 3, c: 2, dir: 'v' },
+    { name: 'טיפה', syl: ['טִי', 'פָּה'], r: 4, c: 1, dir: 'h' },
+  ],  [
+    { name: 'מפה', syl: ['מַ', 'פָּה'], r: 2, c: 3, dir: 'h' },
+    { name: 'מתנה', syl: ['מַ', 'תָּ', 'נָה'], r: 2, c: 3, dir: 'v' },
+    { name: 'ספה', syl: ['סַ', 'פָּה'], r: 1, c: 4, dir: 'v', emoji: '🛋️' },
+    { name: 'בננה', syl: ['בָּ', 'נָ', 'נָה'], r: 4, c: 1, dir: 'h', emoji: '🍌' },
+  ],
+  [
+    { name: 'מפה', syl: ['מַ', 'פָּה'], r: 4, c: 1, dir: 'h' },
+    { name: 'ספה', syl: ['סַ', 'פָּה'], r: 3, c: 2, dir: 'v', emoji: '🛋️' },
+    { name: 'סכינים', syl: ['סַ', 'כִּי', 'נִים'], r: 3, c: 2, dir: 'h' },
+    { name: 'עננים', syl: ['עֲ', 'נָ', 'נִים'], r: 1, c: 4, dir: 'v', emoji: '☁️☁️' },
+  ],
+  [
+    { name: 'סבא', syl: ['סַ', 'בָּא'], r: 1, c: 3, dir: 'h' },
+    { name: 'סכינים', syl: ['סַ', 'כִּי', 'נִים'], r: 1, c: 3, dir: 'v' },
+    { name: 'עננים', syl: ['עֲ', 'נָ', 'נִים'], r: 3, c: 1, dir: 'h', emoji: '☁️☁️' },
+    { name: 'ענבים', syl: ['עֲ', 'נָ', 'בִים'], r: 3, c: 1, dir: 'v' },
+  ],
+  [
+    { name: 'ענבים', syl: ['עֲ', 'נָ', 'בִים'], r: 1, c: 3, dir: 'h' },
+    { name: 'עננים', syl: ['עֲ', 'נָ', 'נִים'], r: 1, c: 3, dir: 'v', emoji: '☁️☁️' },
+    { name: 'סכינים', syl: ['סַ', 'כִּי', 'נִים'], r: 3, c: 1, dir: 'h' },
+  ],
+];
+
+// stageOffset: stage number shown = LEVELS.length + stageOffset; completedOffset: COMPLETED_KEY entry
+// (kept stable when stages are renumbered, so saved progress stays valid)
+const CROSSWORD_STAGES = [
+  { puzzles: CROSSWORDS_EASY, stageOffset: 9, completedOffset: 7, title: 'תַּשְׁחֵץ הֲבָרוֹת', icon: '🔠', color: '#16a085' },
+  { puzzles: CROSSWORDS_HARD, stageOffset: 10, completedOffset: 8, title: 'תַּשְׁחֵץ הֲבָרוֹת – קָשֶׁה', icon: '🧠', color: '#0e6655' },
+];
+
+const xwScreen = document.getElementById('xwScreen');
+const xwHomeBtn = document.getElementById('xwHomeBtn');
+const xwTitleEl = document.getElementById('xwTitle');
+const xwGridEl = document.getElementById('xwGrid');
+const xwBankEl = document.getElementById('xwBank');
+const xwFeedbackEl = document.getElementById('xwFeedback');
+const xwNextBtn = document.getElementById('xwNextBtn');
+const xwSkipBtn = document.getElementById('xwSkipBtn');
+
+let xwCfg = CROSSWORD_STAGES[0];
+let xwIndex = 0;
+let xwWords = [];     // [{name, emoji, dir, r, c, keys:[cellKey...], done}]
+let xwCells = {};     // key "r,c" -> {r, c, expected, locked, bad, badText, isFinal}
+let xwTiles = [];     // [{text, used}]
+let xwSel = null;     // selected cell key
+let xwTimer = null;
+
+function xwCellKey(r, c) { return r + ',' + c; }
+
+function startCrossword(cfg) {
+  clearTimeout(xwTimer);
+  xwCfg = cfg;
+  showScreen(xwScreen);
+  xwIndex = 0;
+  xwLoad();
+}
+
+function xwLoad() {
+  clearTimeout(xwTimer);
+  xwCells = {};
+  xwWords = xwCfg.puzzles[xwIndex].map(w => {
+    const keys = w.syl.map((syl, i) => {
+      const r = w.dir === 'v' ? w.r + i : w.r;
+      const c = w.dir === 'h' ? w.c + i : w.c;
+      const key = xwCellKey(r, c);
+      const last = i === w.syl.length - 1;
+      if (!xwCells[key]) xwCells[key] = { r, c, expected: syl, locked: false, bad: false, isFinal: false };
+      if (xwCells[key].expected !== syl) console.error('crossword mismatch at', key, w.name);
+      if (last) xwCells[key].isFinal = true;
+      return key;
+    });
+    return { name: w.name, emoji: w.emoji || EMOJI_MAP[w.name] || '❓', dir: w.dir, r: w.r, c: w.c, keys, done: false };
+  });
+  xwTiles = shuffle(Object.values(xwCells).map(cell => ({ text: cell.expected, used: false })));
+  xwNextBtn.classList.add('hidden');
+  xwSkipBtn.classList.remove('hidden');
+  xwFeedbackEl.textContent = '';
+  xwTitleEl.innerHTML = `${xwCfg.title}<br><span class="stageProgress">שלב ${LEVELS.length + xwCfg.stageOffset} - תַּשְׁחֵץ ${xwIndex + 1} מִתּוֹךְ ${xwCfg.puzzles.length}</span>`;
+  xwSel = null;
+  xwSelectNext();
+  xwRender();
+}
+
+function xwSelectNext() {
+  for (const w of xwWords) {
+    const k = w.keys.find(key => !xwCells[key].locked);
+    if (k) { xwSel = k; return; }
+  }
+  xwSel = null;
+}
+
+function xwRender() {
+  const maxR = Math.max(...Object.values(xwCells).map(c => c.r));
+  const maxC = Math.max(...Object.values(xwCells).map(c => c.c));
+  xwGridEl.style.gridTemplateColumns = `repeat(${maxC + 1}, minmax(0, 1fr))`;
+  xwGridEl.dataset.cols = maxC + 1;
+  xwGridEl.style.gridTemplateRows = `repeat(${maxR + 1}, auto)`;
+  xwGridEl.innerHTML = '';
+  // clue cells
+  xwWords.forEach(w => {
+    const clue = document.createElement('button');
+    clue.className = 'xwClue';
+    clue.dataset.dir = w.dir;
+    clue.style.gridRow = (w.dir === 'v' ? w.r - 1 : w.r) + 1;
+    clue.style.gridColumn = (w.dir === 'h' ? w.c - 1 : w.c) + 1;
+    clue.innerHTML = '<span></span><span class="xwArrow ' + w.dir + '"></span>';
+    clue.firstChild.textContent = w.emoji;
+    clue.addEventListener('click', () => speakWord({ name: w.name }));
+    xwGridEl.appendChild(clue);
+  });
+  // syllable cells
+  Object.entries(xwCells).forEach(([key, cell]) => {
+    const el = document.createElement('button');
+    el.className = 'xwCell' + (cell.locked ? ' locked' : '') + (cell.bad ? ' bad' : '') + (xwSel === key ? ' sel' : '');
+    el.style.gridRow = cell.r + 1;
+    el.style.gridColumn = cell.c + 1;
+    el.dataset.key = key;
+    const shown = cell.locked ? cell.expected : (cell.bad ? cell.badText : '');
+    el.textContent = shown;
+    if ((shown.match(/[א-ת]/g) || []).length >= 3) el.classList.add('long');
+    el.addEventListener('click', () => {
+      if (cell.locked) { speakLetter(cell.expected, cell.isFinal); return; }
+      xwSel = key;
+      xwRender();
+    });
+    xwGridEl.appendChild(el);
+  });
+  // bank
+  xwBankEl.innerHTML = '';
+  xwTiles.forEach(tile => {
+    if (tile.used) return;
+    const b = document.createElement('button');
+    b.className = 'xwTile';
+    b.textContent = tile.text;
+    b.addEventListener('pointerdown', e => xwDragStart(e, tile, b));
+    xwBankEl.appendChild(b);
+  });
+}
+
+// Drag a syllable from the bank onto a cell. A short press (no real movement) is a tap and
+// puts the syllable in the selected cell, as before.
+function xwDragStart(e, tile, btn) {
+  if (e.button !== undefined && e.button !== 0) return;
+  e.preventDefault();
+  const startX = e.clientX, startY = e.clientY;
+  const rect = btn.getBoundingClientRect();
+  const offX = startX - rect.left, offY = startY - rect.top;
+  let ghost = null, over = null, moved = false;
+  btn.setPointerCapture(e.pointerId);
+
+  const move = ev => {
+    if (!moved) {
+      if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < 8) return;
+      moved = true;
+      ghost = btn.cloneNode(true);
+      ghost.classList.add('xwGhost');
+      ghost.style.width = rect.width + 'px';
+      document.body.appendChild(ghost);
+      btn.style.opacity = '0.3';
+    }
+    ghost.style.left = (ev.clientX - offX) + 'px';
+    ghost.style.top = (ev.clientY - offY) + 'px';
+    const hit = document.elementFromPoint(ev.clientX, ev.clientY);
+    const cellEl = hit && hit.closest ? hit.closest('.xwCell:not(.locked)') : null;
+    if (cellEl !== over) {
+      if (over) over.classList.remove('dragOver');
+      over = cellEl;
+      if (over) over.classList.add('dragOver');
+    }
+  };
+  const finish = (drop) => {
+    btn.removeEventListener('pointermove', move);
+    btn.removeEventListener('pointerup', up);
+    btn.removeEventListener('pointercancel', cancel);
+    if (ghost) ghost.remove();
+    btn.style.opacity = '';
+    if (over) over.classList.remove('dragOver');
+    if (!drop) return;
+    if (!moved) { xwPlace(tile); return; }
+    if (over && over.dataset.key) { xwSel = over.dataset.key; xwPlace(tile); }
+  };
+  const up = () => finish(true);
+  const cancel = () => finish(false);
+  btn.addEventListener('pointermove', move);
+  btn.addEventListener('pointerup', up);
+  btn.addEventListener('pointercancel', cancel);
+}
+
+function xwPlace(tile) {
+  if (!xwSel) return;
+  const cell = xwCells[xwSel];
+  if (cell.locked || cell.bad) return;
+  speakLetter(tile.text, cell.isFinal);
+  if (tile.text !== cell.expected) {
+    cell.bad = true;
+    cell.badText = tile.text;
+    playError();
+    xwRender();
+    xwTimer = setTimeout(() => { cell.bad = false; xwRender(); }, 700);
+    return;
+  }
+  cell.locked = true;
+  tile.used = true;
+  const key = xwSel;
+  xwSelectNext();
+  xwRender();
+  // words completed by this cell
+  xwWords.forEach(w => {
+    if (!w.done && w.keys.includes(key) && w.keys.every(k => xwCells[k].locked)) {
+      w.done = true;
+      w.keys.forEach(k => {
+        const el = xwGridEl.querySelector(`.xwCell[data-key="${k}"]`);
+        if (el) sparkle(el);
+      });
+      playSuccess();
+      xwTimer = setTimeout(() => speakWord({ name: w.name }), 450);
+    }
+  });
+  if (xwWords.every(w => w.done)) xwPuzzleDone();
+}
+
+function xwPuzzleDone() {
+  xwSkipBtn.classList.add('hidden');
+  xwFeedbackEl.textContent = randomPraise() + '!';
+  const last = xwIndex === xwCfg.puzzles.length - 1;
+  if (last) {
+    markLevelComplete(LEVELS.length + xwCfg.completedOffset);
+    showConfetti();
+    xwNextBtn.textContent = 'חֲזָרָה לַבַּיִת ←';
+  } else {
+    xwNextBtn.textContent = 'הַבָּא ←';
+  }
+  xwNextBtn.classList.remove('hidden');
+}
+
+xwHomeBtn.addEventListener('click', () => { clearTimeout(xwTimer); showHome(); });
+// skip: next puzzle, or back home after the last one (the stage is not marked complete)
+xwSkipBtn.addEventListener('click', () => {
+  clearTimeout(xwTimer);
+  if (xwIndex === xwCfg.puzzles.length - 1) { showHome(); return; }
+  xwIndex++;
+  xwLoad();
+});
+xwNextBtn.addEventListener('click', () => {
+  if (xwIndex === xwCfg.puzzles.length - 1) { showHome(); return; }
+  xwIndex++;
+  xwLoad();
+});
+
 // kick off
 restoreProgress();
-buildStageCards();
 showHome();

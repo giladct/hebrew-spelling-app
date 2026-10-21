@@ -37,7 +37,7 @@ header {
 header h1 { color: white; margin: 2px 0; }
 header #progress { color: rgba(255,255,255,0.75); }
 header #attemptsEl { color: #ff9a9a; }
-header #smTitle, header #dw10Title { color: white; }
+header #smTitle, header #dw10Title, header #camelTitle, header #sentTitle, header #memTitle, header #xwTitle { color: white; }
 
 #headerTitle {
   flex: 1;
@@ -85,10 +85,6 @@ h1 {
   line-height: 1;
 }
 
-.subtitle {
-  color: #555;
-  margin: 4px 0 16px;
-}
 
 #continueBtn {
   padding: 10px 24px;
@@ -113,14 +109,29 @@ h1 {
 }
 
 #stageCards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.stageGroupTitle {
+  margin: 0 2px 8px;
+  padding-right: 10px;
+  border-right: 5px solid #3a6fa8;
+  font-size: 1.15rem;
+  color: #2c3e50;
+}
+
+.stageGroupGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 10px;
   width: 100%;
 }
 
 .stageCard {
-  padding: 10px 14px;
+  padding: 6px 12px;
   border: none;
   border-radius: 16px;
   background: var(--card-color, #3498db);
@@ -128,8 +139,8 @@ h1 {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 10px;
-  box-shadow: 0 5px 0 rgba(0,0,0,0.2), 0 7px 16px rgba(0,0,0,0.15);
+  gap: 8px;
+  box-shadow: 0 4px 0 rgba(0,0,0,0.2), 0 6px 12px rgba(0,0,0,0.15);
   position: relative;
 }
 
@@ -153,29 +164,34 @@ h1 {
 }
 
 .stageIcon {
-  font-size: 2.6em;
+  font-size: 2.2em;
   line-height: 1;
   flex-shrink: 0;
 }
 
 .stageLabelRow {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .stageNum {
-  font-size: 1.8em;
+  flex-shrink: 0;
+  font-size: 1.55em;
+  line-height: 1.1;
   font-weight: bold;
 }
 
 .stageLabel {
   font-size: 0.85em;
+  line-height: 1.15;
   font-weight: bold;
 }
 
-#homeBtn, #smHomeBtn, #dw10HomeBtn {
+#homeBtn, #smHomeBtn, #dw10HomeBtn, #camelHomeBtn, #sentHomeBtn, #memHomeBtn, #xwHomeBtn {
   flex-shrink: 0;
   padding: 6px 12px;
   font-size: 0.85em;
@@ -200,6 +216,16 @@ h1 {
   opacity: 0.8;
 }
 
+#xwSkipBtn {
+  padding: 6px 16px;
+  font-size: 0.95em;
+  border: none;
+  border-radius: 20px;
+  background: #95a5a6;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
 #smSkipBtn {
   padding: 6px 16px;
   font-size: 0.95em;
@@ -210,7 +236,7 @@ h1 {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-#smNextBtn, #dw10NextBtn {
+#smNextBtn, #dw10NextBtn, #camelNextBtn, #sentNextBtn, #memNextBtn, #xwNextBtn {
   margin: 4px 0 10px;
   padding: 12px 32px;
   font-size: 1.2em;
@@ -814,3 +840,500 @@ main {
   box-shadow: 0 8px 16px rgba(0,0,0,0.3);
   transform: scale(1.1);
 }
+
+/* ---- Stage 11: camel to the oasis ---- */
+#camelScreen {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#camelTitle {
+  flex: 1;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+#camelMain {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 8px 16px;
+  width: 100%;
+  max-width: 480px;
+}
+
+#camelScene {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #9fd6f2 0%, #d9effa 60%, #f3d9a0 60%, #e8c374 100%);
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.08);
+}
+
+#camelOasis {
+  z-index: 2;
+  transform-origin: 50% 100%;
+  position: absolute;
+  left: 3%;
+  bottom: 22%;
+  font-size: 3.2rem;
+  line-height: 1;
+  direction: ltr;
+}
+
+#camelWalker {
+  z-index: 3;
+  position: absolute;
+  bottom: 18%;
+  right: 3%;
+  font-size: 3rem;
+  line-height: 1;
+  transition: right 0.9s ease-in-out;
+}
+#camelWalker.walking { animation: camelBob 0.35s ease-in-out infinite; }
+@keyframes camelBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+#camelInstruction {
+  font-size: 1.05rem;
+  color: #555;
+  text-align: center;
+  margin: 0;
+  font-weight: 500;
+}
+
+#camelHearBtn {
+  padding: 8px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 24px;
+  background: #3a6fa8;
+  color: white;
+  box-shadow: 0 3px 0 #254a73;
+}
+
+#camelOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.camelOption {
+  padding: 14px 10px;
+  font-size: 2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 18px;
+  background: white;
+  color: #2c3e50;
+  box-shadow: 0 4px 0 #b9c3cc, 0 6px 12px rgba(0,0,0,0.15);
+}
+.camelOption.correct { background: #4caf50; color: white; box-shadow: 0 4px 0 #2e7d32; }
+.camelOption.wrong { background: #ef5350; color: white; box-shadow: 0 4px 0 #b71c1c; opacity: 0.7; animation: camelShake 0.4s; }
+@keyframes camelShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+#camelFeedback {
+  font-size: 1.2em;
+  font-weight: bold;
+  min-height: 1.4em;
+  text-align: center;
+  color: #27ae60;
+}
+#camelFeedback.bad { color: #c0392b; }
+
+/* animation upgrade */
+.camelSun {
+  position: absolute;
+  top: 6px;
+  left: 42%;
+  font-size: 2rem;
+  line-height: 1;
+  animation: sunPulse 4s ease-in-out infinite;
+}
+@keyframes sunPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.12) rotate(12deg); }
+}
+
+.camelCloud {
+  position: absolute;
+  font-size: 1.8rem;
+  line-height: 1;
+  opacity: 0.9;
+  animation: cloudDrift 32s linear infinite;
+}
+.camelCloud.c1 { top: 8px; left: -15%; }
+.camelCloud.c2 { top: 30px; left: -15%; font-size: 1.3rem; opacity: 0.75; animation-duration: 48s; animation-delay: -20s; }
+@keyframes cloudDrift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(520px); }
+}
+
+.camelDune {
+  position: absolute;
+  border-radius: 50% 50% 0 0;
+  z-index: 1;
+}
+.camelDune.d1 { left: -12%; bottom: 36%; width: 62%; height: 26%; background: #f1d99f; }
+.camelDune.d2 { right: -14%; bottom: 36%; width: 70%; height: 20%; background: #ecce8a; }
+
+#camelBody { display: inline-block; transition: transform 0.2s; }
+#camelSway { display: inline-block; transform-origin: 50% 90%; }
+#camelBody.flip { transform: scaleX(-1); }
+#camelWalker.walking { animation: camelBob 0.3s ease-in-out infinite; }
+#camelWalker.walking #camelSway { animation: camelSway 0.6s ease-in-out infinite; }
+@keyframes camelSway {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+#camelWalker.oops #camelSway { animation: camelOops 0.5s ease-in-out 1; }
+@keyframes camelOops {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-14deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(5deg); }
+}
+#camelWalker.cheer { animation: camelCheer 0.55s ease-out infinite; }
+@keyframes camelCheer {
+  0%, 100% { transform: translateY(0); }
+  45% { transform: translateY(-26px) rotate(-6deg); }
+}
+#camelOasis.shake { animation: treeShake 0.5s ease-in-out infinite; }
+@keyframes treeShake {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+.camelDust {
+  position: absolute;
+  bottom: 18%;
+  font-size: 1.6rem;
+  line-height: 1;
+  z-index: 4;
+  pointer-events: none;
+  animation: dustPuff 0.8s ease-out forwards;
+}
+@keyframes dustPuff {
+  0%   { opacity: 0.9; transform: translate(0, 0) scale(0.6); }
+  100% { opacity: 0;   transform: translate(14px, -22px) scale(1.5); }
+}
+
+.camelOption { position: relative; }
+.camelOption.correct { animation: optionPop 0.45s ease-out; }
+@keyframes optionPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.sparkle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 1.3rem;
+  pointer-events: none;
+  animation: sparkleFly 0.9s ease-out forwards;
+}
+@keyframes sparkleFly {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.3) rotate(180deg); }
+}
+
+#confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 50;
+}
+.confettiPiece {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--color);
+  animation: confettiFall var(--dur) linear var(--delay) forwards;
+}
+@keyframes confettiFall {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--drift), 105vh) rotate(720deg); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camelCloud, .camelSun { animation: none; }
+  .sparkle, #confetti { display: none; }
+}
+
+/* ---- Stage 13: order the sentence ---- */
+#sentenceScreen {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#sentTitle { flex: 1; text-align: center; font-size: 1.1em; font-weight: bold; }
+#sentMain {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 480px;
+}
+#sentPic { font-size: 4rem; line-height: 1; min-height: 4.4rem; }
+#sentInstruction { font-size: 1.05rem; color: #555; text-align: center; margin: 0; font-weight: 500; }
+#sentSlots, #sentTray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  width: 100%;
+}
+#sentSlots { min-height: 64px; }
+.sentSlot {
+  position: relative;
+  flex: 1 1 28%;
+  max-width: 31%;
+  min-height: 60px;
+  border: 3px dashed #9aa7b3;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sentSlot.filled { border-style: solid; border-color: transparent; background: transparent; }
+#sentTray { min-height: 64px; }
+.sentChip {
+  padding: 10px 14px;
+  font-size: 1.45rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 16px;
+  background: white;
+  color: #2c3e50;
+  box-shadow: 0 4px 0 #b9c3cc, 0 6px 12px rgba(0,0,0,0.15);
+  white-space: nowrap;
+}
+.sentSlot .sentChip { width: 100%; padding: 10px 4px; font-size: 1.25rem; }
+.sentChip.ok { background: #4caf50; color: white; box-shadow: 0 4px 0 #2e7d32; }
+.sentChip.bad { background: #ef5350; color: white; box-shadow: 0 4px 0 #b71c1c; animation: camelShake 0.4s; }
+#sentFeedback { font-size: 1.2em; font-weight: bold; min-height: 1.4em; text-align: center; color: #27ae60; }
+
+/* ---- Stage 14: memory (word <-> picture) ---- */
+#memScreen {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#memTitle { flex: 1; text-align: center; font-size: 1.1em; font-weight: bold; }
+#memMain {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 480px;
+}
+#memInstruction { font-size: 1.05rem; color: #555; text-align: center; margin: 0; font-weight: 500; }
+#memGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+}
+.memCard {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: none;
+  background: none;
+  perspective: 600px;
+}
+.memInner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.45s;
+}
+.memCard.flipped .memInner { transform: rotateY(180deg); }
+.memFront, .memBack {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.18), 0 5px 10px rgba(0,0,0,0.15);
+}
+.memFront {
+  background: linear-gradient(135deg, #8e44ad, #5b6fd6);
+  color: rgba(255,255,255,0.85);
+  font-size: 2.4rem;
+}
+.memBack {
+  transform: rotateY(180deg);
+  background: white;
+  color: #2c3e50;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.15;
+  padding: 2px;
+}
+.memCard.word .memBack { font-size: 1.55rem; }
+.memCard.pic .memBack { font-size: 3.4rem; }
+.memCard.matched .memBack { background: #c8f0cc; box-shadow: 0 0 0 3px #4caf50, 0 5px 10px rgba(0,0,0,0.15); }
+#memFeedback { font-size: 1.2em; font-weight: bold; min-height: 1.4em; text-align: center; color: #27ae60; }
+
+/* ---- Stage 15: syllable crossword ---- */
+#xwScreen {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#xwTitle { flex: 1; text-align: center; font-size: 1.1em; font-weight: bold; }
+#xwMain {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 480px;
+}
+#xwInstruction { font-size: 1.05rem; color: #555; text-align: center; margin: 0; font-weight: 500; }
+#xwGrid {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  max-width: 360px;
+}
+.xwCell, .xwClue {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 0;
+}
+.xwCell {
+  background: white;
+  border: 3px solid #c4ced8;
+  font-size: 1.9rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+.xwCell.long { font-size: 1.5rem; }
+.xwCell.dragOver { border-color: #2980b9; background: #e6f2fb; }
+.xwCell.sel { border-color: #f39c12; box-shadow: 0 0 0 3px rgba(243,156,18,0.35); }
+.xwCell.locked { background: #c8f0cc; border-color: #4caf50; }
+.xwCell.bad { background: #ef5350; border-color: #b71c1c; color: white; animation: camelShake 0.4s; }
+.xwClue {
+  background: #fff4d6;
+  border: 2px solid #f0d58c;
+  font-size: 1.9rem;
+  line-height: 1;
+}
+.xwClue .xwArrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.xwClue .xwArrow.h {   /* solid triangle pointing left: the word runs right-to-left */
+  left: 3px;
+  top: 50%;
+  margin-top: -10px;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 14px solid #e67e22;
+}
+.xwClue .xwArrow.v {   /* solid triangle pointing down */
+  bottom: 3px;
+  left: 50%;
+  margin-left: -10px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 14px solid #e67e22;
+}
+#xwBank { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; min-height: 64px; }
+.xwTile {
+  padding: 8px 18px;
+  font-size: 2rem;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  font-weight: bold;
+  border: none;
+  border-radius: 16px;
+  background: white;
+  color: #2c3e50;
+  box-shadow: 0 4px 0 #b9c3cc, 0 6px 12px rgba(0,0,0,0.15);
+}
+#xwFeedback { font-size: 1.2em; font-weight: bold; min-height: 1.4em; text-align: center; color: #27ae60; }
+.xwGhost {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  margin: 0;
+  transform: scale(1.1);
+  opacity: 0.92;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+/* hard memory: 4 columns x 5 rows */
+#memGrid[data-cols="4"] { gap: 8px; max-width: 360px; }
+#memGrid[data-cols="4"] .memCard.word .memBack { font-size: 1.3rem; }
+#memGrid[data-cols="4"] .memCard.word.long .memBack { font-size: 1.1rem; }
+#memGrid[data-cols="4"] .memCard.pic .memBack { font-size: 2.7rem; }
+#memGrid[data-cols="4"] .memFront { font-size: 2rem; }
+
+/* crossword: keep wide grids inside the screen, and keep the arrow off the picture */
+.xwCell { min-width: 0; overflow: hidden; }
+.xwClue[data-dir="h"] { padding-left: 14px; }
+.xwClue[data-dir="v"] { padding-bottom: 14px; }
+#xwGrid[data-cols="6"] .xwCell { font-size: 1.55rem; }
+#xwGrid[data-cols="6"] .xwCell.long { font-size: 1.2rem; }
+#xwGrid[data-cols="6"] .xwClue { font-size: 1.5rem; }
+#xwGrid[data-cols="6"] .xwClue[data-dir="h"] { padding-left: 11px; }
+#xwGrid[data-cols="6"] .xwClue[data-dir="v"] { padding-bottom: 11px; }
+#xwGrid[data-cols="6"] .xwClue .xwArrow.h { margin-top: -8px; border-top-width: 8px; border-bottom-width: 8px; border-right-width: 11px; left: 2px; }
+#xwGrid[data-cols="6"] .xwClue .xwArrow.v { margin-left: -8px; border-left-width: 8px; border-right-width: 8px; border-top-width: 11px; bottom: 2px; }
