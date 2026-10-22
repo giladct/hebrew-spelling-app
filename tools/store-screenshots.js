@@ -10,13 +10,19 @@ const path = require('path');
 const { chromium } = require('playwright');
 const sharp = require('sharp');
 
-const OUT = path.join(__dirname, '..', 'store-assets', 'screens');
-const DEVICES = [
+const OUT = path.join(__dirname, '..', 'store-assets', process.argv.includes('--ios') ? 'screens-ios' : 'screens');
+const PLAY_DEVICES = [
   { name: 'phone', viewport: { width: 412, height: 824 }, scale: 3 },       // 1236 x 2472
   { name: 'tablet7', viewport: { width: 540, height: 960 }, scale: 2 },     // 1080 x 1920
   // 600 css px wide so the app (max ~480px) fills the frame; 1067*3 = 3201 -> cropped to 3200
   { name: 'tablet10', viewport: { width: 600, height: 1067 }, scale: 3, crop: { width: 1800, height: 3200 } },
 ];
+// App Store Connect: iPhone 6.7"/6.9" slot (1290 x 2796) and iPad 13" (2064 x 2752)
+const IOS_DEVICES = [
+  { name: 'iphone67', viewport: { width: 430, height: 932 }, scale: 3 },
+  { name: 'ipad13', viewport: { width: 688, height: 918 }, scale: 3, crop: { width: 2064, height: 2752 } },
+];
+const DEVICES = process.argv.includes('--ios') ? IOS_DEVICES : PLAY_DEVICES;   // node tools/store-screenshots.js --ios
 const stage = n => `.stageCard >> nth=${n - 1}`;   // DOM order = stage order
 
 const SCENES = [
