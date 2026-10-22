@@ -81,8 +81,15 @@ h1 {
 }
 
 #homeLogo {
-  font-size: 4em;
-  line-height: 1;
+  line-height: 0;
+}
+
+/* the store icon (store-assets/icon-512.png, 256px copy) */
+#homeLogo img {
+  width: 92px;
+  height: 92px;
+  border-radius: 22px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 
