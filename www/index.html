@@ -16,6 +16,7 @@
       <button id="continueBtn" class="hidden">הַמְשֵׁךְ מֵאֵיפֹה שֶׁהִפְסַקְתָּ ←</button>
       <button id="nextLevelBtn" class="hidden">לְשָׁלָב הַבָּא ←</button>
       <div id="stageCards"></div>
+      <button id="rateBtn">⭐ אהבתם? דרגו אותנו בחנות</button>
     </div>
 
     <div id="gameScreen" class="hidden">
@@ -144,7 +145,21 @@
     </div>
   </div>
 
+  <div id="rateGate" class="hidden" role="dialog" aria-modal="true">
+    <div id="rateGateBox">
+      <h2>שאלה להורים</h2>
+      <p>כדי לעבור לחנות, ענו על השאלה:</p>
+      <p id="rateGateQuestion" dir="ltr"></p>
+      <input id="rateGateAnswer" type="text" inputmode="numeric" autocomplete="off" dir="ltr">
+      <p id="rateGateError"></p>
+      <div id="rateGateButtons">
+        <button id="rateGateOk">המשך</button>
+        <button id="rateGateCancel">ביטול</button>
+      </div>
+    </div>
+  </div>
+
   <script src="audio/tiles.js?v=3"></script>
-  <script src="app.js?v=35"></script>
+  <script src="app.js?v=41"></script>
 </body>
 </html>

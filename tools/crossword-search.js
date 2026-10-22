@@ -25,6 +25,18 @@ const EXTRA = [
   { name: 'עננים', syl: ['עֲ', 'נָ', 'נִים'] },
   { name: 'ספה', syl: ['סַ', 'פָּה'] },
   { name: 'קולה', syl: ['קוֹ', 'לָּה'] },
+  { name: 'ביצים', syl: ['בֵּי', 'צִים'] },
+  { name: 'פורים', syl: ['פּוּ', 'רִים'] },
+  { name: 'חיות', syl: ['חַ', 'יּוֹת'] },
+  { name: 'כפיות', syl: ['כַּ', 'פִּי', 'יּוֹת'] },
+  { name: 'סירות', syl: ['סִי', 'רוֹת'] },
+  { name: 'ענן', syl: ['עָ', 'נָן'] },
+  { name: 'קסם', syl: ['קֶ', 'סֶם'] },
+  { name: 'קשת', syl: ['קֶ', 'שֶׁת'] },
+  { name: 'קשר', syl: ['קֶ', 'שֶׁר'] },
+  { name: 'מנה', syl: ['מָ', 'נָה'] },
+  { name: 'בנים', syl: ['בָּ', 'נִים'] },
+  { name: 'פירות', syl: ['פֵּי', 'רוֹת'] },
 ];
 
 const strip = t => t.replace(/[֑-ׇ]/g, '');
@@ -93,6 +105,11 @@ const found = new Map();   // word set -> first layout
   }
 })([]);
 
+if (process.argv.includes('--json')) {   // machine-readable, for picking a puzzle set
+  console.log(JSON.stringify([...found.values()].map(({ placed, v }) => placed.map(p =>
+    ({ name: p.w.name, syl: p.w.syl, r: p.r + v.dr, c: p.c + v.dc, dir: p.dir })))));
+  process.exit(0);
+}
 console.log(`${usable.length} usable words, ${found.size} word sets with ${target} words\n`);
 for (const [sig, { placed, v }] of found) {
   console.log(sig);

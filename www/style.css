@@ -1323,6 +1323,7 @@ main {
 #memGrid[data-cols="4"] { gap: 8px; max-width: 360px; }
 #memGrid[data-cols="4"] .memCard.word .memBack { font-size: 1.3rem; }
 #memGrid[data-cols="4"] .memCard.word.long .memBack { font-size: 1.1rem; }
+#memGrid[data-cols="4"] .memCard.word.xlong .memBack { font-size: 0.92rem; }
 #memGrid[data-cols="4"] .memCard.pic .memBack { font-size: 2.7rem; }
 #memGrid[data-cols="4"] .memFront { font-size: 2rem; }
 
@@ -1337,3 +1338,58 @@ main {
 #xwGrid[data-cols="6"] .xwClue[data-dir="v"] { padding-bottom: 11px; }
 #xwGrid[data-cols="6"] .xwClue .xwArrow.h { margin-top: -8px; border-top-width: 8px; border-bottom-width: 8px; border-right-width: 11px; left: 2px; }
 #xwGrid[data-cols="6"] .xwClue .xwArrow.v { margin-left: -8px; border-left-width: 8px; border-right-width: 8px; border-top-width: 11px; bottom: 2px; }
+
+/* ---- "Rate us" button (home) and the parent gate before leaving for the store ---- */
+#rateBtn {
+  margin: 22px auto 8px;
+  display: block;
+  padding: 10px 22px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: 2px solid #f0c040;
+  border-radius: 24px;
+  background: #fff8dc;
+  color: #7a5b00;
+  box-shadow: 0 3px 0 #e0b020;
+}
+#rateGate {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+#rateGateBox {
+  width: 100%;
+  max-width: 320px;
+  background: white;
+  border-radius: 18px;
+  padding: 18px 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+#rateGateBox h2 { margin: 0 0 6px; font-size: 1.25rem; color: #2c3e50; }
+#rateGateBox p { margin: 6px 0; color: #555; }
+#rateGateQuestion { font-size: 1.8rem; font-weight: bold; color: #2c3e50 !important; }
+#rateGateAnswer {
+  width: 120px;
+  font-size: 1.5rem;
+  text-align: center;
+  padding: 6px;
+  border: 2px solid #c4ced8;
+  border-radius: 10px;
+}
+#rateGateError { min-height: 1.3em; color: #c0392b !important; font-weight: bold; }
+#rateGateButtons { display: flex; gap: 10px; justify-content: center; margin-top: 6px; }
+#rateGateButtons button {
+  padding: 8px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 20px;
+  color: white;
+}
+#rateGateOk { background: #3a6fa8; }
+#rateGateCancel { background: #95a5a6; }

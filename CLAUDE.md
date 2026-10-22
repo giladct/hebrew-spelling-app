@@ -10,6 +10,8 @@ Build / signing / Play upload details: see the memory file `project_hebrew_spell
 - Never invent Hebrew words, niqqud or syllable splits. Words for new content come from words that
   already have audio, or the owner approves them first. Owner vetoes so far: "מכה" (emoji unclear),
   "חומוס" (not in memory games), "בלקון/בלונים/בלרינה", made-up plurals ("חרוזות").
+- Crosswords (stages 16-17 together): a word appears at most twice, and two puzzles share at most
+  one word. Re-pick with `tools/crossword-search.js --json` when adding puzzles.
 - Bump `app.js?v=N` in index.html after editing app.js (cache busting on the web build).
 
 ## Code map (www/app.js)
