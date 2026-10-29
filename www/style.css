@@ -1400,3 +1400,56 @@ main {
 }
 #rateGateOk { background: #3a6fa8; }
 #rateGateCancel { background: #95a5a6; }
+
+/* ---- Paid unlock: locked stage cards and the unlock dialog ---- */
+.stageCard.locked { filter: saturate(0.45); opacity: 0.8; }
+.stageCard.locked::after {
+  content: '🔒';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 15px;
+  line-height: 1;
+}
+#unlockDialog {
+  position: fixed;
+  inset: 0;
+  z-index: 190;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+#unlockBox {
+  width: 100%;
+  max-width: 340px;
+  background: white;
+  border-radius: 18px;
+  padding: 18px 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+#unlockIcon { font-size: 2.6rem; line-height: 1; }
+#unlockBox h2 { margin: 6px 0; font-size: 1.35rem; color: #2c3e50; }
+#unlockBox p { margin: 6px 0; color: #555; }
+#unlockList { list-style: none; padding: 0; margin: 8px 0 14px; text-align: right; display: inline-block; }
+#unlockList li { margin: 4px 0; font-weight: bold; color: #2c3e50; }
+#unlockBuyBtn {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 24px;
+  background: #27ae60;
+  color: white;
+  box-shadow: 0 3px 0 #1e8449;
+}
+#unlockBuyBtn:disabled { opacity: 0.6; }
+#unlockStatus { min-height: 1.3em; color: #c0392b !important; font-weight: bold; font-size: 0.95rem; }
+#unlockLinks { display: flex; justify-content: space-between; gap: 10px; }
+#unlockLinks button { background: none; border: none; color: #3a6fa8; font-size: 0.95rem; text-decoration: underline; padding: 6px; }
+#unlockEn { font-size: 0.85rem; color: #777 !important; margin: 0 0 10px; }
+#unlockLinks small { font-size: 0.8em; text-decoration: none; display: inline-block; }
+#rateGateEn { font-size: 0.8rem; color: #888 !important; margin-top: 0; }

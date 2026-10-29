@@ -719,10 +719,11 @@ function currentWords() {
 // One home-screen card. num = stage number shown, completedKey = its COMPLETED_KEY entry.
 function makeStageCard(num, completedKey, icon, color, label, onClick, completed) {
   const card = document.createElement('button');
-  card.className = 'stageCard' + (completed.has(completedKey) ? ' completed' : '');
+  const locked = isStageLocked(num);
+  card.className = 'stageCard' + (completed.has(completedKey) ? ' completed' : '') + (locked ? ' locked' : '');
   card.style.setProperty('--card-color', color);
   card.innerHTML = `<span class="stageIcon">${icon}</span><span class="stageLabelRow"><span class="stageNum">${num}</span><span class="stageLabel">${label}</span></span>`;
-  card.addEventListener('click', onClick);
+  card.addEventListener('click', locked ? openUnlock : onClick);
   stageCardsEl.appendChild(card);
 }
 
@@ -811,7 +812,9 @@ function startStage(level, index = 0) {
 }
 
 homeBtn.addEventListener('click', showHome);
-continueBtn.addEventListener('click', () => startStage(currentLevel, currentIndex));
+continueBtn.addEventListener('click', () => {
+  if (isStageLocked(currentLevel + 1)) openUnlock(); else startStage(currentLevel, currentIndex);
+});
 
 function isWideTile(letter) {
   return (letter.match(/[א-ת]/g) || []).length > 1;
@@ -1142,7 +1145,8 @@ nextBtn.addEventListener('click', () => {
 nextLevelBtn.addEventListener('click', () => {
   const completed = getCompletedLevels();
   const nextLevel = Array.from({length: LEVELS.length}, (_, i) => i).find(i => !completed.has(i));
-  if (nextLevel !== undefined) startStage(nextLevel);
+  if (nextLevel === undefined) return;
+  if (isStageLocked(nextLevel + 1)) openUnlock(); else startStage(nextLevel);
 });
 
 hintBtn.addEventListener('click', () => {
@@ -2729,20 +2733,25 @@ xwNextBtn.addEventListener('click', () => {
   xwLoad();
 });
 
+// ---- Parent gate (a multiplication question a first grader can't answer) ----
+// Used before leaving for the store ("rate us") and before a purchase - both are required by the
+// Kids category rules. parentGate(message, onPass) shows it; onPass runs after a right answer.
+const rateGate = document.getElementById('rateGate');
+const rateGateText = document.getElementById('rateGateText');
+const rateGateQuestion = document.getElementById('rateGateQuestion');
+const rateGateAnswer = document.getElementById('rateGateAnswer');
+const rateGateError = document.getElementById('rateGateError');
+let rateGateExpected = 0;
+let rateGateOnPass = null;
+
 // ---- "Rate us" (home screen) ----
-// The button opens a parent gate (a multiplication question a first grader can't answer) and then the
-// store page. Navigating the page to an outside https URL makes Capacitor hand it to the OS (Android:
-// Bridge.launchIntent, iOS: WebViewDelegationHandler), which opens the Play Store / App Store app.
+// After the gate, the store page. Navigating the page to an outside https URL makes Capacitor hand it to
+// the OS (Android: Bridge.launchIntent, iOS: WebViewDelegationHandler), which opens the store app.
 const STORE_URLS = {
   android: 'https://play.google.com/store/apps/details?id=hebrew_spelling.myapp',
   ios: 'https://apps.apple.com/app/id6812645731?action=write-review',
 };
 const rateBtn = document.getElementById('rateBtn');
-const rateGate = document.getElementById('rateGate');
-const rateGateQuestion = document.getElementById('rateGateQuestion');
-const rateGateAnswer = document.getElementById('rateGateAnswer');
-const rateGateError = document.getElementById('rateGateError');
-let rateGateExpected = 0;
 
 function storePlatform() {
   const cap = window.Capacitor && window.Capacitor.getPlatform ? window.Capacitor.getPlatform() : 'web';
@@ -2757,7 +2766,9 @@ function rateNewQuestion() {
   rateGateAnswer.value = '';
 }
 
-function rateOpenGate() {
+function parentGate(message, onPass) {
+  rateGateText.textContent = message;
+  rateGateOnPass = onPass;
   rateGateError.textContent = '';
   rateNewQuestion();
   rateGate.classList.remove('hidden');
@@ -2766,6 +2777,7 @@ function rateOpenGate() {
 
 function rateCloseGate() {
   rateGate.classList.add('hidden');
+  rateGateOnPass = null;
 }
 
 function rateSubmit() {
@@ -2774,17 +2786,170 @@ function rateSubmit() {
     rateNewQuestion();
     return;
   }
+  const onPass = rateGateOnPass;
   rateCloseGate();
+  if (onPass) onPass();
+}
+
+function openStorePage() {
   const url = STORE_URLS[storePlatform()];
   if (isNativeApp()) window.location.href = url;   // handed to the store app by Capacitor
   else window.open(url, '_blank');                  // web build: new tab, keep the app open
 }
 
-rateBtn.addEventListener('click', rateOpenGate);
+rateBtn.addEventListener('click', () => parentGate('כדי לעבור לחנות, ענו על השאלה:', openStorePage));
 document.getElementById('rateGateOk').addEventListener('click', rateSubmit);
 document.getElementById('rateGateCancel').addEventListener('click', rateCloseGate);
 rateGateAnswer.addEventListener('keydown', e => { if (e.key === 'Enter') rateSubmit(); });
 
+// ---- Paid unlock: stages 1..FREE_STAGES are free, one in-app purchase opens all the rest ----
+// Plugin: @capgo/native-purchases (StoreKit 2 / Play Billing), reached as Capacitor.Plugins.NativePurchases.
+// The product is a non-consumable with the same id in Play Console and App Store Connect.
+// No server: the store's own purchase list is the source of truth, cached in localStorage so the
+// app opens unlocked offline. A refund is not taken back (not worth it at this price).
+// Users who had the app before the paid version keep everything ('legacy'):
+//   - any saved progress at the first launch of a paid build (both platforms), or
+//   - iOS: the original download was a build below LEGACY_IOS_BUILD (StoreKit AppTransaction).
+const FREE_STAGES = 6;
+const UNLOCK_PRODUCT = 'unlock_all_stages';
+const UNLOCK_KEY = 'hebrewSpellingUnlocked';          // 'paid' | 'legacy'
+const PAID_MODEL_KEY = 'hebrewSpellingPaidModel';     // set on the first launch of a paid build
+const LEGACY_IOS_BUILD = '12';                         // build 11 = version 1.1, the last free one
+const UNLOCK_PRICE_FALLBACK = '7.90 ₪';               // shown until the store returns its price string
+const unlockDialog = document.getElementById('unlockDialog');
+const unlockBuyBtn = document.getElementById('unlockBuyBtn');
+const unlockStatus = document.getElementById('unlockStatus');
+let unlockPrice = UNLOCK_PRICE_FALLBACK;
+
+function purchasesPlugin() {
+  return isNativeApp() && window.Capacitor.Plugins && window.Capacitor.Plugins.NativePurchases || null;
+}
+
+function isUnlocked() {
+  try { return !!localStorage.getItem(UNLOCK_KEY); } catch (e) { return false; }
+}
+
+function isStageLocked(num) {
+  return num > FREE_STAGES && !isUnlocked();
+}
+
+function setUnlocked(reason) {
+  if (isUnlocked()) return;
+  try { localStorage.setItem(UNLOCK_KEY, reason); } catch (e) {}
+  if (!homeScreen.classList.contains('hidden')) showHome();   // redraw the cards without locks
+}
+
+// Synchronous part of the legacy check - must run before the first showHome().
+function grandfatherByProgress() {
+  try {
+    if (localStorage.getItem(PAID_MODEL_KEY)) return;
+    localStorage.setItem(PAID_MODEL_KEY, '1');
+    if (getCompletedLevels().size > 0 || localStorage.getItem(PROGRESS_KEY)) localStorage.setItem(UNLOCK_KEY, 'legacy');
+  } catch (e) {}
+}
+
+// originalAppVersion is the CFBundleVersion of the first download ("11"); also accept a dotted
+// marketing version ("1.1") in case that is what comes back - the paid model starts at 1.2.
+function isLegacyIosVersion(v) {
+  if (!v) return false;
+  if (!String(v).includes('.')) return parseInt(v, 10) < parseInt(LEGACY_IOS_BUILD, 10);
+  const [maj, min] = String(v).split('.').map(n => parseInt(n, 10) || 0);
+  return maj < 1 || (maj === 1 && min < 2);
+}
+
+const isOwnedUnlock = p => p.productIdentifier === UNLOCK_PRODUCT && (p.purchaseState === undefined || p.purchaseState === '1');
+
+// Startup, native only: legacy iOS download, an existing purchase (new phone / reinstall), the price.
+async function refreshEntitlement() {
+  const np = purchasesPlugin();
+  if (!np) return;
+  const ios = window.Capacitor.getPlatform() === 'ios';
+  if (ios && !isUnlocked()) {
+    try {
+      // Production only: in TestFlight / App Review (Sandbox) originalAppVersion is always "1.0",
+      // which would hide the purchase from the reviewer.
+      const { appTransaction: t } = await np.getAppTransaction();
+      if (t && t.environment === 'Production' && isLegacyIosVersion(t.originalAppVersion)) setUnlocked('legacy');
+    } catch (e) {}
+  }
+  if (!isUnlocked()) {
+    try {
+      const { purchases } = await np.getPurchases(ios ? { onlyCurrentEntitlements: true } : { productType: 'inapp' });
+      if (purchases.some(isOwnedUnlock)) setUnlocked('paid');
+    } catch (e) {}
+  }
+  if (!isUnlocked()) {
+    try {
+      const { products } = await np.getProducts({ productIdentifiers: [UNLOCK_PRODUCT], productType: 'inapp' });
+      if (products[0] && products[0].priceString) unlockPrice = products[0].priceString;
+    } catch (e) {}
+  }
+  // iOS "Ask to Buy": the parent approves later, the transaction arrives here
+  if (np.addListener) np.addListener('transactionUpdated', t => { if (isOwnedUnlock(t)) unlockSucceeded(); });
+}
+
+function openUnlock() {
+  unlockStatus.textContent = '';
+  unlockBuyBtn.textContent = 'לפתוח את כל השלבים – ' + unlockPrice;
+  unlockBuyBtn.disabled = false;
+  unlockDialog.classList.remove('hidden');
+}
+
+function closeUnlock() {
+  unlockDialog.classList.add('hidden');
+}
+
+function unlockSucceeded() {
+  closeUnlock();
+  setUnlocked('paid');
+  showConfetti();
+}
+
+// Store errors -> a parent-facing line. Cancelling is not an error.
+function unlockErrorText(e) {
+  const msg = String(e && (e.code || '') + ' ' + (e.message || e));
+  if (/cancel/i.test(msg)) return '';
+  if (/pending/i.test(msg)) return 'הרכישה ממתינה לאישור. השלבים ייפתחו מיד כשהיא תאושר.';
+  return 'הרכישה לא הושלמה. נסו שוב מאוחר יותר.';
+}
+
+async function unlockPurchase() {
+  const np = purchasesPlugin();
+  if (!np) { unlockStatus.textContent = 'הרכישה אפשרית רק באפליקציה.'; return; }
+  unlockBuyBtn.disabled = true;
+  unlockStatus.textContent = '';
+  try {
+    const t = await np.purchaseProduct({ productIdentifier: UNLOCK_PRODUCT, productType: 'inapp' });
+    if (isOwnedUnlock({ ...t, productIdentifier: t.productIdentifier || UNLOCK_PRODUCT })) unlockSucceeded();
+    else unlockStatus.textContent = unlockErrorText('pending');
+  } catch (e) {
+    if (/ALREADY_OWNED/i.test(String(e && (e.code || '') + (e.message || e)))) { await unlockRestore(); return; }
+    unlockStatus.textContent = unlockErrorText(e);
+  }
+  unlockBuyBtn.disabled = false;
+}
+
+async function unlockRestore() {
+  const np = purchasesPlugin();
+  if (!np) { unlockStatus.textContent = 'שחזור רכישה אפשרי רק באפליקציה.'; return; }
+  unlockStatus.textContent = 'בודקים…';
+  try {
+    await np.restorePurchases();
+    const ios = window.Capacitor.getPlatform() === 'ios';
+    const { purchases } = await np.getPurchases(ios ? { onlyCurrentEntitlements: true } : { productType: 'inapp' });
+    if (purchases.some(isOwnedUnlock)) { unlockSucceeded(); return; }
+    unlockStatus.textContent = 'לא נמצאה רכישה קודמת בחשבון הזה.';
+  } catch (e) {
+    unlockStatus.textContent = 'לא הצלחנו לבדוק. נסו שוב מאוחר יותר.';
+  }
+}
+
+unlockBuyBtn.addEventListener('click', () => parentGate('כדי לבצע רכישה, ענו על השאלה:', () => { openUnlock(); unlockPurchase(); }));
+document.getElementById('unlockRestoreBtn').addEventListener('click', unlockRestore);
+document.getElementById('unlockCloseBtn').addEventListener('click', closeUnlock);
+
 // kick off
 restoreProgress();
+grandfatherByProgress();
 showHome();
+refreshEntitlement();

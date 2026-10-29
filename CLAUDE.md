@@ -28,6 +28,20 @@ The header comment in app.js has the stage table (stage number → screen → CO
   `speakLetter(syllable, isFinal)` (tile audio), `sparkle(el)`, `showConfetti()`, `playSuccess/playError`.
 - Drag & drop exists four times (stages 1-7, 8-9, 10, crossword) — each with its own pointer handlers.
 
+## Paid unlock (added 28.10.2026, ships in iOS 1.2 / Android versionCode ≥ 50)
+- Stages 1-6 free; one non-consumable `unlock_all_stages` (7.90 ₪) opens 7-17. Code: the "Paid unlock"
+  section at the end of app.js; locked cards get `.locked` and open `#unlockDialog`; Buy goes through
+  `parentGate()` (the same multiplication gate as "rate us"). Plugin `@capgo/native-purchases` (pinned).
+- State: localStorage `hebrewSpellingUnlocked` = 'paid' | 'legacy'. No server; on startup the store's
+  purchase list re-unlocks after a reinstall. Refunds are not taken back.
+- Legacy (owner's choice: existing users keep everything): progress saved at the first launch of a
+  paid build, or on iOS an original download below build 12 (AppTransaction, Production env only —
+  in Sandbox/TestFlight/App Review originalAppVersion is always "1.0").
+- Test tools set `hebrewSpellingUnlocked` so every stage opens (store screenshots keep the home locked).
+- Purchases only work in a store-installed build (Play internal track + license testers / TestFlight).
+- Store products are created by API scripts (Play `monetization.onetimeproducts`, ASC `/v2/inAppPurchases`).
+  The first iOS in-app purchase must be submitted together with an app version.
+
 ## Audio
 - Word files: `www/audio/<name>.mp3`; the name may carry niqqud (SM words, camel, sentences) or not
   (LEVELS words). Syllable files: `tile_NNN.mp3` listed in `audio/tiles.js` (key `syllable_0|1`,

@@ -15,7 +15,10 @@ const { chromium } = require('playwright');
   page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   await page.goto('http://localhost:8181/');
   // a fixed set of completed entries, so the ✓ marks are checked too
-  await page.evaluate(() => localStorage.setItem('hebrewSpellingCompleted', JSON.stringify([0, 7, 9, 10, 12, 13, 14, 15, 16])));
+  await page.evaluate(() => {
+    localStorage.setItem('hebrewSpellingCompleted', JSON.stringify([0, 7, 9, 10, 12, 13, 14, 15, 16]));
+    localStorage.setItem('hebrewSpellingUnlocked', 'paid');   // paid stages open
+  });
   await page.reload();
 
   const visible = () => page.evaluate(() =>

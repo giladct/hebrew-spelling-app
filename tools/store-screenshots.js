@@ -74,7 +74,8 @@ const SCENES = [
     for (const [i, [name, play]] of SCENES.entries()) {
       const ctx = await browser.newContext({ viewport: d.viewport, deviceScaleFactor: d.scale, hasTouch: true });
       const page = await ctx.newPage();
-      await page.addInitScript(() => { try { localStorage.clear(); } catch (e) {} });
+      // home shows the locks a new user sees; the game scenes need the paid stages open
+      await page.addInitScript(unlock => { try { localStorage.clear(); if (unlock) localStorage.setItem('hebrewSpellingUnlocked', 'paid'); } catch (e) {} }, name !== 'home');
       await page.goto('http://localhost:8181/');
       await page.waitForTimeout(600);
       await play(page);

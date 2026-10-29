@@ -148,8 +148,9 @@
   <div id="rateGate" class="hidden" role="dialog" aria-modal="true">
     <div id="rateGateBox">
       <h2>שאלה להורים</h2>
-      <p>כדי לעבור לחנות, ענו על השאלה:</p>
+      <p id="rateGateText">כדי לעבור לחנות, ענו על השאלה:</p>
       <p id="rateGateQuestion" dir="ltr"></p>
+      <p dir="ltr" id="rateGateEn">Parents only: solve to continue</p>
       <input id="rateGateAnswer" type="text" inputmode="numeric" autocomplete="off" dir="ltr">
       <p id="rateGateError"></p>
       <div id="rateGateButtons">
@@ -159,7 +160,29 @@
     </div>
   </div>
 
+  <div id="unlockDialog" class="hidden" role="dialog" aria-modal="true">
+    <div id="unlockBox">
+      <div id="unlockIcon">🔒</div>
+      <h2>השלב הזה נעול</h2>
+      <p>שלבים 1 עד 6 בחינם.<br>רכישה אחת פותחת את כל השלבים הבאים:</p>
+      <ul id="unlockList">
+        <li>📚 קריאה מתקדמת</li>
+        <li>🐪 קריאה מדויקת – הגמל</li>
+        <li>📝 סידור משפטים</li>
+        <li>🃏 משחקי זיכרון</li>
+        <li>✏️ תשחצי הברות</li>
+      </ul>
+      <p id="unlockEn" dir="ltr">Stages 1-6 are free. A one-time purchase unlocks all other stages. No subscription.</p>
+      <button id="unlockBuyBtn"></button>
+      <p id="unlockStatus"></p>
+      <div id="unlockLinks">
+        <button id="unlockRestoreBtn">שחזור רכישה<br><small dir="ltr">Restore purchase</small></button>
+        <button id="unlockCloseBtn">לא עכשיו<br><small dir="ltr">Not now</small></button>
+      </div>
+    </div>
+  </div>
+
   <script src="audio/tiles.js?v=3"></script>
-  <script src="app.js?v=42"></script>
+  <script src="app.js?v=44"></script>
 </body>
 </html>
