@@ -60,3 +60,9 @@ The header comment in app.js has the stage table (stage number → screen → CO
   (add candidate words to EXTRA there). Layout rules are explained at the top of the file.
 - Playwright: `require('playwright')` from this folder (installed in node_modules).
 - Debug APK: see memory file; copy to `app-debug.apk` and send it to the owner's phone with SendUserFile.
+
+## Android is free (decided Nov 2026) - only iOS has the paid unlock
+- `isFreeOnThisPlatform()` (app.js, Paid unlock section): on Android nothing is locked and no billing calls are made.
+  iOS and the browser keep the lock. To bring the lock back on Android return false there, re-activate the Play product
+  `unlock_all_stages` (monetization.onetimeproducts purchaseOptions.batchUpdateStates ACTIVATE) and restore the Play listing sentences.
+- Stage 18 = picture puzzle (`PUZZLE_STAGES`, 6 words from LEVELS with a scene background; drag the pieces, then drag the syllables; skip button).

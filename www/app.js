@@ -3072,11 +3072,19 @@ const unlockBuyBtn = document.getElementById('unlockBuyBtn');
 const unlockStatus = document.getElementById('unlockStatus');
 let unlockPrice = UNLOCK_PRICE_FALLBACK;
 
+// November 2026 owner decision: the Android app stays completely free (no lock, no billing calls);
+// only the iOS app has the paid unlock. To bring the lock back to Android, return false here.
+function isFreeOnThisPlatform() {
+  return !!(window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android');
+}
+
 function purchasesPlugin() {
+  if (isFreeOnThisPlatform()) return null;
   return isNativeApp() && window.Capacitor.Plugins && window.Capacitor.Plugins.NativePurchases || null;
 }
 
 function isUnlocked() {
+  if (isFreeOnThisPlatform()) return true;
   try { return !!localStorage.getItem(UNLOCK_KEY); } catch (e) { return false; }
 }
 
