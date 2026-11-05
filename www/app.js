@@ -750,6 +750,9 @@ function buildStageCards() {
   CROSSWORD_STAGES.forEach(cfg => {
     makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startCrossword(cfg), completed);
   });
+  PUZZLE_STAGES.forEach(cfg => {
+    makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startPuzzle(cfg), completed);
+  });
   groupStageCards();
 }
 
@@ -759,7 +762,7 @@ const STAGE_GROUPS = [
   { title: 'קְרִיאָה – מִתְקַדְּמִים', stages: [7, 8, 9, 10] },
   { title: 'קְרִיאָה מְדֻיֶּקֶת', stages: [11, 12] },
   { title: 'מִשְׁפָּטִים', stages: [13] },
-  { title: 'מִשְׂחָקִים', stages: [14, 15, 16, 17] },
+  { title: 'מִשְׂחָקִים', stages: [14, 15, 16, 17, 18] },
 ];
 
 function groupStageCards() {
@@ -2384,6 +2387,254 @@ memNextBtn.addEventListener('click', () => {
   if (memBoard === memCfg.boards - 1) { showHome(); return; }
   memBoard++;
   memLoadBoard();
+});
+
+// ---- Stage 18: picture puzzle ----
+// The word's picture (its emoji, drawn on a canvas) is cut into cols x rows pieces. The child drags each piece
+// to its place; when the picture is whole it is read aloud, then the child builds the word by tapping its
+// syllables in order. words = LEVELS word names; stageOffset / completedOffset as in the other stages.
+const PUZZLE_STAGES = [
+  { words: ['בית', 'כדור', 'עוגה', 'כוכב', 'תפוח', 'חללית'], cols: 3, rows: 2, stageOffset: 11, completedOffset: 10, title: 'פָּאזֶל', icon: '🖼️', color: '#d35400' },
+];
+
+const puzzleScreen = document.getElementById('puzzleScreen');
+const puzzleHomeBtn = document.getElementById('puzzleHomeBtn');
+const puzzleTitleEl = document.getElementById('puzzleTitle');
+const puzzleInstructionEl = document.getElementById('puzzleInstruction');
+const puzzleBoardEl = document.getElementById('puzzleBoard');
+const puzzleTrayEl = document.getElementById('puzzleTray');
+const puzzleWordBoxEl = document.getElementById('puzzleWordBox');
+const puzzleSlotsEl = document.getElementById('puzzleSlots');
+const puzzleSylsEl = document.getElementById('puzzleSyls');
+const puzzleFeedbackEl = document.getElementById('puzzleFeedback');
+const puzzleNextBtn = document.getElementById('puzzleNextBtn');
+const puzzleSkipBtn = document.getElementById('puzzleSkipBtn');
+
+let puzzleCfg = PUZZLE_STAGES[0];
+let puzzleIdx = 0;
+let puzzleWord = null;
+let puzzlePlaced = 0;
+let puzzleSylFilled = 0;
+let puzzleDrag = null;
+let puzzleTimer = null;
+
+function puzzlePictureUrl(emoji) {
+  const W = 720, H = 480;   // 2x so the pieces stay sharp on phone screens
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  // a little scene (sky, sun, cloud, grass, flowers) so that no piece is empty and every piece looks different
+  const sky = g.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#8fd0ff');
+  sky.addColorStop(1, '#e6f6ff');
+  g.fillStyle = sky;
+  g.fillRect(0, 0, W, H);
+  g.fillStyle = '#ffd43b';
+  g.beginPath(); g.arc(70, 70, 44, 0, Math.PI * 2); g.fill();
+  g.fillStyle = 'rgba(255,255,255,0.95)';
+  [[560, 70, 34], [610, 62, 40], [662, 74, 30], [540, 86, 26], [640, 92, 30]].forEach(([x, y, r]) => { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); });
+  g.fillStyle = '#7ccf5a';
+  g.fillRect(0, H - 90, W, 90);
+  g.fillStyle = '#5fb843';
+  g.fillRect(0, H - 90, W, 10);
+  g.font = '52px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText('🌷', 52, H - 40);
+  g.fillText('🌼', W - 56, H - 38);
+  g.font = '400px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText(emoji, W / 2, H / 2 + 20);
+  return c.toDataURL('image/png');
+}
+
+function startPuzzle(cfg) {
+  puzzleCfg = cfg;
+  puzzleIdx = 0;
+  showScreen(puzzleScreen);
+  puzzleLoad();
+}
+
+function puzzleLoad() {
+  clearTimeout(puzzleTimer);
+  const name = puzzleCfg.words[puzzleIdx];
+  puzzleWord = LEVELS.flatMap(l => l.words).find(w => w.name === name);
+  puzzlePlaced = 0;
+  puzzleSylFilled = 0;
+  puzzleNextBtn.classList.add('hidden');
+  puzzleSkipBtn.classList.remove('hidden');
+  puzzleFeedbackEl.textContent = '';
+  puzzleWordBoxEl.classList.add('hidden');
+  puzzleTrayEl.classList.remove('hidden');
+  puzzleTitleEl.innerHTML = `${puzzleCfg.title}<br><span class="stageProgress">שלב ${LEVELS.length + puzzleCfg.stageOffset} - פָּאזֶל ${puzzleIdx + 1} מִתּוֹךְ ${puzzleCfg.words.length}</span>`;
+  puzzleInstructionEl.textContent = 'גָּרְרוּ אֶת הַחֲלָקִים וְהַרְכִּיבוּ אֶת הַתְּמוּנָה';
+
+  const { cols, rows } = puzzleCfg;
+  const url = puzzlePictureUrl(EMOJI_MAP[name] || '');
+  puzzleBoardEl.dataset.url = url;
+  puzzleBoardEl.className = '';
+  puzzleBoardEl.style.backgroundImage = '';
+  puzzleBoardEl.style.gridTemplateColumns = `repeat(${cols}, var(--pz-w))`;
+  puzzleBoardEl.style.gridTemplateRows = `repeat(${rows}, calc(var(--pz-w) * 0.67))`;
+  puzzleTrayEl.style.gridTemplateColumns = `repeat(${cols}, var(--pz-w))`;
+  puzzleBoardEl.innerHTML = '';
+  puzzleTrayEl.innerHTML = '';
+  const total = cols * rows;
+  for (let i = 0; i < total; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'pzSlot';
+    slot.dataset.index = i;
+    puzzleBoardEl.appendChild(slot);
+  }
+  shuffle(Array.from({ length: total }, (_, i) => i)).forEach(i => {
+    const piece = document.createElement('div');
+    piece.className = 'pzPiece';
+    piece.dataset.index = i;
+    piece.style.backgroundImage = `url(${url})`;
+    piece.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
+    piece.style.backgroundPosition = `${cols > 1 ? (i % cols) / (cols - 1) * 100 : 0}% ${rows > 1 ? Math.floor(i / cols) / (rows - 1) * 100 : 0}%`;
+    piece.addEventListener('pointerdown', puzzleDown);
+    puzzleTrayEl.appendChild(piece);
+  });
+}
+
+function puzzleDown(e) {
+  const piece = e.currentTarget;
+  if (piece.classList.contains('placed') || puzzleDrag) return;
+  piece.setPointerCapture(e.pointerId);
+  piece.classList.remove('back');
+  piece.classList.add('dragging');
+  puzzleDrag = { piece, startX: e.clientX, startY: e.clientY };
+  piece.addEventListener('pointermove', puzzleMove);
+  piece.addEventListener('pointerup', puzzleUp);
+  piece.addEventListener('pointercancel', puzzleUp);
+}
+
+function puzzleMove(e) {
+  if (!puzzleDrag) return;
+  puzzleDrag.piece.style.transform = `translate(${e.clientX - puzzleDrag.startX}px, ${e.clientY - puzzleDrag.startY}px)`;
+}
+
+function puzzleUp(e) {
+  if (!puzzleDrag) return;
+  const { piece } = puzzleDrag;
+  puzzleDrag = null;
+  piece.removeEventListener('pointermove', puzzleMove);
+  piece.removeEventListener('pointerup', puzzleUp);
+  piece.removeEventListener('pointercancel', puzzleUp);
+  piece.classList.remove('dragging');
+  // the dragged piece is under the finger, so look at everything at that point for the board slot
+  const slot = document.elementsFromPoint(e.clientX, e.clientY).find(el => el.classList && el.classList.contains('pzSlot'));
+  if (slot && slot.dataset.index === piece.dataset.index && !slot.firstChild) {
+    piece.style.transform = '';
+    piece.classList.add('placed');
+    piece.removeEventListener('pointerdown', puzzleDown);
+    slot.appendChild(piece);
+    playSuccess();
+    sparkle(slot);
+    if (++puzzlePlaced === puzzleCfg.cols * puzzleCfg.rows) puzzleTimer = setTimeout(puzzlePictureDone, 500);
+    return;
+  }
+  if (slot && e.type === 'pointerup') {   // dropped on the wrong spot
+    piece.classList.add('nope');
+    setTimeout(() => piece.classList.remove('nope'), 400);
+  }
+  piece.classList.add('back');
+  piece.style.transform = '';
+}
+
+function puzzlePictureDone() {
+  puzzleBoardEl.classList.add('done');   // the whole picture replaces the pieces, so no seams show
+  puzzleBoardEl.style.backgroundImage = `url(${puzzleBoardEl.dataset.url})`;
+  puzzleTrayEl.classList.add('hidden');
+  speakWord(puzzleWord);
+  puzzleFeedbackEl.textContent = randomPraise() + '!';
+  puzzleInstructionEl.textContent = 'עַכְשָׁיו גָּרְרוּ אֶת הַהֲבָרוֹת וְהַרְכִּיבוּ אֶת הַמִּלָּה';
+  puzzleWordBoxEl.classList.remove('hidden');
+  puzzleSlotsEl.innerHTML = '';
+  puzzleSylsEl.innerHTML = '';
+  const tiles = puzzleWord.tiles;
+  tiles.forEach(() => {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    puzzleSlotsEl.appendChild(slot);
+  });
+  shuffle(tiles.map((_, i) => i)).forEach(i => {
+    const tile = document.createElement('button');
+    tile.className = 'tile' + (isWideTile(tiles[i]) ? ' wide' : '');
+    tile.textContent = tiles[i];
+    tile.addEventListener('pointerdown', e => puzzleSylDown(e, tile, i));
+    puzzleSylsEl.appendChild(tile);
+  });
+}
+
+function puzzleSylDown(e, tile, i) {
+  if (tile.classList.contains('used') || puzzleDrag) return;
+  tile.setPointerCapture(e.pointerId);
+  speakLetter(puzzleWord.tiles[i], i === puzzleWord.tiles.length - 1);
+  tile.classList.add('pzDrag');
+  puzzleDrag = { piece: tile, startX: e.clientX, startY: e.clientY, i };
+  tile.addEventListener('pointermove', puzzleMove);
+  tile.addEventListener('pointerup', puzzleSylUp);
+  tile.addEventListener('pointercancel', puzzleSylUp);
+}
+
+// Dropped on a slot: that slot is the target. A tap (barely moved) targets the next empty slot instead.
+function puzzleSylUp(e) {
+  if (!puzzleDrag) return;
+  const { piece: tile, startX, startY, i } = puzzleDrag;
+  puzzleDrag = null;
+  tile.removeEventListener('pointermove', puzzleMove);
+  tile.removeEventListener('pointerup', puzzleSylUp);
+  tile.removeEventListener('pointercancel', puzzleSylUp);
+  tile.classList.remove('pzDrag');
+  tile.style.transform = '';
+  if (e.type !== 'pointerup') return;
+  const slots = Array.from(puzzleSlotsEl.children);
+  const tapped = Math.hypot(e.clientX - startX, e.clientY - startY) < 8;
+  const slot = tapped ? slots.find(sl => !sl.classList.contains('filled'))
+    : document.elementsFromPoint(e.clientX, e.clientY).find(el => slots.includes(el));
+  if (!slot) return;
+  const tiles = puzzleWord.tiles;
+  const j = slots.indexOf(slot);
+  // equal syllables are interchangeable, so compare the text, not the position
+  if (slot.classList.contains('filled') || tiles[i] !== tiles[j]) {
+    tile.classList.add('nope');
+    setTimeout(() => tile.classList.remove('nope'), 400);
+    return;
+  }
+  slot.textContent = tiles[i];
+  slot.classList.add('filled', 'correct');
+  if (isWideTile(tiles[i])) slot.classList.add('wide');
+  tile.classList.add('used');
+  playSuccess();
+  if (++puzzleSylFilled < tiles.length) return;
+  puzzleFeedbackEl.textContent = randomPraise() + '!';
+  setTimeout(() => speakWord(puzzleWord), 600);
+  const last = puzzleIdx === puzzleCfg.words.length - 1;
+  if (last) {
+    markLevelComplete(LEVELS.length + puzzleCfg.completedOffset);
+    showConfetti();
+    puzzleNextBtn.textContent = 'חֲזָרָה לַבַּיִת ←';
+  } else {
+    puzzleNextBtn.textContent = 'הַפָּאזֶל הַבָּא ←';
+  }
+  puzzleNextBtn.classList.remove('hidden');
+  puzzleSkipBtn.classList.add('hidden');
+}
+
+puzzleHomeBtn.addEventListener('click', showHome);
+// skip: next puzzle, or back home after the last one (the stage is not marked complete)
+puzzleSkipBtn.addEventListener('click', () => {
+  if (puzzleIdx === puzzleCfg.words.length - 1) { showHome(); return; }
+  puzzleIdx++;
+  puzzleLoad();
+});
+puzzleNextBtn.addEventListener('click', () => {
+  if (puzzleIdx === puzzleCfg.words.length - 1) { showHome(); return; }
+  puzzleIdx++;
+  puzzleLoad();
 });
 
 // ---- Stages 16-17: syllable crossword ----

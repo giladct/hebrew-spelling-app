@@ -37,7 +37,7 @@ header {
 header h1 { color: white; margin: 2px 0; }
 header #progress { color: rgba(255,255,255,0.75); }
 header #attemptsEl { color: #ff9a9a; }
-header #smTitle, header #dw10Title, header #camelTitle, header #sentTitle, header #memTitle, header #xwTitle { color: white; }
+header #smTitle, header #dw10Title, header #camelTitle, header #sentTitle, header #memTitle, header #xwTitle, header #puzzleTitle { color: white; }
 
 #headerTitle {
   flex: 1;
@@ -198,7 +198,7 @@ h1 {
   font-weight: bold;
 }
 
-#homeBtn, #smHomeBtn, #dw10HomeBtn, #camelHomeBtn, #sentHomeBtn, #memHomeBtn, #xwHomeBtn {
+#homeBtn, #smHomeBtn, #dw10HomeBtn, #camelHomeBtn, #sentHomeBtn, #memHomeBtn, #xwHomeBtn, #puzzleHomeBtn {
   flex-shrink: 0;
   padding: 6px 12px;
   font-size: 0.85em;
@@ -223,7 +223,7 @@ h1 {
   opacity: 0.8;
 }
 
-#xwSkipBtn {
+#xwSkipBtn, #puzzleSkipBtn {
   padding: 6px 16px;
   font-size: 0.95em;
   border: none;
@@ -243,7 +243,7 @@ h1 {
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-#smNextBtn, #dw10NextBtn, #camelNextBtn, #sentNextBtn, #memNextBtn, #xwNextBtn {
+#smNextBtn, #dw10NextBtn, #camelNextBtn, #sentNextBtn, #memNextBtn, #xwNextBtn, #puzzleNextBtn {
   margin: 4px 0 10px;
   padding: 12px 32px;
   font-size: 1.2em;
@@ -1453,3 +1453,75 @@ main {
 #unlockEn { font-size: 0.85rem; color: #777 !important; margin: 0 0 10px; }
 #unlockLinks small { font-size: 0.8em; text-decoration: none; display: inline-block; }
 #rateGateEn { font-size: 0.8rem; color: #888 !important; margin-top: 0; }
+
+/* ---- Stage 18: picture puzzle (6 pieces) + build the word ---- */
+#puzzleScreen {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#puzzleTitle { flex: 1; text-align: center; font-size: 1.1em; font-weight: bold; }
+#puzzleMain {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 480px;
+  --pz-w: min(30vw, 108px);
+}
+#puzzleInstruction { font-size: 1.05rem; color: #555; text-align: center; margin: 0; font-weight: 500; }
+#puzzleBoard, #puzzleTray { direction: ltr; }
+#puzzleBoard {
+  display: grid;
+  grid-template-columns: repeat(3, var(--pz-w));
+  grid-template-rows: repeat(2, calc(var(--pz-w) * 0.67));
+  gap: 3px;
+  padding: 6px;
+  border-radius: 14px;
+  background: #e8dcc0;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.15);
+}
+#puzzleBoard.done { gap: 0; padding: 0; background-color: #fff8e7; background-size: 100% 100%; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+#puzzleBoard.done .pzPiece { opacity: 0; }
+.pzSlot { border-radius: 4px; background: rgba(255,255,255,0.45); border: 2px dashed #c4a96a; box-sizing: border-box; }
+#puzzleBoard.done .pzSlot { border: none; border-radius: 0; background: none; }
+#puzzleTray {
+  display: grid;
+  grid-template-columns: repeat(3, var(--pz-w));
+  grid-auto-rows: calc(var(--pz-w) * 0.67);
+  gap: 8px;
+  min-height: calc(var(--pz-w) * 1.4);
+}
+.pzPiece {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  background-color: #fff8e7;
+  background-repeat: no-repeat;
+  border: 2px solid #c4a96a;
+  box-sizing: border-box;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+  touch-action: none;
+  cursor: grab;
+  position: relative;
+  z-index: 1;
+}
+.pzPiece.dragging { z-index: 50; transition: none; box-shadow: 0 10px 22px rgba(0,0,0,0.35); }
+.pzPiece.back { transition: transform .25s; }
+.pzPiece.placed { box-shadow: none; border-color: transparent; cursor: default; touch-action: auto; }
+#puzzleBoard.done .pzPiece { border-radius: 0; }
+.pzPiece.nope { animation: camelShake 0.4s; }
+#puzzleWordBox { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+#puzzleSlots, #puzzleSyls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+#puzzleSyls .tile { cursor: grab; border: none; font-family: inherit; touch-action: none; position: relative; }
+#puzzleSyls .tile.pzDrag { z-index: 50; cursor: grabbing; box-shadow: 0 10px 22px rgba(0,0,0,0.35); }
+#puzzleSyls .tile.used { visibility: hidden; }
+#puzzleSyls .tile.nope { animation: camelShake 0.4s; }
+#puzzleFeedback { font-size: 1.2em; font-weight: bold; min-height: 1.4em; text-align: center; color: #27ae60; }
