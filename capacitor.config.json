@@ -3,6 +3,10 @@
   "appName": "לימוד קריאה לכיתה א'",
   "webDir": "www",
   "ios": {
-    "contentInset": "automatic"
+    "contentInset": "automatic",
+    "includePlugins": [
+      "@capacitor-community/text-to-speech",
+      "@capgo/native-purchases"
+    ]
   }
 }

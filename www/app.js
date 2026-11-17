@@ -801,6 +801,7 @@ function showHome() {
   }
   continueBtn.classList.toggle('hidden', !hasSavedProgress());
   showScreen(homeScreen);
+  maybeShowStageAd();
 }
 
 function showGame() {
@@ -849,6 +850,7 @@ function markLevelComplete(level) {
     completed.add(level);
     localStorage.setItem(COMPLETED_KEY, JSON.stringify([...completed]));
   } catch (e) {}
+  stageAdDue = true;           // full-screen ad on the next return home (Android only, see "Ads")
 }
 
 function saveProgress() {
@@ -3207,8 +3209,76 @@ unlockBuyBtn.addEventListener('click', () => parentGate('כדי לבצע רכי�
 document.getElementById('unlockRestoreBtn').addEventListener('click', unlockRestore);
 document.getElementById('unlockCloseBtn').addEventListener('click', closeUnlock);
 
+// ---- Ads (Android only): a full-screen ad when the child comes back home after finishing a stage ----
+// Plugin: @capacitor-community/admob (pinned), reached as Capacitor.Plugins.AdMob. It is excluded from
+// the iOS build in capacitor.config.json (ios.includePlugins) - iOS keeps the paid unlock and no ads.
+// Children's app (Google Play Families policy / COPPA): child-directed + under-age-of-consent tags,
+// rating G, non-personalized ads only; AD_ID permission is removed in AndroidManifest.xml.
+// Never shown during play, on app launch, or more often than ADMOB.minGapMs.
+const ADMOB = {
+  // Real AdMob ad unit "between stages" (Interstitial) of the app "Learn to Read Hebrew"; the app id
+  // is in android/app/src/main/AndroidManifest.xml. For test ads use Google's public test unit
+  // 'ca-app-pub-3940256099942544/1033173712' with isTesting: true - never tap real ads while testing.
+  interstitialId: 'ca-app-pub-9952727141505497/3285413850',
+  isTesting: false,
+  minGapMs: 3 * 60 * 1000,
+};
+let stageAdDue = false;        // set when a stage is completed, used on the next return to the home screen
+let stageAdReady = false;
+let stageAdShowing = false;
+let lastStageAdAt = 0;
+
+function adMobPlugin() {
+  if (!isNativeApp() || window.Capacitor.getPlatform() !== 'android') return null;
+  return window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob || null;
+}
+
+async function prepareStageAd() {
+  const ads = adMobPlugin();
+  if (!ads || stageAdReady) return;
+  try {
+    await ads.prepareInterstitial({ adId: ADMOB.interstitialId, isTesting: ADMOB.isTesting, npa: true });
+    stageAdReady = true;
+  } catch (e) {
+    stageAdReady = false;      // no fill / offline - try again after the next stage
+  }
+}
+
+async function initAds() {
+  const ads = adMobPlugin();
+  if (!ads) return;
+  try {
+    await ads.initialize({
+      tagForChildDirectedTreatment: true,
+      tagForUnderAgeOfConsent: true,
+      maxAdContentRating: 'General',
+      initializeForTesting: ADMOB.isTesting,
+    });
+    ads.addListener('interstitialAdDismissed', () => { stageAdShowing = false; prepareStageAd(); });
+    ads.addListener('interstitialAdFailedToShow', () => { stageAdShowing = false; prepareStageAd(); });
+    prepareStageAd();
+  } catch (e) {
+    console.error('AdMob init failed', e);
+  }
+}
+
+// Called from showHome(): shows the ad only right after a completed stage.
+function maybeShowStageAd() {
+  if (!stageAdDue) return;
+  stageAdDue = false;
+  const ads = adMobPlugin();
+  if (!ads || !stageAdReady || stageAdShowing) { prepareStageAd(); return; }
+  if (Date.now() - lastStageAdAt < ADMOB.minGapMs) return;
+  stageAdReady = false;
+  stageAdShowing = true;
+  lastStageAdAt = Date.now();
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  ads.showInterstitial().catch(() => { stageAdShowing = false; prepareStageAd(); });
+}
+
 // kick off
 restoreProgress();
 grandfatherByProgress();
 showHome();
 refreshEntitlement();
+initAds();
