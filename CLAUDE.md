@@ -61,8 +61,31 @@ The header comment in app.js has the stage table (stage number → screen → CO
 - Playwright: `require('playwright')` from this folder (installed in node_modules).
 - Debug APK: see memory file; copy to `app-debug.apk` and send it to the owner's phone with SendUserFile.
 
-## Android is free (decided Nov 2026) - only iOS has the paid unlock
-- `isFreeOnThisPlatform()` (app.js, Paid unlock section): on Android nothing is locked and no billing calls are made.
-  iOS and the browser keep the lock. To bring the lock back on Android return false there, re-activate the Play product
+## Ads (Android since 1.0.53, 17.11.2026; iOS from 1.2, added 22.11.2026)
+- AdMob interstitial when the child returns home after completing a stage (`markLevelComplete` sets
+  `stageAdDue`, `showHome()` calls `maybeShowStageAd()`), max once per 3 min. Code: "Ads" section at the end of app.js.
+- AdMob app "Learn to Read Hebrew": app id in AndroidManifest.xml, ad unit in `ADMOB` (app.js). For test ads use
+  Google's test unit + `isTesting: true`; the owner must never tap real ads.
+- Kids settings: child-directed + under-age-of-consent tags, rating G, `npa`; AD_ID and ACCESS_ADSERVICES_* permissions
+  removed in the manifest (`tools:node="remove"`).
+- iOS (owner decision 22.11.2026: iOS free like Android, ads only): AdMob app "לימוד קריאה לכיתה א" (iOS) id
+  `~4950039263` in Info.plist `GADApplicationIdentifier` (+ SKAdNetworkItems cstr6suwn9), ad unit "Between stages iOS"
+  `/3197973896` in `ADMOB.interstitialId.ios`. No ATT prompt / NSUserTrackingUsageDescription (kids app, no IDFA).
+  Plugin listed in `ios.includePlugins`; Codemagic runs `cap sync ios`, which rewrites CapApp-SPM/Package.swift.
+  ASC 1.2 (not submitted yet): description + What's New say "all stages free" (owner: don't mention ads in store texts; the "no ads" lines were
+  removed), age rating advertising = true.
+  Still on the owner / next step: App Privacy labels in App Store Connect (web only), a Codemagic build, submit.
+  The IAP `unlock_all_stages` on ASC is left unsubmitted (not used on iOS any more).
+- app-ads.txt lives in the giladct.github.io repo (root of the Play developer website domain).
+- Play Console declarations updated 17.11.2026: Ads = yes, target age 6-8 (+ Teacher Approved), Data safety = AdMob
+  data (approx. location, app interactions, diagnostics, device IDs; collected+shared; ads/analytics/fraud), Ad ID = no.
+- Privacy policy for Play: docs/privacy-policy.html (served from `main`/docs). The iOS policy is giladct.github.io/hebrew-spelling-privacy.html
+  (ads section added locally 22.11.2026 in the giladct.github.io repo; push = publish, owner's OK first).
+- Pushing to `main` (even a docs-only change) triggers the GitHub Action that uploads a draft build of main to Play
+  (that is how alpha draft 52 appeared) - use the next versionCode from `get-next-version-code.mjs` and check drafts too.
+
+## Android and iOS apps are free (decided Nov 2026) - only the plain browser build keeps the lock
+- `isFreeOnThisPlatform()` (app.js, Paid unlock section): on Android and iOS nothing is locked and no store calls are made.
+  The browser keeps the lock. To bring the lock back on Android return false there, re-activate the Play product
   `unlock_all_stages` (monetization.onetimeproducts purchaseOptions.batchUpdateStates ACTIVATE) and restore the Play listing sentences.
 - Stage 18 = picture puzzle (`PUZZLE_STAGES`, 6 words from LEVELS with a scene background; drag the pieces, then drag the syllables; skip button).

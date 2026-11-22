@@ -5,6 +5,7 @@
   "ios": {
     "contentInset": "automatic",
     "includePlugins": [
+      "@capacitor-community/admob",
       "@capacitor-community/text-to-speech",
       "@capgo/native-purchases"
     ]

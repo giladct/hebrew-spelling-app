@@ -850,7 +850,7 @@ function markLevelComplete(level) {
     completed.add(level);
     localStorage.setItem(COMPLETED_KEY, JSON.stringify([...completed]));
   } catch (e) {}
-  stageAdDue = true;           // full-screen ad on the next return home (Android only, see "Ads")
+  stageAdDue = true;           // full-screen ad on the next return home (Android + iOS apps, see "Ads")
 }
 
 function saveProgress() {
@@ -3074,10 +3074,12 @@ const unlockBuyBtn = document.getElementById('unlockBuyBtn');
 const unlockStatus = document.getElementById('unlockStatus');
 let unlockPrice = UNLOCK_PRICE_FALLBACK;
 
-// November 2026 owner decision: the Android app stays completely free (no lock, no billing calls);
-// only the iOS app has the paid unlock. To bring the lock back to Android, return false here.
+// November 2026 owner decision: the Android and iOS apps are completely free (no lock, no store calls)
+// and show ads instead (see "Ads"); only the plain browser build keeps the lock. To bring the lock back
+// on a platform, return false for it here.
 function isFreeOnThisPlatform() {
-  return !!(window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform() === 'android');
+  const p = window.Capacitor && window.Capacitor.getPlatform && window.Capacitor.getPlatform();
+  return p === 'android' || p === 'ios';
 }
 
 function purchasesPlugin() {
@@ -3209,17 +3211,21 @@ unlockBuyBtn.addEventListener('click', () => parentGate('כדי לבצע רכי�
 document.getElementById('unlockRestoreBtn').addEventListener('click', unlockRestore);
 document.getElementById('unlockCloseBtn').addEventListener('click', closeUnlock);
 
-// ---- Ads (Android only): a full-screen ad when the child comes back home after finishing a stage ----
-// Plugin: @capacitor-community/admob (pinned), reached as Capacitor.Plugins.AdMob. It is excluded from
-// the iOS build in capacitor.config.json (ios.includePlugins) - iOS keeps the paid unlock and no ads.
-// Children's app (Google Play Families policy / COPPA): child-directed + under-age-of-consent tags,
-// rating G, non-personalized ads only; AD_ID permission is removed in AndroidManifest.xml.
+// ---- Ads (Android + iOS apps): a full-screen ad when the child comes back home after finishing a stage ----
+// Plugin: @capacitor-community/admob (pinned), reached as Capacitor.Plugins.AdMob.
+// Children's app (Google Play Families policy / COPPA / Apple 1.3): child-directed + under-age-of-consent
+// tags, rating G, non-personalized ads only; AD_ID permission is removed in AndroidManifest.xml and iOS
+// never asks for tracking permission (no ATT prompt, no NSUserTrackingUsageDescription).
 // Never shown during play, on app launch, or more often than ADMOB.minGapMs.
 const ADMOB = {
-  // Real AdMob ad unit "between stages" (Interstitial) of the app "Learn to Read Hebrew"; the app id
-  // is in android/app/src/main/AndroidManifest.xml. For test ads use Google's public test unit
-  // 'ca-app-pub-3940256099942544/1033173712' with isTesting: true - never tap real ads while testing.
-  interstitialId: 'ca-app-pub-9952727141505497/3285413850',
+  // Real AdMob ad units "between stages" (Interstitial), one per AdMob app. The app ids are in
+  // android/app/src/main/AndroidManifest.xml and ios/App/App/Info.plist (GADApplicationIdentifier).
+  // For test ads use Google's public test units (Android 'ca-app-pub-3940256099942544/1033173712',
+  // iOS 'ca-app-pub-3940256099942544/4411468910') with isTesting: true - never tap real ads while testing.
+  interstitialId: {
+    android: 'ca-app-pub-9952727141505497/3285413850',   // app "Learn to Read Hebrew" (Android)
+    ios: 'ca-app-pub-9952727141505497/3197973896',       // app "לימוד קריאה לכיתה א" (iOS), unit "Between stages iOS"
+  },
   isTesting: false,
   minGapMs: 3 * 60 * 1000,
 };
@@ -3229,7 +3235,7 @@ let stageAdShowing = false;
 let lastStageAdAt = 0;
 
 function adMobPlugin() {
-  if (!isNativeApp() || window.Capacitor.getPlatform() !== 'android') return null;
+  if (!isNativeApp() || !ADMOB.interstitialId[window.Capacitor.getPlatform()]) return null;
   return window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob || null;
 }
 
@@ -3237,7 +3243,8 @@ async function prepareStageAd() {
   const ads = adMobPlugin();
   if (!ads || stageAdReady) return;
   try {
-    await ads.prepareInterstitial({ adId: ADMOB.interstitialId, isTesting: ADMOB.isTesting, npa: true });
+    const adId = ADMOB.interstitialId[window.Capacitor.getPlatform()];
+    await ads.prepareInterstitial({ adId, isTesting: ADMOB.isTesting, npa: true });
     stageAdReady = true;
   } catch (e) {
     stageAdReady = false;      // no fill / offline - try again after the next stage
