@@ -37,7 +37,7 @@ header {
 header h1 { color: white; margin: 2px 0; }
 header #progress { color: rgba(255,255,255,0.75); }
 header #attemptsEl { color: #ff9a9a; }
-header #smTitle, header #dw10Title, header #camelTitle, header #sentTitle, header #memTitle, header #xwTitle, header #puzzleTitle { color: white; }
+header #smTitle, header #dw10Title, header #camelTitle, header #sentTitle, header #memTitle, header #xwTitle, header #puzzleTitle, header #dollTitle { color: white; }
 
 #headerTitle {
   flex: 1;
@@ -198,7 +198,7 @@ h1 {
   font-weight: bold;
 }
 
-#homeBtn, #smHomeBtn, #dw10HomeBtn, #camelHomeBtn, #sentHomeBtn, #memHomeBtn, #xwHomeBtn, #puzzleHomeBtn {
+#homeBtn, #smHomeBtn, #dw10HomeBtn, #camelHomeBtn, #sentHomeBtn, #memHomeBtn, #xwHomeBtn, #puzzleHomeBtn, #dollHomeBtn {
   flex-shrink: 0;
   padding: 6px 12px;
   font-size: 0.85em;
@@ -1525,3 +1525,112 @@ main {
 #puzzleSyls .tile.used { visibility: hidden; }
 #puzzleSyls .tile.nope { animation: camelShake 0.4s; }
 #puzzleFeedback { font-size: 1.2em; font-weight: bold; min-height: 1.4em; text-align: center; color: #27ae60; }
+
+/* ---- Stage 19: dress the doll (everything fits one phone screen: the doll stage takes the free height) ---- */
+#dollScreen {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#dollTitle { flex: 1; text-align: center; font-size: 1.1em; font-weight: bold; }
+#dollMain {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 6px 12px 10px;
+  width: 100%;
+  max-width: 480px;
+}
+#dollTask { display: flex; align-items: center; justify-content: center; gap: 10px; flex-shrink: 0; }
+#dollPrefix { font-size: 0.95rem; color: #666; font-weight: 500; }
+#dollWord { font-size: 2.1rem; font-weight: bold; color: #2c3e50; line-height: 1.1; }
+#dollTask.done #dollPrefix { display: none; }
+#dollTask.done #dollWord { font-size: 1.5rem; color: #e84393; }
+#dollSpeakBtn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #d8dcef; background: #fff; font-size: 1.1rem; padding: 0; flex-shrink: 0; }
+#dollTask.done #dollSpeakBtn { display: none; }
+#dollStage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 72%);
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.06);
+}
+#dollStage::before {
+  content: ""; position: absolute; top: 6%; inset-inline-start: 7%; width: 15%; aspect-ratio: 1; border-radius: 50%;
+  background: #ffe28a; box-shadow: 0 0 0 8px rgba(255,226,138,0.35), 0 0 0 18px rgba(255,226,138,0.15);
+}
+#dollStage::after {
+  content: ""; position: absolute; inset: auto -12% -20% -12%; height: 30%;
+  background: linear-gradient(180deg, #b9e6ac, #9fd88f); border-radius: 50% 50% 0 0 / 70% 70% 0 0;
+}
+.dollSvg { position: relative; z-index: 1; height: 100%; width: auto; max-width: 100%; overflow: visible; }
+.dollSvg.bounce { animation: dollBounce .6s; }
+.dollSvg.twirl { animation: dollTwirl 1s; }
+.dollSlot.dropIn { animation: dollDropIn .5s; transform-box: fill-box; transform-origin: center; }
+.dollBlink { animation: dollBlink 4.5s infinite; transform-box: fill-box; transform-origin: center; }
+#dollStage.shake { animation: camelShake 0.4s; }
+@keyframes dollBounce { 0%,100% { transform: translateY(0); } 30% { transform: translateY(-14px); } 60% { transform: translateY(0); } 80% { transform: translateY(-5px); } }
+@keyframes dollTwirl { 0% { transform: scale(1) rotate(0); } 35% { transform: scale(1.06) rotate(-4deg); } 70% { transform: scale(1.06) rotate(4deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes dollDropIn { 0% { transform: translateY(-26px) scale(1.2); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes dollBlink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+#dollFeedback { flex-shrink: 0; font-size: 1.1em; font-weight: bold; min-height: 1.3em; text-align: center; color: #27ae60; }
+#dollFeedback.bad { color: #d93f46; }
+#dollCloset {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 8px;
+  border-radius: 16px;
+  background: #e4e9ff;
+  border: 2px dashed #c9d2f5;
+}
+.dollItem {
+  min-width: 0;
+  height: clamp(54px, 9.5vh, 76px);
+  border-radius: 14px;
+  border: 2px solid #d5ddf7;
+  background: #fff;
+  padding: 4px;
+  touch-action: none;
+  cursor: grab;
+  display: grid;
+  place-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.dollItem { position: relative; }
+#dollCloset.hint .dollItem::after { content: '🔊'; position: absolute; top: 2px; inset-inline-end: 4px; font-size: 0.8rem; }
+.dollItem svg { width: 100%; height: 100%; display: block; pointer-events: none; }
+.dollItem.lifted { opacity: 0.35; }
+.dollItem.gone { visibility: hidden; }
+.dollGhost { position: fixed; z-index: 100; pointer-events: none; width: 88px; height: 88px; transform: translate(-50%, -50%) rotate(-4deg); filter: drop-shadow(0 8px 10px rgba(0,0,0,0.3)); }
+.dollGhost svg { width: 100%; height: 100%; display: block; }
+#dollPaint { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+#dollPaletteTitle { font-size: 0.9rem; font-weight: bold; color: #666; }
+#dollPalette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px 12px; width: 100%; max-width: 330px; justify-items: center; }
+.dollSwatch { width: clamp(34px, 6vh, 44px); aspect-ratio: 1; border-radius: 50%; border: 3px solid #fff; outline: 2px solid #d5ddf7; padding: 0; cursor: pointer; }
+.dollSwatch[aria-pressed="true"] { outline: 3px solid #2c3e50; transform: scale(1.14); }
+#dollNextBtn, #dollDoneBtn {
+  padding: 10px 32px;
+  font-size: 1.15em;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #1e3a5f, #2d5286);
+  color: white;
+  box-shadow: 0 4px 0 #0f1f3d, 0 6px 14px rgba(0,0,0,0.25);
+  flex-shrink: 0;
+  align-self: center;
+}
+@media (prefers-reduced-motion: reduce) { .dollSvg.bounce, .dollSvg.twirl, .dollSlot.dropIn, .dollBlink { animation: none; } }

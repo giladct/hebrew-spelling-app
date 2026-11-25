@@ -148,6 +148,29 @@
       <button id="puzzleNextBtn" class="hidden">חֲזָרָה לַבַּיִת ←</button>
     </div>
 
+    <div id="dollScreen" class="hidden">
+      <header>
+        <button id="dollHomeBtn">🏠 בַּיִת</button>
+        <div id="dollTitle"></div>
+      </header>
+      <main id="dollMain">
+        <div id="dollTask">
+          <span id="dollPrefix">הַלְבִּישׁוּ</span>
+          <span id="dollWord"></span>
+          <button id="dollSpeakBtn" aria-label="השמע מילה">🔊</button>
+        </div>
+        <div id="dollStage"></div>
+        <div id="dollFeedback"></div>
+        <div id="dollCloset"></div>
+        <div id="dollPaint" class="hidden">
+          <div id="dollPaletteTitle">בַּחֲרוּ צֶבַע</div>
+          <div id="dollPalette"></div>
+          <button id="dollNextBtn">הַבָּא ←</button>
+        </div>
+        <button id="dollDoneBtn" class="hidden">חֲזָרָה לַבַּיִת ←</button>
+      </main>
+    </div>
+
     <div id="xwScreen" class="hidden">
       <header>
         <button id="xwHomeBtn">🏠 בַּיִת</button>
@@ -202,6 +225,6 @@
   </div>
 
   <script src="audio/tiles.js?v=3"></script>
-  <script src="app.js?v=50"></script>
+  <script src="app.js?v=53"></script>
 </body>
 </html>

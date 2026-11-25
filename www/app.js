@@ -1,4 +1,4 @@
-﻿// ---- Word data, grouped by level (each level uses a single niqqud) ----
+// ---- Word data, grouped by level (each level uses a single niqqud) ----
 const LEVELS = [
   {
     label: 'קָמָץ וּפַתַח',
@@ -753,6 +753,9 @@ function buildStageCards() {
   PUZZLE_STAGES.forEach(cfg => {
     makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startPuzzle(cfg), completed);
   });
+  DOLL_STAGES.forEach(cfg => {
+    makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startDoll(cfg), completed);
+  });
   groupStageCards();
 }
 
@@ -762,7 +765,7 @@ const STAGE_GROUPS = [
   { title: 'קְרִיאָה – מִתְקַדְּמִים', stages: [7, 8, 9, 10] },
   { title: 'קְרִיאָה מְדֻיֶּקֶת', stages: [11, 12] },
   { title: 'מִשְׁפָּטִים', stages: [13] },
-  { title: 'מִשְׂחָקִים', stages: [14, 15, 16, 17, 18] },
+  { title: 'מִשְׂחָקִים', stages: [14, 15, 16, 17, 18, 19] },
 ];
 
 function groupStageCards() {
@@ -2635,6 +2638,370 @@ puzzleNextBtn.addEventListener('click', () => {
   if (puzzleIdx === puzzleCfg.words.length - 1) { showHome(); return; }
   puzzleIdx++;
   puzzleLoad();
+});
+
+// ---- Stage 19: dress the doll ----
+// Each round shows one clothing word. The child reads it, picks that piece from the closet (drag it onto the doll,
+// or tap it), then paints it any colour. Clothes are SVG drawn in the doll's own coordinates (viewBox 0 0 300 412).
+// Word audio: audio/<name>.mp3 (generate_doll_audio.py; כובע comes from stage 5). Wrong pick: shake + "read again",
+// the word is never shown in the hint.
+const DOLL_STAGES = [
+  { stageOffset: 12, completedOffset: 11, title: 'בֻּבָּה', icon: '👧', color: '#e84393' },
+];
+
+const dollScreen = document.getElementById('dollScreen');
+const dollHomeBtn = document.getElementById('dollHomeBtn');
+const dollTitleEl = document.getElementById('dollTitle');
+const dollWordEl = document.getElementById('dollWord');
+const dollSpeakBtn = document.getElementById('dollSpeakBtn');
+const dollStageEl = document.getElementById('dollStage');
+const dollFeedbackEl = document.getElementById('dollFeedback');
+const dollClosetEl = document.getElementById('dollCloset');
+const dollPaintEl = document.getElementById('dollPaint');
+const dollPaletteEl = document.getElementById('dollPalette');
+const dollNextBtn = document.getElementById('dollNextBtn');
+const dollDoneBtn = document.getElementById('dollDoneBtn');
+
+const DOLL_INK = '#1b2250';
+const DOLL_NEUTRAL = '#eceefb';
+const DOLL_PALETTE = ['#e5484d', '#f5a524', '#f7d44c', '#3fb37f', '#19b5c8', '#3e8ef7', '#8e5cf0', '#f472b6', '#9c6b43', '#f4f4fa'];
+
+function dollLn(w) { return ' stroke="' + DOLL_INK + '" stroke-width="' + (w || 4) + '" stroke-linejoin="round" stroke-linecap="round"'; }
+function dollShade(d, o) { return '<path d="' + d + '" fill="#000" opacity="' + (o || 0.09) + '"/>'; }
+function dollLite(d, o) { return '<path d="' + d + '" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity="' + (o || 0.55) + '"/>'; }
+function dollStarPath(cx, cy, R, r) {
+  const p = [];
+  for (let i = 0; i < 10; i++) {
+    const a = (-90 + 36 * i) * Math.PI / 180, rad = i % 2 ? r : R;
+    p.push((cx + rad * Math.cos(a)).toFixed(1) + ' ' + (cy + rad * Math.sin(a)).toFixed(1));
+  }
+  return 'M' + p.join(' L') + ' Z';
+}
+function dollSneaker(c, mirror) {
+  const g = '<path d="M96 350 L138 350 Q144 352 144 360 L144 376 L88 376 Q84 366 90 358 Q93 353 96 350 Z" fill="' + c + '"' + dollLn() + '/>' +
+    dollShade('M120 350 L138 350 Q144 352 144 360 L144 376 L116 376 Z', 0.1) +
+    '<path d="M104 351 Q122 346 140 352 L140 362 Q122 358 100 362 Z" fill="#fff" opacity=".35"/>' +
+    '<path d="M86 376 L146 376 L146 384 Q146 390 140 390 L92 390 Q86 390 86 384 Z" fill="#fff"' + dollLn() + '/>' +
+    '<path d="M90 384 L142 384" stroke="' + DOLL_INK + '" stroke-width="2" opacity=".25"/>' +
+    '<path d="M112 356 L124 354 M112 362 L126 360 M112 368 L128 366" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".9"/>' +
+    '<path d="M96 360 Q92 366 94 372" fill="none" stroke="#fff" stroke-width="3" opacity=".45" stroke-linecap="round"/>';
+  return mirror ? '<g transform="translate(300 0) scale(-1 1)">' + g + '</g>' : g;
+}
+
+// name = the word whose audio plays (no niqqud, like the other word files); label = what the child reads
+const DOLL_ITEMS = {
+  hat: {
+    name: 'כובע', label: 'כּוֹבַע', box: '82 -4 136 94',
+    draw(c) {
+      let ribs = '', knit = '';
+      for (let x = 110; x <= 190; x += 10) ribs += 'M' + x + ' 62 L' + x + ' 80 ';
+      for (let y = 30; y < 54; y += 9) knit += 'M' + (112 - (y - 30) / 2) + ' ' + y + ' Q150 ' + (y - 6) + ' ' + (188 + (y - 30) / 2) + ' ' + y + ' ';
+      return '<path d="M102 64 Q100 18 150 18 Q200 18 198 64 Z" fill="' + c + '"' + dollLn() + '/>' +
+        dollShade('M150 18 Q200 18 198 64 L150 64 Z', 0.1) +
+        '<path d="' + knit + '" fill="none" stroke="#fff" stroke-width="3" opacity=".22" stroke-linecap="round"/>' +
+        dollLite('M116 50 Q118 32 136 26', 0.6) +
+        '<path d="M96 66 Q96 58 102 58 L198 58 Q204 58 204 66 L204 76 Q150 90 96 76 Z" fill="' + c + '"' + dollLn() + '/>' +
+        dollShade('M96 70 Q150 84 204 70 L204 76 Q150 90 96 76 Z', 0.12) +
+        '<path d="' + ribs + '" stroke="#fff" stroke-width="3" opacity=".4" stroke-linecap="round" fill="none"/>' +
+        '<circle cx="150" cy="12" r="15" fill="' + c + '"' + dollLn() + '/>' +
+        '<circle cx="150" cy="12" r="15" fill="#fff" opacity=".28"/>' +
+        '<path d="M141 8 Q146 2 153 4 M150 20 Q158 18 162 12" fill="none" stroke="#fff" stroke-width="3" opacity=".7" stroke-linecap="round"/>';
+    },
+  },
+  glasses: {
+    name: 'משקפיים', label: 'מִשְׁקָפַיִם', box: '92 78 116 48',
+    draw(c) {
+      return '<path d="M113 98 L98 96 M187 98 L202 96" stroke="' + c + '" stroke-width="6" stroke-linecap="round"/>' +
+        '<circle cx="130" cy="102" r="18" fill="#bfe6ff" fill-opacity=".38" stroke="' + c + '" stroke-width="6.5"/>' +
+        '<circle cx="170" cy="102" r="18" fill="#bfe6ff" fill-opacity=".38" stroke="' + c + '" stroke-width="6.5"/>' +
+        '<circle cx="130" cy="102" r="18" fill="none" stroke="' + DOLL_INK + '" stroke-width="1.6" opacity=".55"/><circle cx="170" cy="102" r="18" fill="none" stroke="' + DOLL_INK + '" stroke-width="1.6" opacity=".55"/>' +
+        '<path d="M147 100 Q150 94 153 100" fill="none" stroke="' + c + '" stroke-width="6" stroke-linecap="round"/>' +
+        '<path d="M119 92 Q125 87 133 89 M159 92 Q165 87 173 89" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".9"/>' +
+        '<path d="M122 112 L128 108 M162 112 L168 108" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".6"/>' +
+        '<circle cx="100" cy="96" r="3" fill="#fff" opacity=".7"/><circle cx="200" cy="96" r="3" fill="#fff" opacity=".7"/>';
+    },
+  },
+  scarf: {
+    name: 'צעיף', label: 'צָעִיף', box: '92 146 118 112',
+    draw(c) {
+      let fr = '';
+      for (let x = 172; x <= 194; x += 5) fr += 'M' + x + ' 252 L' + (x + 1) + ' 262 ';
+      return '<path d="M166 188 L194 182 L200 252 L170 250 Z" fill="' + c + '"' + dollLn() + '/>' +
+        dollShade('M182 186 L194 182 L200 252 L182 251 Z', 0.12) +
+        '<path d="M148 194 L172 192 L174 242 L150 240 Z" fill="' + c + '"' + dollLn() + '/>' +
+        dollShade('M162 193 L172 192 L174 242 L162 241 Z', 0.12) +
+        '<path d="' + fr + '" stroke="' + c + '" stroke-width="3.5" stroke-linecap="round"/>' +
+        '<path d="M150 240 L150 250 M156 241 L156 251 M162 241 L162 251 M168 242 L168 252 M173 242 L173 252" stroke="' + c + '" stroke-width="3.5" stroke-linecap="round"/>' +
+        '<path d="M169 204 L196 200 M170 222 L198 218 M149 208 L173 206 M150 224 L174 222" stroke="#fff" stroke-width="5" opacity=".5" stroke-linecap="round"/>' +
+        '<path d="M104 152 Q150 184 196 152 L200 176 Q150 208 100 176 Z" fill="' + c + '"' + dollLn() + '/>' +
+        dollShade('M100 176 Q150 208 200 176 L200 170 Q150 198 100 170 Z', 0.13) +
+        '<path d="M108 163 Q150 193 192 163 M107 171 Q150 201 193 171" fill="none" stroke="#fff" stroke-width="5" opacity=".42" stroke-linecap="round"/>' +
+        '<ellipse cx="170" cy="188" rx="14" ry="11" fill="' + c + '"' + dollLn() + '/>' +
+        '<path d="M162 186 Q170 180 178 186" fill="none" stroke="#fff" stroke-width="3" opacity=".5" stroke-linecap="round"/>';
+    },
+  },
+  shirt: {
+    name: 'חולצה', label: 'חֻלְצָה', box: '70 154 160 124',
+    draw(c) {
+      return '<path d="M106 166 L80 184 L92 222 L110 212 L112 270 L188 270 L190 212 L208 222 L220 184 L194 166 Q150 188 106 166 Z" fill="' + c + '"' + dollLn() + '/>' +
+        dollShade('M152 182 L152 270 L188 270 L190 212 L208 222 L220 184 L194 166 Q176 178 152 182 Z', 0.09) +
+        dollShade('M80 184 L92 222 L110 212 L106 200 Z', 0.1) +
+        '<path d="M128 168 Q150 192 172 168" fill="none" stroke="' + DOLL_INK + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M130 169 Q150 190 170 169" fill="none" stroke="#fff" stroke-width="5" opacity=".55" stroke-linecap="round"/>' +
+        '<path d="' + dollStarPath(150, 224, 15, 6.5) + '" fill="#fff" opacity=".92"' + dollLn(2.5) + '/>' +
+        '<path d="M118 252 Q124 244 126 232 M176 248 Q172 240 174 232" fill="none" stroke="#000" stroke-width="3" opacity=".1" stroke-linecap="round"/>' +
+        '<path d="M112 262 L188 262" stroke="#fff" stroke-width="4" opacity=".5"/>';
+    },
+  },
+  pants: {
+    name: 'מכנסיים', label: 'מִכְנָסַיִם', box: '92 256 116 106',
+    draw(c) {
+      return '<path d="M106 262 L194 262 L200 356 L158 356 L150 298 L142 356 L100 356 Z" fill="' + c + '"' + dollLn() + '/>' +
+        dollShade('M150 298 L158 356 L200 356 L194 262 L150 262 Z', 0.09) +
+        '<path d="M106 262 L194 262 L194 276 L106 276 Z" fill="#000" opacity=".1"/>' +
+        '<rect x="114" y="258" width="7" height="22" rx="3" fill="#fff" opacity=".35"/><rect x="179" y="258" width="7" height="22" rx="3" fill="#fff" opacity=".35"/>' +
+        '<circle cx="150" cy="276" r="6" fill="#fff"' + dollLn(2.5) + '/>' +
+        '<path d="M150 282 L150 298" stroke="' + DOLL_INK + '" stroke-width="3" opacity=".55"/>' +
+        '<path d="M108 288 Q116 296 126 292 M192 288 Q184 296 174 292" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="4 4" opacity=".6"/>' +
+        '<path d="M104 340 L141 340 M159 340 L196 340" stroke="#fff" stroke-width="3" opacity=".55" stroke-dasharray="5 4"/>' +
+        '<path d="M104 346 L141 346 M159 346 L196 346" stroke="#000" stroke-width="2" opacity=".12"/>';
+    },
+  },
+  shoes: {
+    name: 'נעליים', label: 'נַעֲלַיִם', box: '80 344 140 50',
+    draw(c) { return dollSneaker(c, false) + dollSneaker(c, true); },
+  },
+};
+const DOLL_BEHIND_HEAD = ['pants', 'shirt', 'shoes'];   // layers painted under the face
+const DOLL_ABOVE_HEAD = ['glasses', 'hat', 'scarf'];    // layers painted over it
+
+function dollNeutral(kind) { return kind === 'glasses' ? '#7d87c9' : DOLL_NEUTRAL; }
+function dollThumb(kind, color) {
+  return '<svg viewBox="' + DOLL_ITEMS[kind].box + '" aria-hidden="true">' + DOLL_ITEMS[kind].draw(color) + '</svg>';
+}
+
+function dollSvg() {
+  const skin = '#f6c4a3', shadeSkin = '#e6a381', hairDk = '#3a2018', ribbon = '#ff5f9e', D = DOLL_INK;
+  let s = '<svg class="dollSvg" viewBox="0 -8 300 412" aria-label="בובה">';
+  s += '<defs>' +
+    '<radialGradient id="dg-skin" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#ffe2cc"/><stop offset=".6" stop-color="' + skin + '"/><stop offset="1" stop-color="#eeae8c"/></radialGradient>' +
+    '<linearGradient id="dg-hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a5640"/><stop offset=".55" stop-color="#5a3426"/><stop offset="1" stop-color="#3f2218"/></linearGradient>' +
+    '<radialGradient id="dg-iris" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#b57a50"/><stop offset="1" stop-color="#4a2a1b"/></radialGradient>' +
+    '<radialGradient id="dg-cheek" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff8fa3" stop-opacity=".75"/><stop offset="1" stop-color="#ff8fa3" stop-opacity="0"/></radialGradient>' +
+    '</defs>';
+  s += '<ellipse cx="150" cy="392" rx="86" ry="9" fill="#000" opacity=".14"/>';
+  // back hair and pigtails
+  s += '<path d="M92 98 Q86 30 150 28 Q214 30 208 98 L212 150 Q198 162 188 142 L112 142 Q102 162 88 150 Z" fill="url(#dg-hair)"' + dollLn() + '/>';
+  s += '<path d="M90 112 Q58 118 56 164 Q56 196 80 196 Q96 192 98 160 Q100 132 94 116 Z" fill="url(#dg-hair)"' + dollLn() + '/>' +
+       '<path d="M210 112 Q242 118 244 164 Q244 196 220 196 Q204 192 202 160 Q200 132 206 116 Z" fill="url(#dg-hair)"' + dollLn() + '/>' +
+       '<path d="M72 130 Q66 160 74 186 M86 134 Q82 160 88 184 M228 130 Q234 160 226 186 M214 134 Q218 160 212 184" fill="none" stroke="#2b160f" stroke-width="2.5" opacity=".35" stroke-linecap="round"/>';
+  // arms with elbows, hands with a thumb
+  s += '<path d="M106 176 Q92 200 90 218 Q86 232 82 246" fill="none" stroke="' + skin + '" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>' +
+       '<path d="M194 176 Q208 200 210 218 Q214 232 218 246" fill="none" stroke="' + skin + '" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>' +
+       '<circle cx="80" cy="253" r="11" fill="url(#dg-skin)"' + dollLn(3.5) + '/><circle cx="220" cy="253" r="11" fill="url(#dg-skin)"' + dollLn(3.5) + '/>' +
+       '<path d="M88 250 Q94 252 93 258 M212 250 Q206 252 207 258" fill="none" stroke="' + D + '" stroke-width="2.5" stroke-linecap="round" opacity=".5"/>';
+  // legs and feet
+  s += '<path d="M110 258 L146 258 L143 354 L113 354 Z" fill="url(#dg-skin)"/><path d="M154 258 L190 258 L187 354 L157 354 Z" fill="url(#dg-skin)"/>' +
+       '<ellipse cx="128" cy="362" rx="22" ry="10" fill="' + skin + '"/><ellipse cx="172" cy="362" rx="22" ry="10" fill="' + skin + '"/>';
+  // underwear, so the doll is never bare
+  s += '<path d="M106 164 Q150 186 194 164 Q196 216 190 238 Q192 252 194 262 Q150 276 106 262 Q108 252 110 238 Q104 216 106 164 Z" fill="#fff1f6"' + dollLn() + '/>' +
+       '<path d="M106 256 L194 256 L196 290 L157 290 L150 276 L143 290 L104 290 Z" fill="#d3d9ff"' + dollLn() + '/>' +
+       '<path d="M112 258 L188 258" stroke="#fff" stroke-width="3" opacity=".7"/>';
+  DOLL_BEHIND_HEAD.forEach(k => { s += '<g class="dollSlot" data-slot="' + k + '"></g>'; });
+  // neck, ears, head
+  s += '<path d="M138 140 L162 140 L164 170 Q150 178 136 170 Z" fill="' + shadeSkin + '"/>' +
+       '<ellipse cx="95" cy="106" rx="9" ry="12" fill="url(#dg-skin)"' + dollLn(3.5) + '/><ellipse cx="205" cy="106" rx="9" ry="12" fill="url(#dg-skin)"' + dollLn(3.5) + '/>' +
+       '<path d="M92 104 Q95 110 92 114 M208 104 Q205 110 208 114" fill="none" stroke="#c98563" stroke-width="2.5" stroke-linecap="round"/>' +
+       '<ellipse cx="150" cy="100" rx="55" ry="57" fill="url(#dg-skin)"' + dollLn() + '/>';
+  // face
+  s += '<ellipse cx="112" cy="124" rx="13" ry="9" fill="url(#dg-cheek)"/><ellipse cx="188" cy="124" rx="13" ry="9" fill="url(#dg-cheek)"/>' +
+       '<circle cx="108" cy="121" r="1.4" fill="#d6805e" opacity=".5"/><circle cx="114" cy="124" r="1.4" fill="#d6805e" opacity=".5"/><circle cx="186" cy="124" r="1.4" fill="#d6805e" opacity=".5"/><circle cx="192" cy="121" r="1.4" fill="#d6805e" opacity=".5"/>';
+  const eye = (cx, flip) => {
+    const f = flip ? -1 : 1;
+    return '<g class="dollBlink"><ellipse cx="' + cx + '" cy="104" rx="10" ry="12" fill="#fff"/>' +
+      '<circle cx="' + cx + '" cy="106" r="8" fill="url(#dg-iris)"/><circle cx="' + cx + '" cy="106" r="4" fill="' + D + '"/>' +
+      '<circle cx="' + (cx + 3) + '" cy="102" r="2.8" fill="#fff"/><circle cx="' + (cx - 3) + '" cy="110" r="1.4" fill="#fff" opacity=".85"/></g>' +
+      '<path d="M' + (cx - 11) + ' 100 Q' + cx + ' 88 ' + (cx + 11) + ' 100" fill="none" stroke="' + D + '" stroke-width="3.5" stroke-linecap="round"/>' +
+      '<path d="M' + (cx + 10 * f) + ' 98 L' + (cx + 15 * f) + ' 94 M' + (cx + 11 * f) + ' 102 L' + (cx + 16 * f) + ' 101" stroke="' + D + '" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="M' + (cx - 10) + ' 89 Q' + cx + ' 82 ' + (cx + 10) + ' 88" fill="none" stroke="' + hairDk + '" stroke-width="4" stroke-linecap="round"/>';
+  };
+  s += eye(129, false) + eye(171, true);
+  s += '<path d="M146 117 Q150 122 154 117" fill="none" stroke="#c98563" stroke-width="3" stroke-linecap="round"/>' +
+       '<path d="M135 127 Q150 146 165 127 Q150 134 135 127 Z" fill="#c0404c"' + dollLn(3) + '/>' +
+       '<path d="M141 131 Q150 138 159 131" fill="#fff" opacity=".9"/><ellipse cx="150" cy="138" rx="6" ry="3" fill="#ef7f8a"/>';
+  // bangs, shine and hair ribbons
+  s += '<path d="M95 94 Q96 44 150 42 Q204 44 205 94 Q198 82 190 72 Q184 80 168 64 Q154 80 138 64 Q124 78 112 70 Q104 82 95 94 Z" fill="url(#dg-hair)"' + dollLn() + '/>' +
+       '<path d="M112 62 Q130 50 150 52" fill="none" stroke="#fff" stroke-width="4" opacity=".3" stroke-linecap="round"/>' +
+       '<path d="M120 74 Q124 62 132 58 M176 74 Q172 62 166 58" fill="none" stroke="#2b160f" stroke-width="2.5" opacity=".3" stroke-linecap="round"/>';
+  [[90, 116], [210, 116]].forEach(([x, y]) => {
+    s += '<path d="M' + x + ' ' + y + ' L' + (x - 17) + ' ' + (y - 12) + ' L' + (x - 17) + ' ' + (y + 12) + ' Z M' + x + ' ' + y + ' L' + (x + 17) + ' ' + (y - 12) + ' L' + (x + 17) + ' ' + (y + 12) + ' Z" fill="' + ribbon + '"' + dollLn(3.5) + '/>' +
+         '<circle cx="' + x + '" cy="' + y + '" r="5.5" fill="' + ribbon + '"' + dollLn(3) + '/>' +
+         '<path d="M' + (x - 12) + ' ' + (y - 5) + ' L' + (x - 5) + ' ' + y + ' M' + (x + 12) + ' ' + (y - 5) + ' L' + (x + 5) + ' ' + y + '" stroke="#fff" stroke-width="2" opacity=".6" stroke-linecap="round"/>';
+  });
+  DOLL_ABOVE_HEAD.forEach(k => { s += '<g class="dollSlot" data-slot="' + k + '"></g>'; });
+  return s + '</svg>';
+}
+
+let dollKinds = [];
+let dollRound = 0;
+let dollPhase = 'pick';       // 'pick' (find the word's piece) | 'paint' (choose its colour) | 'done'
+let dollWorn = null;          // the SVG group of the piece being painted
+let dollSvgEl = null;
+let dollDragging = false;
+let dollMistake = false;     // after a wrong pick in this round, touching a piece says its name (a 🔊 badge shows it)
+
+function startDoll(cfg) {
+  dollCfg = cfg;
+  dollKinds = shuffle(Object.keys(DOLL_ITEMS));
+  dollRound = 0;
+  dollPhase = 'pick';
+  dollWorn = null;
+  showScreen(dollScreen);
+  dollStageEl.innerHTML = dollSvg();
+  dollSvgEl = dollStageEl.querySelector('.dollSvg');
+  dollDoneBtn.classList.add('hidden');
+  document.getElementById('dollTask').classList.remove('done');
+  dollClosetEl.innerHTML = '';
+  shuffle(Object.keys(DOLL_ITEMS)).forEach(kind => {
+    const b = document.createElement('button');
+    b.className = 'dollItem';
+    b.dataset.kind = kind;
+    b.setAttribute('aria-label', DOLL_ITEMS[kind].label);
+    b.innerHTML = dollThumb(kind, dollNeutral(kind));
+    b.addEventListener('pointerdown', e => dollItemDown(e, b));
+    dollClosetEl.appendChild(b);
+  });
+  dollLoadRound();
+}
+let dollCfg = DOLL_STAGES[0];
+
+function dollLoadRound() {
+  dollPhase = 'pick';
+  dollWorn = null;
+  dollMistake = false;
+  dollClosetEl.classList.remove('hint');
+  const kind = dollKinds[dollRound];
+  dollTitleEl.innerHTML = `${dollCfg.title}<br><span class="stageProgress">שלב ${LEVELS.length + dollCfg.stageOffset} - בֶּגֶד ${dollRound + 1} מִתּוֹךְ ${dollKinds.length}</span>`;
+  dollWordEl.textContent = DOLL_ITEMS[kind].label;
+  dollFeedbackEl.textContent = 'גָּרְרוּ אֶת הַבֶּגֶד אֶל הַבֻּבָּה';
+  dollFeedbackEl.classList.remove('bad');
+  dollClosetEl.classList.remove('hidden');
+  dollPaintEl.classList.add('hidden');
+  document.getElementById('dollTask').classList.remove('hidden');
+}
+
+function dollShake() {
+  dollStageEl.classList.remove('shake');
+  void dollStageEl.offsetWidth;
+  dollStageEl.classList.add('shake');
+}
+
+function dollAttempt(btn) {
+  if (dollPhase !== 'pick') return;
+  const want = dollKinds[dollRound];
+  if (btn.dataset.kind !== want) {
+    playError();
+    dollFeedbackEl.classList.add('bad');
+    dollFeedbackEl.textContent = 'קִרְאוּ שׁוּב';
+    dollMistake = true;
+    dollClosetEl.classList.add('hint');
+    dollShake();
+    return;
+  }
+  const slot = dollSvgEl.querySelector('[data-slot="' + want + '"]');
+  slot.innerHTML = DOLL_ITEMS[want].draw(dollNeutral(want));
+  slot.classList.remove('dropIn'); void slot.getBoundingClientRect(); slot.classList.add('dropIn');
+  dollSvgEl.classList.remove('bounce'); void dollSvgEl.getBoundingClientRect(); dollSvgEl.classList.add('bounce');
+  btn.classList.add('gone');
+  dollWorn = slot;
+  dollPhase = 'paint';
+  playSuccess();
+  dollFeedbackEl.classList.remove('bad');
+  dollFeedbackEl.textContent = randomPraise() + '!';
+  dollClosetEl.classList.add('hidden');
+  dollPaintEl.classList.remove('hidden');
+  Array.from(dollPaletteEl.children).forEach(x => x.setAttribute('aria-pressed', 'false'));
+  dollNextBtn.textContent = dollRound === dollKinds.length - 1 ? 'סִיַּמְנוּ ✓' : 'הַבָּא ←';
+}
+
+// Drag a piece onto the doll (or tap it) to choose it. Only after a wrong pick in the round does touching a piece
+// say its name (hint); then a plain tap just speaks and dragging chooses.
+function dollItemDown(e, btn) {
+  if (dollPhase !== 'pick' || dollDragging || btn.classList.contains('gone')) return;
+  e.preventDefault();
+  dollDragging = true;
+  const startX = e.clientX, startY = e.clientY;
+  let moved = false;
+  const ghost = document.createElement('div');
+  ghost.className = 'dollGhost';
+  ghost.innerHTML = btn.innerHTML;
+  ghost.style.left = e.clientX + 'px';
+  ghost.style.top = e.clientY + 'px';
+  document.body.appendChild(ghost);
+  btn.classList.add('lifted');
+  if (dollMistake) speakWord({ name: DOLL_ITEMS[btn.dataset.kind].name });
+  const move = ev => {
+    if (Math.abs(ev.clientX - startX) + Math.abs(ev.clientY - startY) > 8) moved = true;
+    ghost.style.left = ev.clientX + 'px';
+    ghost.style.top = ev.clientY + 'px';
+  };
+  const up = ev => {
+    document.removeEventListener('pointermove', move);
+    document.removeEventListener('pointerup', up);
+    document.removeEventListener('pointercancel', up);
+    dollDragging = false;
+    btn.classList.remove('lifted');
+    ghost.remove();
+    if (ev.type !== 'pointerup') return;
+    if (!moved) { if (!dollMistake) dollAttempt(btn); return; }
+    const r = dollStageEl.getBoundingClientRect();
+    const onDoll = ev.clientX > r.left && ev.clientX < r.right && ev.clientY > r.top && ev.clientY < r.bottom;
+    if (!onDoll) {
+      dollFeedbackEl.classList.remove('bad');
+      dollFeedbackEl.textContent = 'גָּרְרוּ אֶת הַבֶּגֶד אֶל הַבֻּבָּה';
+      return;
+    }
+    dollAttempt(btn);
+  };
+  document.addEventListener('pointermove', move);
+  document.addEventListener('pointerup', up);
+  document.addEventListener('pointercancel', up);
+}
+
+DOLL_PALETTE.forEach(color => {
+  const b = document.createElement('button');
+  b.className = 'dollSwatch';
+  b.style.background = color;
+  b.setAttribute('aria-label', 'צבע');
+  b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('click', () => {
+    if (dollPhase !== 'paint' || !dollWorn) return;
+    Array.from(dollPaletteEl.children).forEach(x => x.setAttribute('aria-pressed', 'false'));
+    b.setAttribute('aria-pressed', 'true');
+    dollWorn.innerHTML = DOLL_ITEMS[dollWorn.dataset.slot].draw(color);
+  });
+  dollPaletteEl.appendChild(b);
+});
+
+dollNextBtn.addEventListener('click', () => {
+  if (dollPhase !== 'paint') return;
+  dollRound++;
+  if (dollRound < dollKinds.length) { dollLoadRound(); return; }
+  dollPhase = 'done';
+  markLevelComplete(LEVELS.length + dollCfg.completedOffset);
+  showConfetti();
+  dollSvgEl.classList.remove('bounce'); void dollSvgEl.getBoundingClientRect(); dollSvgEl.classList.add('twirl');
+  dollWordEl.textContent = 'הַבֻּבָּה מוּכָנָה לַטִּיּוּל!';
+  document.getElementById('dollTask').classList.add('done');
+  dollFeedbackEl.classList.remove('bad');
+  dollFeedbackEl.textContent = randomPraise() + '!';
+  dollPaintEl.classList.add('hidden');
+  dollDoneBtn.classList.remove('hidden');
+});
+dollDoneBtn.addEventListener('click', showHome);
+dollHomeBtn.addEventListener('click', showHome);
+dollSpeakBtn.addEventListener('click', () => {
+  if (dollPhase !== 'done') speakWord({ name: DOLL_ITEMS[dollKinds[dollRound]].name });
 });
 
 // ---- Stages 16-17: syllable crossword ----
