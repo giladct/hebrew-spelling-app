@@ -723,7 +723,7 @@ function makeStageCard(num, completedKey, icon, color, label, onClick, completed
   card.className = 'stageCard' + (completed.has(completedKey) ? ' completed' : '') + (locked ? ' locked' : '');
   card.style.setProperty('--card-color', color);
   card.innerHTML = `<span class="stageIcon">${icon}</span><span class="stageLabelRow"><span class="stageNum">${num}</span><span class="stageLabel">${label}</span></span>`;
-  card.addEventListener('click', locked ? openUnlock : onClick);
+  card.addEventListener('click', locked ? openUnlock : () => { showStageAd(); onClick(); });
   stageCardsEl.appendChild(card);
 }
 
@@ -801,7 +801,6 @@ function showHome() {
   }
   continueBtn.classList.toggle('hidden', !hasSavedProgress());
   showScreen(homeScreen);
-  maybeShowStageAd();
 }
 
 function showGame() {
@@ -817,7 +816,7 @@ function startStage(level, index = 0) {
 
 homeBtn.addEventListener('click', showHome);
 continueBtn.addEventListener('click', () => {
-  if (isStageLocked(currentLevel + 1)) openUnlock(); else startStage(currentLevel, currentIndex);
+  if (isStageLocked(currentLevel + 1)) openUnlock(); else { showStageAd(); startStage(currentLevel, currentIndex); }
 });
 
 function isWideTile(letter) {
@@ -850,7 +849,6 @@ function markLevelComplete(level) {
     completed.add(level);
     localStorage.setItem(COMPLETED_KEY, JSON.stringify([...completed]));
   } catch (e) {}
-  stageAdDue = true;           // full-screen ad on the next return home (Android + iOS apps, see "Ads")
 }
 
 function saveProgress() {
@@ -1151,7 +1149,7 @@ nextLevelBtn.addEventListener('click', () => {
   const completed = getCompletedLevels();
   const nextLevel = Array.from({length: LEVELS.length}, (_, i) => i).find(i => !completed.has(i));
   if (nextLevel === undefined) return;
-  if (isStageLocked(nextLevel + 1)) openUnlock(); else startStage(nextLevel);
+  if (isStageLocked(nextLevel + 1)) openUnlock(); else { showStageAd(); startStage(nextLevel); }
 });
 
 hintBtn.addEventListener('click', () => {
@@ -3211,12 +3209,13 @@ unlockBuyBtn.addEventListener('click', () => parentGate('כדי לבצע רכי�
 document.getElementById('unlockRestoreBtn').addEventListener('click', unlockRestore);
 document.getElementById('unlockCloseBtn').addEventListener('click', closeUnlock);
 
-// ---- Ads (Android + iOS apps): a full-screen ad when the child comes back home after finishing a stage ----
+// ---- Ads (Android + iOS apps): a full-screen ad each time the child enters a stage ----
 // Plugin: @capacitor-community/admob (pinned), reached as Capacitor.Plugins.AdMob.
 // Children's app (Google Play Families policy / COPPA / Apple 1.3): child-directed + under-age-of-consent
 // tags, rating G, non-personalized ads only; AD_ID permission is removed in AndroidManifest.xml and iOS
 // never asks for tracking permission (no ATT prompt, no NSUserTrackingUsageDescription).
-// Never shown during play, on app launch, or more often than ADMOB.minGapMs.
+// Shown every time the child enters a stage (card tap, continue, next-stage button), before the stage opens.
+// Never shown during play or on app launch. If no ad is loaded yet the stage just opens without one.
 const ADMOB = {
   // Real AdMob ad units "between stages" (Interstitial), one per AdMob app. The app ids are in
   // android/app/src/main/AndroidManifest.xml and ios/App/App/Info.plist (GADApplicationIdentifier).
@@ -3227,12 +3226,9 @@ const ADMOB = {
     ios: 'ca-app-pub-9952727141505497/3197973896',       // app "לימוד קריאה לכיתה א" (iOS), unit "Between stages iOS"
   },
   isTesting: false,
-  minGapMs: 3 * 60 * 1000,
 };
-let stageAdDue = false;        // set when a stage is completed, used on the next return to the home screen
 let stageAdReady = false;
 let stageAdShowing = false;
-let lastStageAdAt = 0;
 
 function adMobPlugin() {
   if (!isNativeApp() || !ADMOB.interstitialId[window.Capacitor.getPlatform()]) return null;
@@ -3269,16 +3265,12 @@ async function initAds() {
   }
 }
 
-// Called from showHome(): shows the ad only right after a completed stage.
-function maybeShowStageAd() {
-  if (!stageAdDue) return;
-  stageAdDue = false;
+// Called when a stage is opened: the ad covers the screen while the stage loads underneath.
+function showStageAd() {
   const ads = adMobPlugin();
   if (!ads || !stageAdReady || stageAdShowing) { prepareStageAd(); return; }
-  if (Date.now() - lastStageAdAt < ADMOB.minGapMs) return;
   stageAdReady = false;
   stageAdShowing = true;
-  lastStageAdAt = Date.now();
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   ads.showInterstitial().catch(() => { stageAdShowing = false; prepareStageAd(); });
 }

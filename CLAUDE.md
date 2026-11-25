@@ -62,8 +62,7 @@ The header comment in app.js has the stage table (stage number → screen → CO
 - Debug APK: see memory file; copy to `app-debug.apk` and send it to the owner's phone with SendUserFile.
 
 ## Ads (Android since 1.0.53, 17.11.2026; iOS from 1.2, added 22.11.2026)
-- AdMob interstitial when the child returns home after completing a stage (`markLevelComplete` sets
-  `stageAdDue`, `showHome()` calls `maybeShowStageAd()`), max once per 3 min. Code: "Ads" section at the end of app.js.
+- AdMob interstitial every time the child enters a stage (owner's choice 25.11.2026; was: after finishing a stage, max once per 3 min). `showStageAd()` is called from the stage-card click, continueBtn and nextLevelBtn; no time gap. Android 1.0.54 (versionCode 54) uploaded to production 25.11.2026; iOS not yet. Code: "Ads" section at the end of app.js.
 - AdMob app "Learn to Read Hebrew": app id in AndroidManifest.xml, ad unit in `ADMOB` (app.js). For test ads use
   Google's test unit + `isTesting: true`; the owner must never tap real ads.
 - Kids settings: child-directed + under-age-of-consent tags, rating G, `npa`; AD_ID and ACCESS_ADSERVICES_* permissions
@@ -74,7 +73,10 @@ The header comment in app.js has the stage table (stage number → screen → CO
   Plugin listed in `ios.includePlugins`; Codemagic runs `cap sync ios`, which rewrites CapApp-SPM/Package.swift.
   ASC 1.2 (not submitted yet): description + What's New say "all stages free" (owner: don't mention ads in store texts; the "no ads" lines were
   removed), age rating advertising = true.
-  Still on the owner / next step: App Privacy labels in App Store Connect (web only), a Codemagic build, submit.
+  App Privacy labels published 22.11.2026 (7 types: coarse location, device ID, product interaction, advertising data,
+  crash/performance/other diagnostics; purposes third-party advertising + analytics + app functionality; not linked, no tracking).
+  Pushed to branch stages-11-17 (commit e59d6f7). Codemagic build 16 of that branch -> TestFlight; iOS 1.2 (build 16)
+  submitted to App Review 22.11.2026 (not tested on a phone first). Android 1.0.53 / ASC texts must not mention ads.
   The IAP `unlock_all_stages` on ASC is left unsubmitted (not used on iOS any more).
 - app-ads.txt lives in the giladct.github.io repo (root of the Play developer website domain).
 - Play Console declarations updated 17.11.2026: Ads = yes, target age 6-8 (+ Teacher Approved), Data safety = AdMob
