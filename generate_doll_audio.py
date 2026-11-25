@@ -10,7 +10,10 @@ from gtts import gTTS
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
 WORDS = {'חולצה': 'חֻלְצָה', 'מכנסיים': 'מִכְנָסַיִם', 'נעליים': 'נַעֲלַיִם',
-         'משקפיים': 'מִשְׁקָפַיִם', 'צעיף': 'צָעִיף'}   # file name -> text sent to gTTS
+         'משקפיים': 'מִשְׁקָפַיִם', 'צעיף': 'צָעִיף',
+         # stage 20 (fashion doll); files with a space in the name use an underscore, like the other word files
+         'גופייה': 'גּוּפִיָּה', 'חצאית': 'חֲצָאִית', 'נעלי_עקב': 'נַעֲלֵי עָקֵב', 'תיק': 'תִּיק',
+         'שרשרת': 'שַׁרְשֶׁרֶת', 'עגילים': 'עֲגִילִים', 'משקפי_שמש': 'מִשְׁקְפֵי שֶׁמֶשׁ'}   # file name -> text sent to gTTS
 
 audio_dir = Path('www') / 'audio'
 for stem, text in WORDS.items():

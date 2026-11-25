@@ -62,7 +62,7 @@ The header comment in app.js has the stage table (stage number → screen → CO
 - Debug APK: see memory file; copy to `app-debug.apk` and send it to the owner's phone with SendUserFile.
 
 ## Ads (Android since 1.0.53, 17.11.2026; iOS from 1.2, added 22.11.2026)
-- AdMob interstitial every time the child enters a stage (owner's choice 25.11.2026; was: after finishing a stage, max once per 3 min). `showStageAd()` is called from the stage-card click, continueBtn and nextLevelBtn; no time gap. Android 1.0.54 (versionCode 54) uploaded to production 25.11.2026; iOS 1.3 (build 17) submitted to App Review 25.11.2026. Code: "Ads" section at the end of app.js.
+- AdMob interstitial every time the child enters a stage (owner's choice 25.11.2026; was: after finishing a stage, max once per 3 min), except stages 1-3 (`NO_AD_UP_TO_STAGE`, first-time users). `showStageAd(stageNum)` is called from the stage-card click, continueBtn and nextLevelBtn; no time gap. Android 1.0.56 / iOS 1.3 ship stages 19-20 and this rule. Code: "Ads" section at the end of app.js.
 - AdMob app "Learn to Read Hebrew": app id in AndroidManifest.xml, ad unit in `ADMOB` (app.js). For test ads use
   Google's test unit + `isTesting: true`; the owner must never tap real ads.
 - Kids settings: child-directed + under-age-of-consent tags, rating G, `npa`; AD_ID and ACCESS_ADSERVICES_* permissions
@@ -96,4 +96,9 @@ The header comment in app.js has the stage table (stage number → screen → CO
   the word is never shown in the hint. Art is inline SVG in the doll's coordinates (design prototype artifact "בובה מתלבשת").
   Audio: `generate_doll_audio.py` (gTTS) made חולצה/מכנסיים/נעליים/משקפיים/צעיף - owner must check them by ear. The niqqud on the words
   (חֻלְצָה, מִכְנָסַיִם, נַעֲלַיִם, מִשְׁקָפַיִם, צָעִיף) and on "הַלְבִּישׁוּ"/"קִרְאוּ שׁוּב"/"בַּחֲרוּ צֶבַע" was written by Claude - needs the owner's OK.
+- Stage 20 = second doll, a teenage fashion girl (added 25.11.2026, not released yet; same engine as stage 19, `DOLL_KITS.fashion`; stageOffset 13,
+  completedOffset 12). 8 pieces: גופייה, חצאית, נעלי עקב, תיק, שרשרת, עגילים, משקפי שמש, כובע (4-column closet). The doll engine takes a kit
+  (`items`, `svg`, `cols`, `neutral`) from `DOLL_KITS`; add a new doll = new kit + a `DOLL_STAGES` entry (+ stage group number). Audio words
+  (generate_doll_audio.py) and niqqud (גּוּפִיָּה, חֲצָאִית, נַעֲלֵי עָקֵב, תִּיק, שַׁרְשֶׁרֶת, עֲגִילִים, מִשְׁקְפֵי שֶׁמֶשׁ, title בֻּבָּה מִתְגַּנְדֶּרֶת) are Claude's, owner must approve / listen.
+  The owner wrote "סמלה" (taken as שמלה): the doll wears גופייה + חצאית instead of a dress, to avoid layer clashes.
 - Stage 18 = picture puzzle (`PUZZLE_STAGES`, 6 words from LEVELS with a scene background; drag the pieces, then drag the syllables; skip button).
