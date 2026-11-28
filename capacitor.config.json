@@ -1,6 +1,6 @@
 {
   "appId": "hebrew-spelling.myapp",
-  "appName": "לימוד קריאה לכיתה א'",
+  "appName": "לימוד קריאה בעברית",
   "webDir": "www",
   "ios": {
     "contentInset": "automatic",

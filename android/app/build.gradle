@@ -34,6 +34,8 @@ if (System.getenv("ANDROID_KEYSTORE_PATH")) {
 // falls back to a fixed low number - fine, since local builds aren't what
 // gets uploaded to Play Console anyway.
 def androidVersionCode = (System.getenv("ANDROID_VERSION_CODE") ?: "4").toInteger()
+// The name users see in the store. Owner 28.11.2026: Android and iOS share the same number (1.5). Next release: bump here or set ANDROID_VERSION_NAME.
+def androidVersionName = System.getenv("ANDROID_VERSION_NAME") ?: "1.5"
 
 android {
     namespace = "hebrew_spelling.myapp"
@@ -43,7 +45,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode androidVersionCode
-        versionName "1.0.${androidVersionCode}"
+        versionName androidVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

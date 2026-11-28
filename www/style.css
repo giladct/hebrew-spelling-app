@@ -93,110 +93,103 @@ h1 {
 }
 
 
-#continueBtn {
-  padding: 10px 24px;
-  font-size: 1.05em;
-  border: none;
-  border-radius: 30px;
-  background: #27ae60;
-  color: white;
-  box-shadow: 0 4px 0 #1a7a45, 0 6px 14px rgba(39,174,96,0.3);
-  margin-bottom: 18px;
-}
-
-#nextLevelBtn {
-  padding: 10px 24px;
-  font-size: 1.05em;
-  border: none;
-  border-radius: 30px;
-  background: #d4760e;
-  color: white;
-  box-shadow: 0 4px 0 #8f4d08, 0 6px 14px rgba(212,118,14,0.3);
-  margin-bottom: 18px;
-}
-
+/* ---- Kids' home (28.11.2026): pictures of the stages, no reading needed ---- */
 #stageCards {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
   width: 100%;
+  margin-top: 14px;
 }
 
+/* one coloured block per kind of game */
+.stageGroupHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gc, #3a6fa8);
+  color: #fff;
+  border-radius: 20px;
+  padding: 8px 14px 8px 18px;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.18);
+  margin-bottom: 12px;
+}
+.stageGroupIcon {
+  width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%; background: #fff;
+  display: flex; align-items: center; justify-content: center; font-size: 26px; line-height: 1;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.1);
+}
 .stageGroupTitle {
-  margin: 0 2px 8px;
-  padding-right: 10px;
-  border-right: 5px solid #3a6fa8;
-  font-size: 1.15rem;
-  color: #2c3e50;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
 }
 
 .stageGroupGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 14px;
   width: 100%;
 }
 
+/* a stage card: its picture (with the number, a star when done, a play button on the next one) and its name */
 .stageCard {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 16px;
-  background: var(--card-color, #3498db);
-  color: #fff;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 0 rgba(0,0,0,0.2), 0 6px 12px rgba(0,0,0,0.15);
   position: relative;
-}
-
-.stageCard.completed::after {
-  content: '✓';
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: rgba(0,0,0,0.3);
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  font-size: 13px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  line-height: 22px;
+  flex-direction: column;
+  padding: 0;
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #fff;
+  color: #1e3a5f;
   text-align: center;
+  box-shadow: 0 5px 0 rgba(0,0,0,0.16), 0 8px 14px rgba(0,0,0,0.12);
+  transition: transform .12s;
 }
-
-.stageIcon {
-  font-size: 2.2em;
-  line-height: 1;
-  flex-shrink: 0;
+.stageCard:active { transform: scale(0.96); }
+.stageThumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 400 / 270;
+  background: #f4efe6;
 }
-
-.stageLabelRow {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-}
-
+.stageThumb img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .stageNum {
-  flex-shrink: 0;
-  font-size: 1.55em;
-  line-height: 1.1;
-  font-weight: bold;
+  position: absolute; top: 6px; right: 6px; min-width: 36px; height: 36px; padding: 0 7px;
+  border-radius: 18px; background: var(--gc, #3a6fa8); color: #fff; font-size: 1.25rem; font-weight: 800; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3); border: 3px solid #fff;
 }
-
+.stageStar {
+  position: absolute; top: 4px; left: 6px; font-size: 26px; line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+}
 .stageLabel {
-  font-size: 0.85em;
-  line-height: 1.15;
-  font-weight: bold;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 2.9em; padding: 5px 6px 6px;
+  font-size: 0.82rem; line-height: 1.25; font-weight: 700;
 }
+.stageCard.completed { box-shadow: 0 5px 0 #c9a21a, 0 8px 14px rgba(0,0,0,0.12); }
+.stageCard.completed::after, .stageCard.now::after {
+  content: ""; position: absolute; inset: 0; border-radius: 20px; pointer-events: none;
+}
+.stageCard.completed::after { border: 4px solid #ffd54a; }
+.stageCard.now { animation: stageNowPulse 1.4s infinite; }
+.stageCard.now::after { border: 5px solid #27ae60; }
+.stageGo {
+  position: absolute; left: 6px; bottom: 6px; width: 38px; height: 38px; border-radius: 50%;
+  background: #27ae60; border: 3px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+.stageGo::before {
+  content: ""; border-top: 8px solid transparent; border-bottom: 8px solid transparent;
+  border-right: 13px solid #fff; margin-right: 3px;
+}
+@keyframes stageNowPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+@media (prefers-reduced-motion: reduce) { .stageCard.now { animation: none; } }
 
 #homeBtn, #smHomeBtn, #dw10HomeBtn, #camelHomeBtn, #sentHomeBtn, #memHomeBtn, #xwHomeBtn, #puzzleHomeBtn, #dollHomeBtn {
   flex-shrink: 0;
@@ -206,6 +199,29 @@ h1 {
   border-radius: 16px;
   background: rgba(255,255,255,0.15);
   color: white;
+}
+
+/* "?" button at the end of every game-screen header: says the stage's instruction aloud */
+.helpBtn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #ffd54a;
+  color: #1e3a5f;
+  font-size: 1.5em;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.helpBtn:active { transform: scale(0.92); }
+
+/* No written instructions: children can't read yet, the spoken instruction / "?" button says what to do (owner 28.11.2026).
+   The elements stay (app.js still fills puzzleInstruction), they are just not shown. */
+#smInstruction, #dw10Instruction, #camelInstruction, #sentInstruction, #memInstruction, #xwInstruction, #puzzleInstruction {
+  display: none;
 }
 
 #smTitle {
@@ -421,7 +437,8 @@ main {
   width: 70px;
 }
 
-.tile.dragging, .smTile.dragging {
+/* stages 1-10: a tile lifted by startDrag (mode 'lift') */
+.tile.dragging, .smTile.dragging, .dw10Tile.dragging {
   position: fixed;
   z-index: 1000;
   box-shadow: 0 8px 16px rgba(0,0,0,0.3);
@@ -841,13 +858,6 @@ main {
   width: 76px;
 }
 
-.dw10Tile.dragging {
-  position: fixed;
-  z-index: 1000;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-  transform: scale(1.1);
-}
-
 /* ---- Stage 11: camel to the oasis ---- */
 #camelScreen {
   width: 100%;
@@ -907,7 +917,6 @@ main {
   line-height: 1;
   transition: right 0.9s ease-in-out;
 }
-#camelWalker.walking { animation: camelBob 0.35s ease-in-out infinite; }
 @keyframes camelBob {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
@@ -948,8 +957,9 @@ main {
   background: white;
   color: #2c3e50;
   box-shadow: 0 4px 0 #b9c3cc, 0 6px 12px rgba(0,0,0,0.15);
+  position: relative;
 }
-.camelOption.correct { background: #4caf50; color: white; box-shadow: 0 4px 0 #2e7d32; }
+.camelOption.correct { background: #4caf50; color: white; box-shadow: 0 4px 0 #2e7d32; animation: optionPop 0.45s ease-out; }
 .camelOption.wrong { background: #ef5350; color: white; box-shadow: 0 4px 0 #b71c1c; opacity: 0.7; animation: camelShake 0.4s; }
 @keyframes camelShake {
   0%, 100% { transform: translateX(0); }
@@ -1044,8 +1054,6 @@ main {
   100% { opacity: 0;   transform: translate(14px, -22px) scale(1.5); }
 }
 
-.camelOption { position: relative; }
-.camelOption.correct { animation: optionPop 0.45s ease-out; }
 @keyframes optionPop {
   0% { transform: scale(1); }
   40% { transform: scale(1.08); }
@@ -1268,6 +1276,8 @@ main {
   font-size: 1.9rem;
   font-weight: bold;
   color: #2c3e50;
+  min-width: 0;        /* keep wide grids inside the screen */
+  overflow: hidden;
 }
 .xwCell.long { font-size: 1.5rem; }
 .xwCell.dragOver { border-color: #2980b9; background: #e6f2fb; }
@@ -1277,7 +1287,7 @@ main {
 .xwClue {
   background: #fff4d6;
   border: 2px solid #f0d58c;
-  font-size: 1.9rem;
+  font-size: var(--xw-pic, 1.9rem);   /* app.js xwFitClues() sets --xw-pic: the biggest picture the cell fits */
   line-height: 1;
 }
 .xwClue .xwArrow {
@@ -1334,13 +1344,12 @@ main {
 #memGrid[data-cols="4"] .memCard.pic .memBack { font-size: 2.7rem; }
 #memGrid[data-cols="4"] .memFront { font-size: 2rem; }
 
-/* crossword: keep wide grids inside the screen, and keep the arrow off the picture */
-.xwCell { min-width: 0; overflow: hidden; }
+/* crossword: keep the arrow off the picture */
 .xwClue[data-dir="h"] { padding-left: 14px; }
 .xwClue[data-dir="v"] { padding-bottom: 14px; }
 #xwGrid[data-cols="6"] .xwCell { font-size: 1.55rem; }
 #xwGrid[data-cols="6"] .xwCell.long { font-size: 1.2rem; }
-#xwGrid[data-cols="6"] .xwClue { font-size: 1.5rem; }
+#xwGrid[data-cols="6"] .xwClue { font-size: var(--xw-pic, 1.5rem); }
 #xwGrid[data-cols="6"] .xwClue[data-dir="h"] { padding-left: 11px; }
 #xwGrid[data-cols="6"] .xwClue[data-dir="v"] { padding-bottom: 11px; }
 #xwGrid[data-cols="6"] .xwClue .xwArrow.h { margin-top: -8px; border-top-width: 8px; border-bottom-width: 8px; border-right-width: 11px; left: 2px; }
@@ -1407,8 +1416,14 @@ main {
   content: '🔒';
   position: absolute;
   top: 4px;
-  right: 6px;
-  font-size: 15px;
+  left: 6px;
+  right: auto;
+  bottom: auto;
+  width: auto;
+  height: auto;
+  border: none;
+  border-radius: 0;
+  font-size: 24px;
   line-height: 1;
 }
 #unlockDialog {
@@ -1476,6 +1491,8 @@ main {
   max-width: 480px;
   --pz-w: min(30vw, 108px);
 }
+/* 12 pieces (3 x 4): the board and the tray are both 4 rows high, so the pieces are smaller to fit a phone screen */
+#puzzleMain[data-rows="4"] { --pz-w: min(24vw, 88px); }
 #puzzleInstruction { font-size: 1.05rem; color: #555; text-align: center; margin: 0; font-weight: 500; }
 #puzzleBoard, #puzzleTray { direction: ltr; }
 #puzzleBoard {
@@ -1489,7 +1506,7 @@ main {
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.15);
 }
 #puzzleBoard.done { gap: 0; padding: 0; background-color: #fff8e7; background-size: 100% 100%; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
-#puzzleBoard.done .pzPiece { opacity: 0; }
+#puzzleBoard.done .pzPiece { opacity: 0; border-radius: 0; }
 .pzSlot { border-radius: 4px; background: rgba(255,255,255,0.45); border: 2px dashed #c4a96a; box-sizing: border-box; }
 #puzzleBoard.done .pzSlot { border: none; border-radius: 0; background: none; }
 #puzzleTray {
@@ -1516,7 +1533,6 @@ main {
 .pzPiece.dragging { z-index: 50; transition: none; box-shadow: 0 10px 22px rgba(0,0,0,0.35); }
 .pzPiece.back { transition: transform .25s; }
 .pzPiece.placed { box-shadow: none; border-color: transparent; cursor: default; touch-action: auto; }
-#puzzleBoard.done .pzPiece { border-radius: 0; }
 .pzPiece.nope { animation: camelShake 0.4s; }
 #puzzleWordBox { display: flex; flex-direction: column; align-items: center; gap: 14px; }
 #puzzleSlots, #puzzleSyls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
@@ -1609,8 +1625,8 @@ main {
   place-items: center;
   user-select: none;
   -webkit-user-select: none;
+  position: relative;
 }
-.dollItem { position: relative; }
 #dollCloset.hint .dollItem::after { content: '🔊'; position: absolute; top: 2px; inset-inline-end: 4px; font-size: 0.8rem; }
 .dollItem svg { width: 100%; height: 100%; display: block; pointer-events: none; }
 .dollItem.lifted { opacity: 0.35; }
@@ -1634,3 +1650,7 @@ main {
   align-self: center;
 }
 @media (prefers-reduced-motion: reduce) { .dollSvg.bounce, .dollSvg.twirl, .dollSlot.dropIn, .dollBlink { animation: none; } }
+
+/* Stages 21-22 (road signs, flags) show the picture in the picture box of the stage 1-7 screen */
+#pictureBox img { height: 130px; width: 130px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); pointer-events: none; }
+#pictureBox img.flag { width: 200px; height: 130px; filter: drop-shadow(0 0 1px rgba(0,0,0,0.55)) drop-shadow(0 4px 6px rgba(0,0,0,0.25)); }

@@ -568,6 +568,11 @@ const DUAL_WORD_PUZZLES = [
 //   13    sentenceScreen       order a 3-word sentence                  12
 //   14-15 memScreen            memory word<->picture (MEM_STAGES)       13, 16
 //   16-17 xwScreen             syllable crossword (CROSSWORD_STAGES)    14, 15
+//   18    puzzleScreen         picture puzzle (PUZZLE_STAGES)           17
+//   23    puzzleScreen         hard puzzle, 12 pieces (PUZZLE_STAGES)   22   (added last, so its number is 23; home group "puzzle")
+//   19-20 dollScreen           dress the doll (DOLL_STAGES)             18, 19
+//   21-22 gameScreen           road signs / flags from syllables        20, 21
+//                              (SIGN_SYLLABLE_STAGES, customSet)
 //   Home-screen sections: STAGE_GROUPS (by shown number).
 //   COMPLETED_KEY entries are stored in users' devices, so never renumber them; renumbering the shown
 //   stage number (stageOffset) is safe. Adding a level to LEVELS would shift every LEVELS.length-based
@@ -579,7 +584,8 @@ const DUAL_WORD_PUZZLES = [
 //   Both share a single AudioContext (_audioCtx / getAudioCtx)
 //   Tile sounds use is_final to get the right pronunciation for syllable position in the word
 //   New audio: generate_audio.py (stages 1-10), generate_camel_audio.py, generate_sentence_audio.py,
-//   generate_crossword_audio.py - each skips files that already exist.
+//   generate_crossword_audio.py, generate_doll_audio.py, generate_sign_audio.py / generate_flag_audio.py
+//   (words) and generate_sign_tiles.py (stage 21-22 tiles; rerun it after generate_audio.py, which rewrites tiles.js).
 //
 // LOCALSTORAGE
 //   PROGRESS_KEY:  { level, index } - which word the user was on in stages 1-7 (restored on resume)
@@ -597,7 +603,6 @@ function lookupWord(name) {
 let currentLevel = 0;
 let currentIndex = 0;
 let currentWord = null;
-let tray = [];   // array of {id, letter, el}
 let slotState = []; // array of letter or null, by slot index
 
 let wordAttempts = 0;
@@ -623,6 +628,8 @@ function randomPraise() {
 }
 
 const pictureBox = document.getElementById('pictureBox');
+// Tapping the picture says the word (stages 1-7; stages 21-22 share this screen but only have the 🔊 button).
+pictureBox.addEventListener('click', () => { if (!customSet && currentWord) speakWord(currentWord); });
 const slotsEl = document.getElementById('slots');
 const trayEl = document.getElementById('tray');
 const feedbackEl = document.getElementById('feedback');
@@ -634,8 +641,6 @@ const wordTotalEl = document.getElementById('wordTotal');
 const homeScreen = document.getElementById('homeScreen');
 const gameScreen = document.getElementById('gameScreen');
 const stageCardsEl = document.getElementById('stageCards');
-const continueBtn = document.getElementById('continueBtn');
-const nextLevelBtn = document.getElementById('nextLevelBtn');
 const homeBtn = document.getElementById('homeBtn');
 const syllableMatchScreen = document.getElementById('syllableMatchScreen');
 const smHomeBtn = document.getElementById('smHomeBtn');
@@ -712,18 +717,28 @@ const EMOJI_MAP = {
   'כַּלָּה':'👰', 'חַלָּה':'🍞', 'תְּפִלָּה':'🙏',
 };
 
+// Stages 1-7 play LEVELS[currentLevel]. customSet (stages 21-22, road signs and flags) plays its own word list on the same screen:
+// { label, stageOffset, completedOffset, words: [{name, tiles, groupSizes?, img}] }; null for stages 1-7.
+let customSet = null;
 function currentWords() {
-  return LEVELS[currentLevel].words;
+  return customSet ? customSet.words : LEVELS[currentLevel].words;
 }
 
-// One home-screen card. num = stage number shown, completedKey = its COMPLETED_KEY entry.
+// One home-screen card (kids' home, owner 28.11.2026: children can't read, so each stage shows a picture of itself).
+// num = stage number shown, completedKey = its COMPLETED_KEY entry. The picture is www/img/stage-thumbs/NN.webp, made by
+// tools/stage-thumbs.js - rerun it when a stage looks different. icon/color are not used here any more.
+// Keep the classes stageCard / stageNum / stageLabel: tools/smoke-test.js and tools/store-screenshots.js use them.
+function stageThumbSrc(num) { return 'img/stage-thumbs/' + String(num).padStart(2, '0') + '.webp'; }
+
 function makeStageCard(num, completedKey, icon, color, label, onClick, completed) {
   const card = document.createElement('button');
   const locked = isStageLocked(num);
-  card.className = 'stageCard' + (completed.has(completedKey) ? ' completed' : '') + (locked ? ' locked' : '');
-  card.style.setProperty('--card-color', color);
-  card.innerHTML = `<span class="stageIcon">${icon}</span><span class="stageLabelRow"><span class="stageNum">${num}</span><span class="stageLabel">${label}</span></span>`;
-  card.addEventListener('click', locked ? openUnlock : () => { showStageAd(num); onClick(); });
+  const done = completed.has(completedKey);
+  card.className = 'stageCard' + (done ? ' completed' : '') + (locked ? ' locked' : '');
+  card.innerHTML = `<span class="stageThumb"><img src="${stageThumbSrc(num)}" alt="" draggable="false" decoding="async">` +
+    `<span class="stageNum">${num}</span>${done ? '<span class="stageStar">⭐</span>' : ''}</span>` +
+    `<span class="stageLabel">${label}</span>`;
+  card.addEventListener('click', locked ? openUnlock : () => { showStageAd(num); queueStageInstruction(num); onClick(); });
   stageCardsEl.appendChild(card);
 }
 
@@ -733,13 +748,13 @@ function buildStageCards() {
   const L = LEVELS.length;
   stageCardsEl.innerHTML = '';
   LEVELS.forEach((lvl, i) => {
-    makeStageCard(i + 1, i, STAGE_ICONS[i] || '', STAGE_COLORS[i % STAGE_COLORS.length], lvl.label, () => startStage(i), completed);
+    makeStageCard(i + 1, i, STAGE_ICONS[i], STAGE_COLORS[i], lvl.label, () => startStage(i), completed);
   });
-  makeStageCard(L + 1, L, STAGE_ICONS[L] || '🧩', '#b02878', 'הַבָרָה אַחֲרוֹנָה מִשְׁתַּנָּה',
+  makeStageCard(L + 1, L, STAGE_ICONS[L], '#b02878', 'הַבָרָה אַחֲרוֹנָה מִשְׁתַּנָּה',
     () => startSyllableMatch(0, SM_FIXED_END_START - 1), completed);
-  makeStageCard(L + 2, L + 1, STAGE_ICONS[L + 1] || '🔡', '#6aa014', 'הַבָרָה רִאשׁוֹנָה מִשְׁתַּנָּה',
+  makeStageCard(L + 2, L + 1, STAGE_ICONS[L + 1], '#6aa014', 'הַבָרָה רִאשׁוֹנָה מִשְׁתַּנָּה',
     () => startSyllableMatch(SM_FIXED_END_START), completed);
-  makeStageCard(L + 3, L + 2, STAGE_ICONS[L + 2] || '🎯', '#3838a8', 'שְׁתֵּי מִלִּים', () => startDualWord(0), completed);
+  makeStageCard(L + 3, L + 2, STAGE_ICONS[L + 2], '#3838a8', 'שְׁתֵּי מִלִּים', () => startDualWord(0), completed);
   CAMEL_STAGES.forEach(cfg => {
     makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startCamel(cfg), completed);
   });
@@ -756,16 +771,25 @@ function buildStageCards() {
   DOLL_STAGES.forEach(cfg => {
     makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startDoll(cfg), completed);
   });
+  SIGN_SYLLABLE_STAGES.forEach(cfg => {
+    makeStageCard(L + cfg.stageOffset, L + cfg.completedOffset, cfg.icon, cfg.color, cfg.title, () => startSignWords(cfg), completed);
+  });
   groupStageCards();
 }
 
-// Home-screen sections. Each card is found by the stage number it shows, then regrouped here.
+// Home-screen sections, one per kind of game (a child knows "the game with the camel"). Each card is found by the
+// stage number it shows, then regrouped here. icon = the round picture in the coloured header, color = header and
+// number badges. Titles are for the parents. Keep the stages in 1..N order (tools/store-screenshots.js counts on it).
 const STAGE_GROUPS = [
-  { title: 'קְרִיאָה – מַתְחִילִים', stages: [1, 2, 3, 4, 5, 6] },
-  { title: 'קְרִיאָה – מִתְקַדְּמִים', stages: [7, 8, 9, 10] },
-  { title: 'קְרִיאָה מְדֻיֶּקֶת', stages: [11, 12] },
-  { title: 'מִשְׁפָּטִים', stages: [13] },
-  { title: 'מִשְׂחָקִים', stages: [14, 15, 16, 17, 18, 19, 20] },
+  { icon: '🧩', title: 'מרכיבים מילה',    color: '#2f6fb3', stages: [1, 2, 3, 4, 5, 6, 7] },
+  { icon: '🔗', title: 'משלימים הברה',    color: '#8e44ad', stages: [8, 9, 10] },
+  { icon: '🐪', title: 'הגמל והאואזיס',   color: '#c9892b', stages: [11, 12] },
+  { icon: '📝', title: 'מסדרים משפט',     color: '#2f8f83', stages: [13] },
+  { icon: '🃏', title: 'משחק זיכרון',     color: '#7d3c98', stages: [14, 15] },
+  { icon: '🔠', title: 'תשחץ',            color: '#16a085', stages: [16, 17] },
+  { icon: '🖼️', title: 'פאזל',            color: '#d35400', stages: [18, 23] },
+  { icon: '👗', title: 'מלבישים בובה',    color: '#d6529a', stages: [19, 20] },
+  { icon: '🚦', title: 'תמרורים ודגלים',  color: '#c0392b', stages: [21, 22] },
 ];
 
 function groupStageCards() {
@@ -775,16 +799,32 @@ function groupStageCards() {
   STAGE_GROUPS.forEach(group => {
     const section = document.createElement('section');
     section.className = 'stageGroup';
+    section.style.setProperty('--gc', group.color);
+    const head = document.createElement('div');
+    head.className = 'stageGroupHead';
+    const ico = document.createElement('span');
+    ico.className = 'stageGroupIcon';
+    ico.textContent = group.icon;
     const title = document.createElement('h2');
     title.className = 'stageGroupTitle';
     title.textContent = group.title;
+    head.appendChild(ico);
+    head.appendChild(title);
     const grid = document.createElement('div');
     grid.className = 'stageGroupGrid';
     group.stages.forEach(n => { if (byNum[n]) grid.appendChild(byNum[n]); });
-    section.appendChild(title);
+    section.appendChild(head);
     section.appendChild(grid);
     stageCardsEl.appendChild(section);
   });
+  // the next stage to play: the first one not done yet (and not locked) gets a green frame and a play button
+  const next = Array.from(stageCardsEl.querySelectorAll('.stageCard'))
+    .sort((a, b) => parseInt(a.querySelector('.stageNum').textContent, 10) - parseInt(b.querySelector('.stageNum').textContent, 10))
+    .find(c => !c.classList.contains('completed') && !c.classList.contains('locked'));
+  if (next) {
+    next.classList.add('now');
+    next.querySelector('.stageThumb').insertAdjacentHTML('beforeend', '<span class="stageGo"></span>');
+  }
 }
 
 // Show one screen (a direct child <div> of #app) and hide all the others.
@@ -793,34 +833,20 @@ function showScreen(screen) {
 }
 
 function showHome() {
+  stopInstruction();
   buildStageCards();
-  const completed = getCompletedLevels();
-  const nextLevel = Array.from({length: LEVELS.length}, (_, i) => i).find(i => !completed.has(i));
-  if (nextLevel !== undefined && completed.size > 0) {
-    nextLevelBtn.textContent = 'לְשָׁלָב ' + (nextLevel + 1) + ' ←';
-    nextLevelBtn.classList.remove('hidden');
-  } else {
-    nextLevelBtn.classList.add('hidden');
-  }
-  continueBtn.classList.toggle('hidden', !hasSavedProgress());
   showScreen(homeScreen);
 }
 
-function showGame() {
-  showScreen(gameScreen);
-}
-
 function startStage(level, index = 0) {
+  customSet = null;
   currentLevel = level;
   currentIndex = index;
-  showGame();
+  showScreen(gameScreen);
   loadWord(currentIndex);
 }
 
 homeBtn.addEventListener('click', showHome);
-continueBtn.addEventListener('click', () => {
-  if (isStageLocked(currentLevel + 1)) openUnlock(); else { showStageAd(currentLevel + 1); startStage(currentLevel, currentIndex); }
-});
 
 function isWideTile(letter) {
   return (letter.match(/[א-ת]/g) || []).length > 1;
@@ -862,15 +888,6 @@ function saveProgress() {
   }
 }
 
-function hasSavedProgress() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
-    return !!(saved && LEVELS[saved.level] && LEVELS[saved.level].words[saved.index]);
-  } catch (e) {
-    return false;
-  }
-}
-
 function restoreProgress() {
   try {
     const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
@@ -885,12 +902,22 @@ function restoreProgress() {
 
 function loadWord(index) {
   currentWord = currentWords()[index];
-  saveProgress();
-  headerLevelTitle.textContent = LEVELS[currentLevel].label;
-  gameStageNumEl.textContent = currentLevel + 1;
+  if (!customSet) saveProgress();
+  headerLevelTitle.textContent = customSet ? customSet.label : LEVELS[currentLevel].label;
+  gameStageNumEl.textContent = customSet ? LEVELS.length + customSet.stageOffset : currentLevel + 1;
   wordIndexEl.textContent = index + 1;
   wordTotalEl.textContent = currentWords().length;
-  pictureBox.textContent = EMOJI_MAP[currentWord.name] || '';
+  if (currentWord.img) {
+    pictureBox.innerHTML = '';
+    const pic = document.createElement('img');
+    pic.src = currentWord.img;
+    pic.alt = '';
+    pic.draggable = false;
+    if (customSet && customSet.imgClass) pic.className = customSet.imgClass;
+    pictureBox.appendChild(pic);
+  } else {
+    pictureBox.textContent = EMOJI_MAP[currentWord.name] || '';
+  }
   feedbackEl.textContent = '';
   feedbackEl.className = '';
   nextBtn.classList.add('hidden');
@@ -933,7 +960,7 @@ function loadWord(index) {
 
   const order = shuffle(currentWord.tiles.map((_, i) => i));
   trayEl.innerHTML = '';
-  tray = order.map(tileIndex => {
+  order.forEach(tileIndex => {
     const letter = currentWord.tiles[tileIndex];
     const tile = document.createElement('div');
     tile.className = 'tile';
@@ -942,69 +969,131 @@ function loadWord(index) {
     tile.dataset.letter = letter;
     tile.dataset.final = finalIndices.has(tileIndex) ? '1' : '0';
     trayEl.appendChild(tile);
-    attachDrag(tile);
-    return tile;
+    tile.addEventListener('pointerdown', onPointerDown);
   });
-  setTimeout(() => speakWord(currentWord), 600);
+  const word = currentWord;
+  setTimeout(() => afterInstruction(() => { if (currentWord === word) speakWord(word); }), 600);
 }
 
-// ---- Drag & drop via Pointer Events ----
-let dragData = null;
+// ---- Drag & drop: one helper for every game ----
+// startDrag(e, el, opts) is called from a pointerdown handler. Only one drag runs at a time (a second finger is ignored).
+//   opts.mode       'lift'      the element itself follows the finger (its dragClass sets position: fixed) - stages 1-10
+//                   'translate' the element follows by a CSS transform and keeps its place in the layout - puzzle
+//                   'ghost'     a copy (opts.ghost()) follows the finger once it really moves - crossword, doll
+//   opts.dragClass  class on the element while it is pressed
+//   opts.ghostCenter  ghost mode: the copy is centred on the finger (else it stays where it was grabbed, at the same width)
+//   opts.onDragStart()   the finger moved past TAP_THRESHOLD
+//   opts.onMove({x, y, rect})  rect = the box being dragged
+//   opts.onEnd({x, y, tapped, cancelled, rect})  tapped = never moved past TAP_THRESHOLD; cancelled = pointercancel
+//     (the system took the touch); rect = the dragged box just before it was let go
+// The move/up listeners sit on window, so the drag keeps working even if the pointer capture is lost.
+const TAP_THRESHOLD = 8;
+let activeDrag = null;
 
-function attachDrag(tile) {
-  tile.addEventListener('pointerdown', onPointerDown);
+function startDrag(e, el, opts) {
+  if (activeDrag) return false;
+  const mode = opts.mode;
+  const pointerId = e.pointerId;
+  const startX = e.clientX, startY = e.clientY;
+  const rect = el.getBoundingClientRect();
+  const offX = startX - rect.left, offY = startY - rect.top;
+  let moved = false, ghost = null;
+  activeDrag = el;
+  try { el.setPointerCapture(pointerId); } catch (err) {}
+  if (opts.dragClass) el.classList.add(opts.dragClass);
+  if (mode === 'lift') {
+    el.style.left = rect.left + 'px';
+    el.style.top = rect.top + 'px';
+    el.style.width = rect.width + 'px';
+    el.style.height = rect.height + 'px';
+    document.body.appendChild(el);
+  }
+  const dragged = () => (ghost || el).getBoundingClientRect();
+  const move = ev => {
+    if (ev.pointerId !== pointerId) return;
+    const x = ev.clientX, y = ev.clientY;
+    if (!moved && Math.hypot(x - startX, y - startY) >= TAP_THRESHOLD) {
+      moved = true;
+      if (mode === 'ghost') {
+        ghost = opts.ghost();
+        if (!opts.ghostCenter) ghost.style.width = rect.width + 'px';
+        document.body.appendChild(ghost);
+      }
+      if (opts.onDragStart) opts.onDragStart();
+    }
+    if (mode === 'lift') {
+      el.style.left = (x - offX) + 'px';
+      el.style.top = (y - offY) + 'px';
+    } else if (mode === 'translate') {
+      el.style.transform = `translate(${x - startX}px, ${y - startY}px)`;
+    } else if (ghost) {
+      ghost.style.left = (opts.ghostCenter ? x : x - offX) + 'px';
+      ghost.style.top = (opts.ghostCenter ? y : y - offY) + 'px';
+    }
+    if (opts.onMove) opts.onMove({ x, y, rect: dragged() });
+  };
+  const end = ev => {
+    if (ev.pointerId !== pointerId) return;
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', end);
+    window.removeEventListener('pointercancel', end);
+    activeDrag = null;
+    const box = dragged();
+    if (ghost) ghost.remove();
+    if (opts.dragClass) el.classList.remove(opts.dragClass);
+    if (mode === 'lift') ['left', 'top', 'width', 'height'].forEach(p => { el.style[p] = ''; });
+    opts.onEnd({ x: ev.clientX, y: ev.clientY, tapped: !moved, cancelled: ev.type !== 'pointerup', rect: box });
+    if (mode === 'translate') el.style.transform = '';
+  };
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', end);
+  window.addEventListener('pointercancel', end);
+  return true;
 }
 
+// The topmost element at (x, y) that is not the dragged element or inside it.
+function dropTarget(x, y, dragged) {
+  return document.elementsFromPoint(x, y).find(n => n !== dragged && !dragged.contains(n)) || null;
+}
+
+// Of the elements matching selector (minus those skip() leaves out), the one that the box covers most, or null.
+function mostCovered(box, selector, skip) {
+  let best = null, bestArea = 0;
+  document.querySelectorAll(selector).forEach(s => {
+    if (skip && skip(s)) return;
+    const r = s.getBoundingClientRect();
+    const w = Math.min(box.right, r.right) - Math.max(box.left, r.left);
+    const h = Math.min(box.bottom, r.bottom) - Math.max(box.top, r.top);
+    if (w > 0 && h > 0 && w * h > bestArea) { bestArea = w * h; best = s; }
+  });
+  return best;
+}
+
+// Marks with .drag-over every slot the dragged box touches (skip() slots never); box = null clears all.
+function markDragOver(box, selector, skip) {
+  document.querySelectorAll(selector).forEach(s => {
+    const r = s.getBoundingClientRect();
+    const touches = !!box && !(skip && skip(s)) &&
+      Math.min(box.right, r.right) > Math.max(box.left, r.left) && Math.min(box.bottom, r.bottom) > Math.max(box.top, r.top);
+    s.classList.toggle('drag-over', touches);
+  });
+}
+
+// ---- Stages 1-7, 21-22: drag (or tap) a syllable tile into the word slots ----
 function onPointerDown(e) {
   const tile = e.currentTarget;
   speakLetter(tile.dataset.letter, tile.dataset.final === '1');
   if (tile.dataset.locked === '1') return;
-  tile.setPointerCapture(e.pointerId);
-  const rect = tile.getBoundingClientRect();
-  dragData = {
-    tile,
-    offsetX: e.clientX - rect.left,
-    offsetY: e.clientY - rect.top,
-    startX: e.clientX,
-    startY: e.clientY,
-    fromSlot: tile.parentElement.classList.contains('slot') ? tile.parentElement : null,
-    width: rect.width,
-    height: rect.height
-  };
-  tile.classList.add('dragging');
-  tile.style.left = rect.left + 'px';
-  tile.style.top = rect.top + 'px';
-  tile.style.width = rect.width + 'px';
-  tile.style.height = rect.height + 'px';
-  document.body.appendChild(tile);
-
-  tile.addEventListener('pointermove', onPointerMove);
-  tile.addEventListener('pointerup', onPointerUp);
+  const fromSlot = tile.parentElement.classList.contains('slot') ? tile.parentElement : null;
+  startDrag(e, tile, { mode: 'lift', dragClass: 'dragging', onEnd: d => tileDropped(tile, fromSlot, d) });
 }
 
-function onPointerMove(e) {
-  if (!dragData) return;
-  dragData.tile.style.left = (e.clientX - dragData.offsetX) + 'px';
-  dragData.tile.style.top = (e.clientY - dragData.offsetY) + 'px';
-}
-
-const TAP_THRESHOLD = 8;
-
-function onPointerUp(e) {
-  if (!dragData) return;
-  const { tile, fromSlot, startX, startY } = dragData;
-  tile.classList.remove('dragging');
-  tile.removeEventListener('pointermove', onPointerMove);
-  tile.removeEventListener('pointerup', onPointerUp);
-
-  tile.style.position = '';
-  tile.style.left = '';
-  tile.style.top = '';
-  tile.style.width = '';
-  tile.style.height = '';
-
-  const movedDistance = Math.hypot(e.clientX - startX, e.clientY - startY);
-  if (movedDistance < TAP_THRESHOLD) {
+function tileDropped(tile, fromSlot, { x, y, tapped, cancelled }) {
+  if (cancelled) {   // put it back where it was
+    (fromSlot || trayEl).appendChild(tile);
+    return;
+  }
+  if (tapped) {
     if (!fromSlot) {
       const emptyIndex = slotState.findIndex(s => s === null);
       if (emptyIndex !== -1) {
@@ -1024,15 +1113,11 @@ function onPointerUp(e) {
       trayEl.appendChild(tile);
       clearCheckStateExcept();
     }
-    dragData = null;
     maybeCheck();
     return;
   }
 
-  tile.style.visibility = 'hidden';
-  const targetEl = document.elementFromPoint(e.clientX, e.clientY);
-  tile.style.visibility = 'visible';
-
+  const targetEl = dropTarget(x, y, tile);
   const targetSlot = targetEl ? targetEl.closest('.slot') : null;
   const targetTray = targetEl ? targetEl.closest('#tray') : null;
 
@@ -1063,8 +1148,6 @@ function onPointerUp(e) {
       trayEl.appendChild(tile);
     }
   }
-
-  dragData = null;
   maybeCheck();
 }
 
@@ -1099,16 +1182,11 @@ function checkAnswer() {
     });
     playSuccess();
     attemptsEl.classList.add('hidden');
-
-    if (currentIndex === currentWords().length - 1) {
-      feedbackEl.textContent = 'כָּל הַכָּבוֹד! סִיַּמְתָּ אֶת הַשָּׁלָב! 🎉';
-      feedbackEl.className = 'success';
-      nextBtn.classList.remove('hidden');
-    } else {
-      feedbackEl.textContent = randomPraise() + '! ✓';
-      feedbackEl.className = 'success';
-      nextBtn.classList.remove('hidden');
-    }
+    feedbackEl.textContent = currentIndex === currentWords().length - 1
+      ? 'כָּל הַכָּבוֹד! סִיַּמְתָּ אֶת הַשָּׁלָב! 🎉'
+      : randomPraise() + '! ✓';
+    feedbackEl.className = 'success';
+    nextBtn.classList.remove('hidden');
   } else {
     feedbackEl.textContent = 'נַסֵּה שׁוּב';
     feedbackEl.className = 'error';
@@ -1140,19 +1218,12 @@ const dw10NextBtn = document.getElementById('dw10NextBtn');
 
 nextBtn.addEventListener('click', () => {
   if (currentIndex === currentWords().length - 1) {
-    markLevelComplete(currentLevel);
+    markLevelComplete(customSet ? LEVELS.length + customSet.completedOffset : currentLevel);
     showHome();
   } else {
     currentIndex = (currentIndex + 1) % currentWords().length;
     loadWord(currentIndex);
   }
-});
-
-nextLevelBtn.addEventListener('click', () => {
-  const completed = getCompletedLevels();
-  const nextLevel = Array.from({length: LEVELS.length}, (_, i) => i).find(i => !completed.has(i));
-  if (nextLevel === undefined) return;
-  if (isStageLocked(nextLevel + 1)) openUnlock(); else { showStageAd(nextLevel + 1); startStage(nextLevel); }
 });
 
 hintBtn.addEventListener('click', () => {
@@ -1248,16 +1319,99 @@ function getAudioCtx() {
   return _audioCtx;
 }
 
-async function playAudioFile(path, fallback) {
+// ---- Spoken stage instructions ----
+// Children can't read yet, so there is no written instruction anywhere. Entering a stage says what to do (after the
+// ad closes, or at once when no ad shows), and every game screen has a round "?" button in its header that says it
+// again (owner's request 28.11.2026; texts and recordings approved by the owner). Files: www/audio/instr_NN.mp3,
+// recorded by generate_instruction_audio.py (Gemini TTS, voice Leda); stages playing the same game share one file.
+// Any other sound stops it (the child started playing). The sound a stage plays by itself at start (the word in
+// stages 1-7 / 21-22, the camel's word) waits for it: see afterInstruction().
+const INSTRUCTION_AUDIO = {
+  1: 'instr_01', 2: 'instr_01', 3: 'instr_01', 4: 'instr_01', 5: 'instr_01', 6: 'instr_01',
+  7: 'instr_07', 8: 'instr_08', 9: 'instr_09', 10: 'instr_10', 11: 'instr_11', 12: 'instr_11',
+  13: 'instr_13', 14: 'instr_14', 15: 'instr_14', 16: 'instr_16', 17: 'instr_16', 18: 'instr_18',
+  19: 'instr_19', 20: 'instr_19', 21: 'instr_21', 22: 'instr_22', 23: 'instr_18',
+};
+let currentStageNum = 0;   // stage number the child sees; set when a stage is entered (card tap)
+let instr = null;          // { stem, started, waiters: [fn] } from entering a stage until its instruction ends
+let instrSource = null;    // the playing AudioBufferSourceNode
+let instrToken = 0;        // bumped on stop, so an instruction still loading never starts
+
+// Called when the child enters a stage, right after showStageAd(num).
+function queueStageInstruction(num) {
+  stopInstruction();
+  currentStageNum = num;
+  const stem = INSTRUCTION_AUDIO[num];
+  if (!stem) return;
+  instr = { stem, started: false, waiters: [] };
+  if (!stageAdShowing) startInstruction();     // else the ad's close/fail handlers start it
+}
+
+function startInstruction() {
+  if (!instr || instr.started) return;
+  instr.started = true;
+  const mine = instr;
+  playAudioFile('audio/' + mine.stem + '.mp3', () => { if (instr === mine) endInstruction(true); },
+    { instruction: true, onEnd: () => { if (instr === mine) endInstruction(true); } });
+}
+
+// runWaiters: true when it ended by itself; false when stopped (the child is already doing something else).
+function endInstruction(runWaiters) {
+  const waiters = instr ? instr.waiters : [];
+  instr = null;
+  instrSource = null;
+  if (runWaiters) waiters.forEach(fn => fn());
+}
+
+function stopInstruction() {
+  instrToken++;
+  if (instrSource) { try { instrSource.stop(); } catch (e) {} }
+  endInstruction(false);
+}
+
+// For sounds a stage plays by itself when it opens: wait until the instruction has been said.
+function afterInstruction(fn) {
+  if (instr) instr.waiters.push(fn); else fn();
+}
+
+// The "?" button: say the current stage's instruction again, now.
+function playStageInstruction() {
+  const stem = INSTRUCTION_AUDIO[currentStageNum];
+  if (!stem) return;
+  stopInstruction();
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  const mine = instr = { stem, started: true, waiters: [] };
+  playAudioFile('audio/' + stem + '.mp3', () => { if (instr === mine) endInstruction(false); },
+    { instruction: true, onEnd: () => { if (instr === mine) endInstruction(false); } });
+}
+
+// One "?" button at the end of every game screen's header (all #app > div except the home screen).
+document.querySelectorAll('#app > div > header').forEach(header => {
+  const btn = document.createElement('button');
+  btn.className = 'helpBtn';
+  btn.textContent = '?';
+  btn.setAttribute('aria-label', 'הסבר');
+  btn.addEventListener('click', playStageInstruction);
+  header.appendChild(btn);
+});
+
+// opts.instruction: the stage's spoken instruction (see "Spoken stage instructions"); any other sound
+// stops it, because it means the child is already playing. opts.onEnd: called when the sound finishes.
+async function playAudioFile(path, fallback, opts = {}) {
+  if (!opts.instruction) stopInstruction();
+  const token = opts.instruction ? instrToken : null;
   try {
     const ctx = getAudioCtx();
     if (ctx.state === 'suspended') await ctx.resume();
-    const resp = await fetch(path + '?v=3');
+    const resp = await fetch(path + '?v=4');   // bump when existing mp3 files are re-recorded
     if (!resp.ok) throw new Error('not found');
     const buf = await ctx.decodeAudioData(await resp.arrayBuffer());
+    if (opts.instruction && token !== instrToken) return;   // stopped while loading
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.connect(ctx.destination);
+    if (opts.instruction) instrSource = src;
+    if (opts.onEnd) src.onended = opts.onEnd;
     src.start(0);
   } catch (e) {
     fallback();
@@ -1374,8 +1528,6 @@ smSkipBtn.addEventListener('click', () => {
   }
 });
 
-let smDragData = null;
-
 function attachSmTileDrag(tile) {
   tile.style.cursor = 'grab';
   tile.style.touchAction = 'none';
@@ -1386,84 +1538,22 @@ function onSmTilePointerDown(e) {
   if (!smSet || smCompleted.length >= smSet.pairs.length) return;
   const tile = e.currentTarget;
   speakSmSyllable(tile.textContent, false);
-  tile.setPointerCapture(e.pointerId);
-  const rect = tile.getBoundingClientRect();
-  smDragData = {
-    el: tile,
-    pairIdx: parseInt(tile.dataset.pairIdx),
-    offsetX: e.clientX - rect.left,
-    offsetY: e.clientY - rect.top,
-    startX: e.clientX,
-    startY: e.clientY,
-  };
-  tile.classList.add('dragging');
-  tile.style.left = rect.left + 'px';
-  tile.style.top = rect.top + 'px';
-  tile.style.width = rect.width + 'px';
-  tile.style.height = rect.height + 'px';
-  document.body.appendChild(tile);
-  tile.addEventListener('pointermove', onSmTilePointerMove);
-  tile.addEventListener('pointerup', onSmTilePointerUp);
-}
-
-function onSmTilePointerMove(e) {
-  if (!smDragData) return;
-  const tile = smDragData.el;
-  tile.style.left = (e.clientX - smDragData.offsetX) + 'px';
-  tile.style.top  = (e.clientY - smDragData.offsetY) + 'px';
-  const tileRect = tile.getBoundingClientRect();
-  document.querySelectorAll('.smSlot').forEach(s => {
-    const sr = s.getBoundingClientRect();
-    const touches = Math.min(tileRect.right, sr.right) > Math.max(tileRect.left, sr.left) &&
-                    Math.min(tileRect.bottom, sr.bottom) > Math.max(tileRect.top, sr.top);
-    s.classList.toggle('drag-over', touches);
+  startDrag(e, tile, {
+    mode: 'lift', dragClass: 'dragging',
+    onMove: d => markDragOver(d.rect, '.smSlot'),
+    onEnd: d => smTileDropped(tile, d),
   });
 }
 
-function onSmTilePointerUp(e) {
-  if (!smDragData) return;
-  const { el: tile, pairIdx, startX, startY } = smDragData;
-  smDragData = null;
-  document.querySelectorAll('.smSlot').forEach(s => s.classList.remove('drag-over'));
-  tile.removeEventListener('pointermove', onSmTilePointerMove);
-  tile.removeEventListener('pointerup', onSmTilePointerUp);
-
-  const movedDistance = Math.hypot(e.clientX - startX, e.clientY - startY);
-
-  let bestSlot = null;
-  if (movedDistance >= TAP_THRESHOLD) {
-    const tileRect = tile.getBoundingClientRect();
-    let bestOverlap = 0;
-    document.querySelectorAll('.smSlot').forEach(s => {
-      const sr = s.getBoundingClientRect();
-      const ox = Math.min(tileRect.right, sr.right) - Math.max(tileRect.left, sr.left);
-      const oy = Math.min(tileRect.bottom, sr.bottom) - Math.max(tileRect.top, sr.top);
-      if (ox > 0 && oy > 0 && ox * oy > bestOverlap) {
-        bestOverlap = ox * oy;
-        bestSlot = s;
-      }
-    });
-  }
-
-  tile.classList.remove('dragging');
-  tile.style.position = '';
-  tile.style.left = '';
-  tile.style.top = '';
-  tile.style.width = '';
-  tile.style.height = '';
-
-  if (movedDistance < TAP_THRESHOLD) {
-    smTileBar.appendChild(tile);
-    return;
-  }
-
-  const slot = bestSlot;
+function smTileDropped(tile, { tapped, cancelled, rect }) {
+  markDragOver(null, '.smSlot');
+  const slot = tapped || cancelled ? null : mostCovered(rect, '.smSlot');
   if (!slot) {
     smTileBar.appendChild(tile);
     return;
   }
-  const slotPairIdx = parseInt(slot.dataset.pairIdx);
-  if (slotPairIdx === pairIdx) {
+  const pairIdx = parseInt(tile.dataset.pairIdx);
+  if (parseInt(slot.dataset.pairIdx) === pairIdx) {
     tile.remove();
     handleSmDrop(pairIdx);
   } else {
@@ -1472,10 +1562,6 @@ function onSmTilePointerUp(e) {
     slot.classList.add('shake');
     slot.addEventListener('animationend', () => slot.classList.remove('shake'), { once: true });
   }
-}
-
-function showSyllableMatchScreen() {
-  showScreen(syllableMatchScreen);
 }
 
 function startSyllableMatch(setIndex, endIndex) {
@@ -1492,7 +1578,7 @@ function startSyllableMatch(setIndex, endIndex) {
   const smTotalInStage = smIsStage9 ? SYLLABLE_MATCH_SETS.length - SM_FIXED_END_START : SM_FIXED_END_START;
   smTitle.innerHTML = `${smStageName}<br><span class="stageProgress">שלב ${smStageNum} - מָסָךְ ${smWordInStage} מִתּוֹךְ ${smTotalInStage}</span>`;
   smFeedbackEl.textContent = '';
-  showSyllableMatchScreen();
+  showScreen(syllableMatchScreen);
   renderSmRows();
   renderSmTileBar();
 }
@@ -1593,7 +1679,6 @@ let dw10PuzzleIdx = 0;
 let dw10Words = [];
 let dw10SlotState = [];
 let dw10WordDone = [];
-let dw10DragData = null;
 
 dw10HomeBtn.addEventListener('click', showHome);
 
@@ -1606,10 +1691,6 @@ dw10SkipBtn.addEventListener('click', () => {
   }
 });
 
-function showDualWordScreen() {
-  showScreen(dualWordScreen);
-}
-
 function startDualWord(puzzleIdx) {
   dw10NextBtn.classList.add('hidden');
   dw10PuzzleIdx = puzzleIdx;
@@ -1618,7 +1699,7 @@ function startDualWord(puzzleIdx) {
   dw10WordDone = [false, false];
   dw10TitleEl.innerHTML = `שְׁתֵּי מִלִּים<br><span class="stageProgress">שלב ${LEVELS.length + 3} - מָסָךְ ${puzzleIdx + 1} מִתּוֹךְ ${DUAL_WORD_PUZZLES.length}</span>`;
   dw10FeedbackEl.textContent = '';
-  showDualWordScreen();
+  showScreen(dualWordScreen);
   renderDw10Rows();
   renderDw10Tray();
 }
@@ -1683,85 +1764,32 @@ function renderDw10Tray() {
     tile.dataset.wordIdx = wordIdx;
     tile.dataset.tileIdx = tileIdx;
     tile.dataset.final = isFinal ? '1' : '0';
-    attachDw10Drag(tile);
+    tile.addEventListener('pointerdown', onDw10PointerDown);
     dw10TrayEl.appendChild(tile);
   });
-}
-
-function attachDw10Drag(tile) {
-  tile.addEventListener('pointerdown', onDw10PointerDown);
 }
 
 function onDw10PointerDown(e) {
   const tile = e.currentTarget;
   speakLetter(tile.dataset.letter, tile.dataset.final === '1');
   if (tile.dataset.locked === '1') return;
-  tile.setPointerCapture(e.pointerId);
-  const rect = tile.getBoundingClientRect();
   const fromSlot = tile.parentElement.classList.contains('dw10Slot') ? tile.parentElement : null;
-  dw10DragData = { tile, fromSlot,
-    offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
-    startX: e.clientX, startY: e.clientY };
-  tile.classList.add('dragging');
-  tile.style.left = rect.left + 'px';
-  tile.style.top = rect.top + 'px';
-  tile.style.width = rect.width + 'px';
-  tile.style.height = rect.height + 'px';
-  document.body.appendChild(tile);
-  tile.addEventListener('pointermove', onDw10PointerMove);
-  tile.addEventListener('pointerup', onDw10PointerUp);
-}
-
-function onDw10PointerMove(e) {
-  if (!dw10DragData) return;
-  const tile = dw10DragData.tile;
-  tile.style.left = (e.clientX - dw10DragData.offsetX) + 'px';
-  tile.style.top  = (e.clientY - dw10DragData.offsetY) + 'px';
-  const tr = tile.getBoundingClientRect();
-  document.querySelectorAll('.dw10Slot').forEach(s => {
-    if (s.classList.contains('filled')) { s.classList.remove('drag-over'); return; }
-    const sr = s.getBoundingClientRect();
-    const overlaps = Math.min(tr.right, sr.right) > Math.max(tr.left, sr.left) &&
-                     Math.min(tr.bottom, sr.bottom) > Math.max(tr.top, sr.top);
-    s.classList.toggle('drag-over', overlaps);
+  startDrag(e, tile, {
+    mode: 'lift', dragClass: 'dragging',
+    onMove: d => markDragOver(d.rect, '.dw10Slot', isFilled),
+    onEnd: d => dw10TileDropped(tile, fromSlot, d),
   });
 }
 
-function onDw10PointerUp(e) {
-  if (!dw10DragData) return;
-  const { tile, fromSlot, startX, startY } = dw10DragData;
-  dw10DragData = null;
-  document.querySelectorAll('.dw10Slot').forEach(s => s.classList.remove('drag-over'));
-  tile.removeEventListener('pointermove', onDw10PointerMove);
-  tile.removeEventListener('pointerup', onDw10PointerUp);
+const isFilled = s => s.classList.contains('filled');
 
-  const movedDistance = Math.hypot(e.clientX - startX, e.clientY - startY);
-
-  // Find best overlapping empty slot (while still dragging = position:fixed)
-  let bestSlot = null;
-  if (movedDistance >= TAP_THRESHOLD) {
-    const tr = tile.getBoundingClientRect();
-    let bestOverlap = 0;
-    document.querySelectorAll('.dw10Slot').forEach(s => {
-      if (s.classList.contains('filled')) return;
-      const sr = s.getBoundingClientRect();
-      const ox = Math.min(tr.right, sr.right) - Math.max(tr.left, sr.left);
-      const oy = Math.min(tr.bottom, sr.bottom) - Math.max(tr.top, sr.top);
-      if (ox > 0 && oy > 0 && ox * oy > bestOverlap) {
-        bestOverlap = ox * oy;
-        bestSlot = s;
-      }
-    });
+function dw10TileDropped(tile, fromSlot, { tapped, cancelled, rect }) {
+  markDragOver(null, '.dw10Slot');
+  if (cancelled) {   // put it back where it was
+    (fromSlot || dw10TrayEl).appendChild(tile);
+    return;
   }
-
-  tile.classList.remove('dragging');
-  tile.style.position = '';
-  tile.style.left = '';
-  tile.style.top = '';
-  tile.style.width = '';
-  tile.style.height = '';
-
-  if (movedDistance < TAP_THRESHOLD) {
+  if (tapped) {
     // Tap: return placed tile to tray, or fill next empty slot from tray
     if (fromSlot) {
       const wi = parseInt(fromSlot.dataset.wordIdx);
@@ -1790,6 +1818,7 @@ function onDw10PointerUp(e) {
     return;
   }
 
+  const bestSlot = mostCovered(rect, '.dw10Slot', isFilled);   // an empty slot only
   if (bestSlot) {
     if (fromSlot) {
       const wi = parseInt(fromSlot.dataset.wordIdx);
@@ -2034,7 +2063,8 @@ function camelNewRound() {
     btn.addEventListener('click', () => camelPick(btn, word));
     camelOptionsEl.appendChild(btn);
   });
-  speakAudio(camelTarget);
+  const target = camelTarget;
+  afterInstruction(() => { if (camelTarget === target) speakAudio(target); });
 }
 
 function camelPick(btn, word) {
@@ -2398,6 +2428,10 @@ memNextBtn.addEventListener('click', () => {
 // syllables in order. words = LEVELS word names; stageOffset / completedOffset as in the other stages.
 const PUZZLE_STAGES = [
   { words: ['בית', 'כדור', 'עוגה', 'כוכב', 'תפוח', 'חללית'], cols: 3, rows: 2, stageOffset: 11, completedOffset: 10, title: 'פָּאזֶל', icon: '🖼️', color: '#d35400' },
+  // Stage 23 (owner 28.11.2026: "a hard puzzle of 12 pieces, 3 by 4" = 3 columns x 4 rows). Words are existing LEVELS words
+  // (stage 4+ of the word list: 3 syllables first), so their syllable splits and audio are the approved ones.
+  // matchBoard: the picture is drawn in the board's own shape so the emoji is not stretched (stage 18 keeps its old look).
+  { words: ['מתנה', 'ענבים', 'סוכריה', 'ציפור', 'מגדל', 'תפוז'], cols: 3, rows: 4, matchBoard: true, stageOffset: 16, completedOffset: 15, title: 'פָּאזֶל – קָשֶׁה', icon: '🖼️', color: '#a04000' },
 ];
 
 const puzzleScreen = document.getElementById('puzzleScreen');
@@ -2418,11 +2452,10 @@ let puzzleIdx = 0;
 let puzzleWord = null;
 let puzzlePlaced = 0;
 let puzzleSylFilled = 0;
-let puzzleDrag = null;
 let puzzleTimer = null;
 
-function puzzlePictureUrl(emoji) {
-  const W = 720, H = 480;   // 2x so the pieces stay sharp on phone screens
+function puzzlePictureUrl(emoji, H = 480) {
+  const W = 720;   // 2x so the pieces stay sharp on phone screens
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const g = c.getContext('2d');
@@ -2445,7 +2478,7 @@ function puzzlePictureUrl(emoji) {
   g.textBaseline = 'middle';
   g.fillText('🌷', 52, H - 40);
   g.fillText('🌼', W - 56, H - 38);
-  g.font = '400px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+  g.font = Math.round(400 * H / 480) + 'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
   g.textAlign = 'center';
   g.textBaseline = 'middle';
   g.fillText(emoji, W / 2, H / 2 + 20);
@@ -2462,7 +2495,7 @@ function startPuzzle(cfg) {
 function puzzleLoad() {
   clearTimeout(puzzleTimer);
   const name = puzzleCfg.words[puzzleIdx];
-  puzzleWord = LEVELS.flatMap(l => l.words).find(w => w.name === name);
+  puzzleWord = lookupWord(name);
   puzzlePlaced = 0;
   puzzleSylFilled = 0;
   puzzleNextBtn.classList.add('hidden');
@@ -2474,7 +2507,9 @@ function puzzleLoad() {
   puzzleInstructionEl.textContent = 'גָּרְרוּ אֶת הַחֲלָקִים וְהַרְכִּיבוּ אֶת הַתְּמוּנָה';
 
   const { cols, rows } = puzzleCfg;
-  const url = puzzlePictureUrl(EMOJI_MAP[name] || '');
+  // the board cells are pz-w wide and 0.67 x pz-w high (style.css), so a matching picture is W x (W * rows * 0.67 / cols)
+  const url = puzzlePictureUrl(EMOJI_MAP[name] || '', puzzleCfg.matchBoard ? Math.round(720 * rows * 0.67 / cols) : 480);
+  document.getElementById('puzzleMain').dataset.rows = rows;   // more rows = smaller pieces (style.css)
   puzzleBoardEl.dataset.url = url;
   puzzleBoardEl.className = '';
   puzzleBoardEl.style.backgroundImage = '';
@@ -2504,31 +2539,14 @@ function puzzleLoad() {
 
 function puzzleDown(e) {
   const piece = e.currentTarget;
-  if (piece.classList.contains('placed') || puzzleDrag) return;
-  piece.setPointerCapture(e.pointerId);
+  if (piece.classList.contains('placed') || activeDrag) return;
   piece.classList.remove('back');
-  piece.classList.add('dragging');
-  puzzleDrag = { piece, startX: e.clientX, startY: e.clientY };
-  piece.addEventListener('pointermove', puzzleMove);
-  piece.addEventListener('pointerup', puzzleUp);
-  piece.addEventListener('pointercancel', puzzleUp);
+  startDrag(e, piece, { mode: 'translate', dragClass: 'dragging', onEnd: d => puzzlePieceDropped(piece, d) });
 }
 
-function puzzleMove(e) {
-  if (!puzzleDrag) return;
-  puzzleDrag.piece.style.transform = `translate(${e.clientX - puzzleDrag.startX}px, ${e.clientY - puzzleDrag.startY}px)`;
-}
-
-function puzzleUp(e) {
-  if (!puzzleDrag) return;
-  const { piece } = puzzleDrag;
-  puzzleDrag = null;
-  piece.removeEventListener('pointermove', puzzleMove);
-  piece.removeEventListener('pointerup', puzzleUp);
-  piece.removeEventListener('pointercancel', puzzleUp);
-  piece.classList.remove('dragging');
+function puzzlePieceDropped(piece, { x, y, cancelled }) {
   // the dragged piece is under the finger, so look at everything at that point for the board slot
-  const slot = document.elementsFromPoint(e.clientX, e.clientY).find(el => el.classList && el.classList.contains('pzSlot'));
+  const slot = cancelled ? null : document.elementsFromPoint(x, y).find(el => el.classList && el.classList.contains('pzSlot'));
   if (slot && slot.dataset.index === piece.dataset.index && !slot.firstChild) {
     piece.style.transform = '';
     piece.classList.add('placed');
@@ -2539,12 +2557,11 @@ function puzzleUp(e) {
     if (++puzzlePlaced === puzzleCfg.cols * puzzleCfg.rows) puzzleTimer = setTimeout(puzzlePictureDone, 500);
     return;
   }
-  if (slot && e.type === 'pointerup') {   // dropped on the wrong spot
+  if (slot) {   // dropped on the wrong spot
     piece.classList.add('nope');
     setTimeout(() => piece.classList.remove('nope'), 400);
   }
-  piece.classList.add('back');
-  piece.style.transform = '';
+  piece.classList.add('back');   // startDrag then clears the transform, so the piece glides back
 }
 
 function puzzlePictureDone() {
@@ -2573,31 +2590,17 @@ function puzzlePictureDone() {
 }
 
 function puzzleSylDown(e, tile, i) {
-  if (tile.classList.contains('used') || puzzleDrag) return;
-  tile.setPointerCapture(e.pointerId);
+  if (tile.classList.contains('used') || activeDrag) return;
   speakLetter(puzzleWord.tiles[i], i === puzzleWord.tiles.length - 1);
-  tile.classList.add('pzDrag');
-  puzzleDrag = { piece: tile, startX: e.clientX, startY: e.clientY, i };
-  tile.addEventListener('pointermove', puzzleMove);
-  tile.addEventListener('pointerup', puzzleSylUp);
-  tile.addEventListener('pointercancel', puzzleSylUp);
+  startDrag(e, tile, { mode: 'translate', dragClass: 'pzDrag', onEnd: d => puzzleSylDropped(tile, i, d) });
 }
 
 // Dropped on a slot: that slot is the target. A tap (barely moved) targets the next empty slot instead.
-function puzzleSylUp(e) {
-  if (!puzzleDrag) return;
-  const { piece: tile, startX, startY, i } = puzzleDrag;
-  puzzleDrag = null;
-  tile.removeEventListener('pointermove', puzzleMove);
-  tile.removeEventListener('pointerup', puzzleSylUp);
-  tile.removeEventListener('pointercancel', puzzleSylUp);
-  tile.classList.remove('pzDrag');
-  tile.style.transform = '';
-  if (e.type !== 'pointerup') return;
+function puzzleSylDropped(tile, i, { x, y, tapped, cancelled }) {
+  if (cancelled) return;
   const slots = Array.from(puzzleSlotsEl.children);
-  const tapped = Math.hypot(e.clientX - startX, e.clientY - startY) < 8;
   const slot = tapped ? slots.find(sl => !sl.classList.contains('filled'))
-    : document.elementsFromPoint(e.clientX, e.clientY).find(el => slots.includes(el));
+    : document.elementsFromPoint(x, y).find(el => slots.includes(el));
   if (!slot) return;
   const tiles = puzzleWord.tiles;
   const j = slots.indexOf(slot);
@@ -3008,8 +3011,9 @@ let dollRound = 0;
 let dollPhase = 'pick';       // 'pick' (find the word's piece) | 'paint' (choose its colour) | 'done'
 let dollWorn = null;          // the SVG group of the piece being painted
 let dollSvgEl = null;
-let dollDragging = false;
 let dollMistake = false;     // after a wrong pick in this round, touching a piece says its name (a 🔊 badge shows it)
+
+let dollCfg = DOLL_STAGES[0];
 
 function startDoll(cfg) {
   dollCfg = cfg;
@@ -3035,7 +3039,6 @@ function startDoll(cfg) {
   });
   dollLoadRound();
 }
-let dollCfg = DOLL_STAGES[0];
 
 function dollLoadRound() {
   dollPhase = 'pick';
@@ -3045,7 +3048,7 @@ function dollLoadRound() {
   const kind = dollKinds[dollRound];
   dollTitleEl.innerHTML = `${dollCfg.title}<br><span class="stageProgress">שלב ${LEVELS.length + dollCfg.stageOffset} - בֶּגֶד ${dollRound + 1} מִתּוֹךְ ${dollKinds.length}</span>`;
   dollWordEl.textContent = dollKit().items[kind].label;
-  dollFeedbackEl.textContent = 'גָּרְרוּ אֶת הַבֶּגֶד אֶל הַבֻּבָּה';
+  dollFeedbackEl.textContent = '';
   dollFeedbackEl.classList.remove('bad');
   dollClosetEl.classList.remove('hidden');
   dollPaintEl.classList.add('hidden');
@@ -3089,45 +3092,34 @@ function dollAttempt(btn) {
 // Drag a piece onto the doll (or tap it) to choose it. Only after a wrong pick in the round does touching a piece
 // say its name (hint); then a plain tap just speaks and dragging chooses.
 function dollItemDown(e, btn) {
-  if (dollPhase !== 'pick' || dollDragging || btn.classList.contains('gone')) return;
+  if (dollPhase !== 'pick' || activeDrag || btn.classList.contains('gone')) return;
   e.preventDefault();
-  dollDragging = true;
-  const startX = e.clientX, startY = e.clientY;
-  let moved = false;
-  const ghost = document.createElement('div');
-  ghost.className = 'dollGhost';
-  ghost.innerHTML = btn.innerHTML;
-  ghost.style.left = e.clientX + 'px';
-  ghost.style.top = e.clientY + 'px';
-  document.body.appendChild(ghost);
-  btn.classList.add('lifted');
   if (dollMistake) speakWord({ name: dollKit().items[btn.dataset.kind].name });
-  const move = ev => {
-    if (Math.abs(ev.clientX - startX) + Math.abs(ev.clientY - startY) > 8) moved = true;
-    ghost.style.left = ev.clientX + 'px';
-    ghost.style.top = ev.clientY + 'px';
-  };
-  const up = ev => {
-    document.removeEventListener('pointermove', move);
-    document.removeEventListener('pointerup', up);
-    document.removeEventListener('pointercancel', up);
-    dollDragging = false;
-    btn.classList.remove('lifted');
-    ghost.remove();
-    if (ev.type !== 'pointerup') return;
-    if (!moved) { if (!dollMistake) dollAttempt(btn); return; }
-    const r = dollStageEl.getBoundingClientRect();
-    const onDoll = ev.clientX > r.left && ev.clientX < r.right && ev.clientY > r.top && ev.clientY < r.bottom;
-    if (!onDoll) {
-      dollFeedbackEl.classList.remove('bad');
-      dollFeedbackEl.textContent = 'גָּרְרוּ אֶת הַבֶּגֶד אֶל הַבֻּבָּה';
-      return;
-    }
-    dollAttempt(btn);
-  };
-  document.addEventListener('pointermove', move);
-  document.addEventListener('pointerup', up);
-  document.addEventListener('pointercancel', up);
+  startDrag(e, btn, {
+    mode: 'ghost', ghostCenter: true,
+    ghost: () => {
+      const g = document.createElement('div');
+      g.className = 'dollGhost';
+      g.innerHTML = btn.innerHTML;
+      return g;
+    },
+    onDragStart: () => btn.classList.add('lifted'),
+    onEnd: d => dollItemDropped(btn, d),
+  });
+}
+
+function dollItemDropped(btn, { x, y, tapped, cancelled }) {
+  btn.classList.remove('lifted');
+  if (cancelled) return;
+  if (tapped) { if (!dollMistake) dollAttempt(btn); return; }
+  const r = dollStageEl.getBoundingClientRect();
+  const onDoll = x > r.left && x < r.right && y > r.top && y < r.bottom;
+  if (!onDoll) {
+    dollFeedbackEl.classList.remove('bad');
+    dollFeedbackEl.textContent = '';
+    return;
+  }
+  dollAttempt(btn);
 }
 
 DOLL_PALETTE.forEach(color => {
@@ -3165,6 +3157,48 @@ dollHomeBtn.addEventListener('click', showHome);
 dollSpeakBtn.addEventListener('click', () => {
   if (dollPhase !== 'done') speakWord({ name: dollKit().items[dollKinds[dollRound]].name });
 });
+
+// ---- Stages 21-22: road signs and flags (build the name from syllables, like stages 1-7) ----
+// Nine official Israeli road signs (www/img/signs/<number>.svg, Wikimedia Commons, public domain, Israeli Ministry of Transport;
+// the sign number is in the file name). The child sees the sign and builds its name from syllable tiles on the stage 1-7 screen
+// (customSet in loadWord). Two-word names use groupSizes, like stage 7. The syllable splits are Claude's proposal until the owner
+// approves them. Audio: word files from generate_sign_audio.py, tile files from generate_sign_tiles.py (mirrors SIGN_WORDS).
+const SIGN_WORDS = [
+  { name: 'עצור',         tiles: ['עֲ', 'צוֹר'],                                      img: 'img/signs/302.svg' },
+  { name: 'מעבר חצייה',   tiles: ['מַ', 'עֲ', 'בַר', 'חֲ', 'צִי', 'יָה'], groupSizes: [3, 3], img: 'img/signs/306.svg' },
+  { name: 'רמזור לפניך',  tiles: ['רַמְ', 'זוֹר', 'לְ', 'פָ', 'נֶיךָ'],    groupSizes: [2, 3], img: 'img/signs/122.svg' },
+  { name: 'הולכי רגל',    tiles: ['הוֹל', 'כֵי', 'רֶ', 'גֶל'],             groupSizes: [2, 2], img: 'img/signs/136.svg' },
+  { name: 'שביל אופניים', tiles: ['שְׁ', 'בִיל', 'אוֹ', 'פַ', 'נַּיִם'],   groupSizes: [2, 3], img: 'img/signs/227.svg' },
+  { name: 'אין כניסה',    tiles: ['אֵין', 'כְּ', 'נִי', 'סָה'],           groupSizes: [1, 3], img: 'img/signs/402.svg' },
+  { name: 'עובדים בכביש', tiles: ['עוֹ', 'בְ', 'דִים', 'בַּ', 'כְּ', 'בִישׁ'], groupSizes: [3, 3], img: 'img/signs/901.svg' },
+  { name: 'חניה',         tiles: ['חֲ', 'נָ', 'יָה'],                                 img: 'img/signs/626.svg' },
+  { name: 'מעגל תנועה',   tiles: ['מַעְ', 'גַּל', 'תְּ', 'נוּ', 'עָה'],    groupSizes: [2, 3], img: 'img/signs/303.svg' },
+];
+// Stage 22: ten national flags (www/img/flags/<country>.svg, Wikimedia Commons, public domain), same screen and engine.
+// Syllable splits are Claude's proposal until the owner approves them. Audio: generate_flag_audio.py (words), generate_sign_tiles.py (tiles).
+const FLAG_WORDS = [
+  { name: 'ישראל',       tiles: ['יִשְׂ', 'רָ', 'אֵל'],                          img: 'img/flags/israel.svg' },
+  { name: 'ארצות הברית', tiles: ['אַרְ', 'צוֹת', 'הַ', 'בְּ', 'רִית'], groupSizes: [2, 3], img: 'img/flags/usa.svg' },
+  { name: 'בריטניה',     tiles: ['בְּרִי', 'טַנְ', 'יָה'],                        img: 'img/flags/uk.svg' },
+  { name: 'צרפת',        tiles: ['צָרְ', 'פַת'],                                  img: 'img/flags/france.svg' },
+  { name: 'גרמניה',      tiles: ['גֶּרְ', 'מַנְ', 'יָה'],                         img: 'img/flags/germany.svg' },
+  { name: 'איטליה',      tiles: ['אִי', 'טַלְ', 'יָה'],                           img: 'img/flags/italy.svg' },
+  { name: 'ספרד',        tiles: ['סְ', 'פָ', 'רַד'],                              img: 'img/flags/spain.svg' },
+  { name: 'קנדה',        tiles: ['קָ', 'נָ', 'דָה'],                              img: 'img/flags/canada.svg' },
+  { name: 'יפן',         tiles: ['יַ', 'פָּן'],                                   img: 'img/flags/japan.svg' },
+  { name: 'ברזיל',       tiles: ['בְּ', 'רָ', 'זִיל'],                            img: 'img/flags/brazil.svg' },
+];
+const SIGN_SYLLABLE_STAGES = [
+  { stageOffset: 14, completedOffset: 13, title: 'תַּמְרוּרִים', label: 'תַּמְרוּרִים', icon: '🚦', color: '#d6402a', words: SIGN_WORDS },
+  { stageOffset: 15, completedOffset: 14, title: 'דְּגָלִים', label: 'דְּגָלִים', icon: '🚩', color: '#1f7fb8', words: FLAG_WORDS, imgClass: 'flag' },
+];
+function startSignWords(cfg) {
+  customSet = cfg;
+  currentIndex = 0;
+  cfg.words.forEach(w => { const pre = new Image(); pre.src = w.img; });
+  showScreen(gameScreen);
+  loadWord(0);
+}
 
 // ---- Stages 16-17: syllable crossword ----
 // Words are written right-to-left (dir 'h') or top-to-bottom (dir 'v'), one syllable per cell.
@@ -3353,6 +3387,24 @@ function xwSelectNext() {
   xwSel = null;
 }
 
+// Clue pictures as big as their cell allows (owner 28.11.2026: "make the pictures bigger"). Per clue: the emoji
+// glyph is about 1.4 x its font-size wide; the cell loses the arrow's padding; a clue with two emoji (🐎🐎) is
+// shrunk until it fits. The cells are square, so the width is also the height.
+function xwFitClues() {
+  xwGridEl.querySelectorAll('.xwClue').forEach(cl => {
+    if (!cl.clientWidth) return;
+    const cs = getComputedStyle(cl);
+    const w = cl.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 2;
+    const h = cl.clientWidth - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 2;
+    const font = Math.max(24, Math.min(52, Math.min(w, h) / 1.4));
+    cl.style.fontSize = font.toFixed(1) + 'px';
+    const g = cl.firstChild.getBoundingClientRect();
+    const k = Math.min(1, w / g.width, h / g.height);
+    if (k < 1) cl.style.fontSize = (font * k).toFixed(1) + 'px';
+  });
+}
+window.addEventListener('resize', () => { if (!xwScreen.classList.contains('hidden')) xwFitClues(); });
+
 function xwRender() {
   const maxR = Math.max(...Object.values(xwCells).map(c => c.r));
   const maxC = Math.max(...Object.values(xwCells).map(c => c.c));
@@ -3391,6 +3443,7 @@ function xwRender() {
     });
     xwGridEl.appendChild(el);
   });
+  xwFitClues();
   // bank
   xwBankEl.innerHTML = '';
   xwTiles.forEach(tile => {
@@ -3408,48 +3461,34 @@ function xwRender() {
 function xwDragStart(e, tile, btn) {
   if (e.button !== undefined && e.button !== 0) return;
   e.preventDefault();
-  const startX = e.clientX, startY = e.clientY;
-  const rect = btn.getBoundingClientRect();
-  const offX = startX - rect.left, offY = startY - rect.top;
-  let ghost = null, over = null, moved = false;
-  btn.setPointerCapture(e.pointerId);
-
-  const move = ev => {
-    if (!moved) {
-      if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < 8) return;
-      moved = true;
-      ghost = btn.cloneNode(true);
-      ghost.classList.add('xwGhost');
-      ghost.style.width = rect.width + 'px';
-      document.body.appendChild(ghost);
-      btn.style.opacity = '0.3';
-    }
-    ghost.style.left = (ev.clientX - offX) + 'px';
-    ghost.style.top = (ev.clientY - offY) + 'px';
-    const hit = document.elementFromPoint(ev.clientX, ev.clientY);
-    const cellEl = hit && hit.closest ? hit.closest('.xwCell:not(.locked)') : null;
-    if (cellEl !== over) {
-      if (over) over.classList.remove('dragOver');
-      over = cellEl;
-      if (over) over.classList.add('dragOver');
-    }
-  };
-  const finish = (drop) => {
-    btn.removeEventListener('pointermove', move);
-    btn.removeEventListener('pointerup', up);
-    btn.removeEventListener('pointercancel', cancel);
-    if (ghost) ghost.remove();
-    btn.style.opacity = '';
+  let over = null;   // the empty cell under the finger
+  const setOver = cellEl => {
+    if (cellEl === over) return;
     if (over) over.classList.remove('dragOver');
-    if (!drop) return;
-    if (!moved) { xwPlace(tile); return; }
-    if (over && over.dataset.key) { xwSel = over.dataset.key; xwPlace(tile); }
+    over = cellEl;
+    if (over) over.classList.add('dragOver');
   };
-  const up = () => finish(true);
-  const cancel = () => finish(false);
-  btn.addEventListener('pointermove', move);
-  btn.addEventListener('pointerup', up);
-  btn.addEventListener('pointercancel', cancel);
+  startDrag(e, btn, {
+    mode: 'ghost',
+    ghost: () => {
+      const g = btn.cloneNode(true);
+      g.classList.add('xwGhost');
+      return g;
+    },
+    onDragStart: () => { btn.style.opacity = '0.3'; },
+    onMove: ({ x, y }) => {
+      const hit = document.elementFromPoint(x, y);
+      setOver(hit && hit.closest ? hit.closest('.xwCell:not(.locked)') : null);
+    },
+    onEnd: ({ tapped, cancelled }) => {
+      const target = over;
+      setOver(null);
+      btn.style.opacity = '';
+      if (cancelled) return;
+      if (tapped) { xwPlace(tile); return; }
+      if (target && target.dataset.key) { xwSel = target.dataset.key; xwPlace(tile); }
+    },
+  });
 }
 
 function xwPlace(tile) {
@@ -3743,32 +3782,55 @@ document.getElementById('unlockCloseBtn').addEventListener('click', closeUnlock)
 // Children's app (Google Play Families policy / COPPA / Apple 1.3): child-directed + under-age-of-consent
 // tags, rating G, non-personalized ads only; AD_ID permission is removed in AndroidManifest.xml and iOS
 // never asks for tracking permission (no ATT prompt, no NSUserTrackingUsageDescription).
-// Shown every time the child enters a stage (card tap, continue, next-stage button), before the stage opens.
+// Shown every time the child enters a stage (card tap), before the stage opens.
 // Never shown during play or on app launch. If no ad is loaded yet the stage just opens without one.
 const ADMOB = {
   // Real AdMob ad units "between stages" (Interstitial), one per AdMob app. The app ids are in
   // android/app/src/main/AndroidManifest.xml and ios/App/App/Info.plist (GADApplicationIdentifier).
   // For test ads use Google's public test units (Android 'ca-app-pub-3940256099942544/1033173712',
   // iOS 'ca-app-pub-3940256099942544/4411468910') with isTesting: true - never tap real ads while testing.
+  // General unit: the first ad loaded at app launch (so AdMob requests on it ~ app launches).
   interstitialId: {
-    android: 'ca-app-pub-9952727141505497/3285413850',   // app "Learn to Read Hebrew" (Android)
+    android: 'ca-app-pub-9952727141505497/3285413850',   // app "Learn to Read Hebrew" (Android), unit "Interstitial1"
     ios: 'ca-app-pub-9952727141505497/3197973896',       // app "לימוד קריאה לכיתה א" (iOS), unit "Between stages iOS"
+  },
+  // One unit per stage 4-22 (AdMob names "Stage 04".."Stage 22", created 28.11.2026), only to measure which stages
+  // children enter most: AdMob report > Ad unit > Requests = entries to that stage. No extra data is collected.
+  // The ad loaded on entering stage N is requested on stage N's unit and shown at the next stage entry.
+  // Exclude "Unknown Region" rows (Google's pre-launch test devices) when reading the report.
+  stageUnitId: {
+    android: { 4: '5855888835', 5: '3335722611', 6: '2022640947', 7: '6520609950', 8: '5726403039',
+      9: '7083395938', 10: '3894446617', 11: '1096572082', 12: '2816847861', 13: '5664317147',
+      14: '7877602858', 15: '2218082067', 16: '1831069259', 17: '9226664345', 18: '8999112837',
+      19: '8955201602', 20: '5059867821', 21: '2002459645', 22: '6329038260' },
+    ios: { 4: '7087265366', 5: '2242132796', 6: '9282504665', 7: '9326415891', 8: '7302887789',
+      9: '9220418770', 10: '1834938687', 11: '4676724448', 12: '9521857013', 13: '6408929311',
+      14: '8208775345', 15: '7907337109', 16: '2050561104', 17: '5582612001', 18: '6973529381',
+      19: '7777851301', 20: '5798234428', 21: '2956448661', 22: '3172071088' },
   },
   isTesting: false,
 };
 let stageAdReady = false;
 let stageAdShowing = false;
+let stageAdFor = null;   // stage number of the entry whose ad is on screen
 
 function adMobPlugin() {
   if (!isNativeApp() || !ADMOB.interstitialId[window.Capacitor.getPlatform()]) return null;
   return window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob || null;
 }
 
-async function prepareStageAd() {
+// Stage N's own unit, or the general unit (app launch, or a stage without its own unit).
+function adUnitFor(stageNum) {
+  const platform = window.Capacitor.getPlatform();
+  const id = ADMOB.stageUnitId[platform] && ADMOB.stageUnitId[platform][stageNum];
+  return id ? 'ca-app-pub-9952727141505497/' + id : ADMOB.interstitialId[platform];
+}
+
+async function prepareStageAd(stageNum) {
   const ads = adMobPlugin();
   if (!ads || stageAdReady) return;
   try {
-    const adId = ADMOB.interstitialId[window.Capacitor.getPlatform()];
+    const adId = adUnitFor(stageNum);
     await ads.prepareInterstitial({ adId, isTesting: ADMOB.isTesting, npa: true });
     stageAdReady = true;
   } catch (e) {
@@ -3786,8 +3848,8 @@ async function initAds() {
       maxAdContentRating: 'General',
       initializeForTesting: ADMOB.isTesting,
     });
-    ads.addListener('interstitialAdDismissed', () => { stageAdShowing = false; prepareStageAd(); });
-    ads.addListener('interstitialAdFailedToShow', () => { stageAdShowing = false; prepareStageAd(); });
+    ads.addListener('interstitialAdDismissed', () => { stageAdShowing = false; startInstruction(); prepareStageAd(stageAdFor); });
+    ads.addListener('interstitialAdFailedToShow', () => { stageAdShowing = false; startInstruction(); prepareStageAd(stageAdFor); });
     prepareStageAd();
   } catch (e) {
     console.error('AdMob init failed', e);
@@ -3800,11 +3862,13 @@ const NO_AD_UP_TO_STAGE = 3;
 function showStageAd(stageNum) {
   if (stageNum <= NO_AD_UP_TO_STAGE) return;
   const ads = adMobPlugin();
-  if (!ads || !stageAdReady || stageAdShowing) { prepareStageAd(); return; }
+  // One AdMob request per entry, on this stage's unit: now if no ad is loaded, else after the ad closes.
+  if (!ads || !stageAdReady || stageAdShowing) { prepareStageAd(stageNum); return; }
   stageAdReady = false;
   stageAdShowing = true;
+  stageAdFor = stageNum;
   if ('speechSynthesis' in window) speechSynthesis.cancel();
-  ads.showInterstitial().catch(() => { stageAdShowing = false; prepareStageAd(); });
+  ads.showInterstitial().catch(() => { stageAdShowing = false; startInstruction(); prepareStageAd(stageNum); });
 }
 
 // kick off

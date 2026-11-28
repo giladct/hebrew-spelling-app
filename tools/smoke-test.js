@@ -1,7 +1,7 @@
 // Regression check for the home screen and every stage: opens each stage card, records which screen
 // and title appear, goes back home. Run it before and after a refactor and diff the output.
 //
-//   python www/serve.py            # in another terminal (http://localhost:8181)
+//   python serve.py            # in another terminal (http://localhost:8181)
 //   node tools/smoke-test.js > before.txt   ... change code ...   node tools/smoke-test.js > after.txt
 //
 // Playwright is installed in this folder's node_modules.
@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
 
 (async () => {
   const browser = await chromium.launch();
-  const page = await browser.newPage({ viewport: { width: 380, height: 760 } });
+  const page = await browser.newPage({ viewport: { width: 380, height: 760 }, reducedMotion: 'reduce' });
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });

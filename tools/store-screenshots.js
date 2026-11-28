@@ -1,4 +1,4 @@
-// Takes the Play Store screenshots from the running web build (python www/serve.py).
+// Takes the Play Store screenshots from the running web build (python serve.py).
 //
 //   node tools/store-screenshots.js        -> store-assets/screens/{phone,tablet7,tablet10}-N-<name>.png
 //
@@ -72,7 +72,7 @@ const SCENES = [
   const browser = await chromium.launch();
   for (const d of DEVICES) {
     for (const [i, [name, play]] of SCENES.entries()) {
-      const ctx = await browser.newContext({ viewport: d.viewport, deviceScaleFactor: d.scale, hasTouch: true });
+      const ctx = await browser.newContext({ viewport: d.viewport, deviceScaleFactor: d.scale, hasTouch: true, reducedMotion: 'reduce' });
       const page = await ctx.newPage();
       // home shows the locks a new user sees; the game scenes need the paid stages open
       await page.addInitScript(unlock => { try { localStorage.clear(); if (unlock) localStorage.setItem('hebrewSpellingUnlocked', 'paid'); } catch (e) {} }, name !== 'home');

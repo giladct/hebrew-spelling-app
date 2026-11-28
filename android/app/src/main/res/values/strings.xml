@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">לימוד קריאה לכיתה א\'</string>
-    <string name="title_activity_main">לימוד קריאה לכיתה א\'</string>
+    <string name="app_name">לימוד קריאה בעברית</string>
+    <string name="title_activity_main">לימוד קריאה בעברית</string>
     <string name="package_name">hebrew_spelling.myapp</string>
     <string name="custom_url_scheme">hebrew_spelling.myapp</string>
 </resources>
