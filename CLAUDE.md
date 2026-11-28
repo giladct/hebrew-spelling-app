@@ -86,6 +86,16 @@ The header comment in app.js has the stage table (stage number → screen → CO
 - The old docs/index.html (giladct.github.io/hebrew-spelling-app/, served from `main`/docs) is stale ("coming soon", "no ads"):
   fix or redirect it to the new page the next time something is pushed to main anyway (a push to main starts a Play draft build).
 
+## Release 1.5 (28.11.2026, owner: "publish everything, Google and App Store")
+- Contents: spoken instructions + "?" button, kids' home screen, stages 21 (signs), 22 (flags), 23 (hard puzzle), per-stage AdMob units, bigger crossword pictures, new app name.
+  Stages 21-22 included although the splits/recordings were never fully approved - the owner said "yes, everything" (28.11).
+- Android: versionName **1.5** (owner wanted it equal to iOS; `ANDROID_VERSION_NAME` env overrides), versionCode 58. Built locally
+  (`ANDROID_VERSION_CODE=58 gradlew bundleRelease`) and uploaded with `node upload-production.mjs "1.5" "<notes>"`; production release "1.5" status completed. Next versionCode > 58.
+- Git: branch `release-1.5` (commit 78d2734, pushed; NOT main - main triggers a Play draft build). Sketches and the credential-path helper scripts stay untracked.
+- iOS: MARKETING_VERSION 1.5. ASC version 1.5 created (id 12e646f3-4cb2-401b-8de3-0ac883528185, PREPARE_FOR_SUBMISSION) with What's New in he/en-US/es-ES/es-MX/fr-FR/ru
+  (`tools/asc-create-1.5.mjs`, helper `tools/asc.mjs`). Still to do: the owner starts Codemagic "iOS Release" on branch release-1.5; then attach the build, submit for review. Next iOS version >= 1.6.
+- App Store screenshots still show the old home screen (`node tools/store-screenshots.js --ios` makes new ones).
+
 ## Kids' home screen (owner's request 28.11.2026, not shipped yet; sketch in sketches/kids-home)
 - Children can't read, so each stage card shows a PICTURE of the stage (www/img/stage-thumbs/NN.webp, 22 files, ~230 KB) with the
   number badge, a written name below (the stage's own label), a star when done, and a green frame + play button on the next stage
