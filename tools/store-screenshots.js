@@ -23,10 +23,33 @@ const IOS_DEVICES = [
   { name: 'ipad13', viewport: { width: 688, height: 918 }, scale: 3, crop: { width: 2064, height: 2752 } },
 ];
 const DEVICES = process.argv.includes('--ios') ? IOS_DEVICES : PLAY_DEVICES;   // node tools/store-screenshots.js --ios
-const stage = n => `.stageCard >> nth=${n - 1}`;   // DOM order = stage order
+const stage = n => `.stageCard:has(.stageNum:text-is("${n}"))`;   // by the number shown (stage 23 sits after 18 in the DOM)
+const BASE = process.env.APP_URL || 'http://localhost:8181/';   // e.g. APP_URL=http://localhost:8765/ for a plain static server of www/
 
+// 1.5 (28.11.2026): the new kids' home screen first (some stages done, so stars and the green "next" frame show), then the new
+// stages. Home scenes run with 5 stages done and the paid stages open (what an Android user sees: no locks).
+const HOME_SCENES = ['home', 'home-games'];
 const SCENES = [
   ['home', async p => {}],
+  ['build-word', async p => {
+    await p.click(stage(4));
+    await p.waitForTimeout(500);
+  }],
+  ['puzzle', async p => {                                // the hard 12-piece puzzle, five pieces placed
+    await p.click(stage(23));
+    await p.waitForTimeout(500);
+    for (let i = 0; i < 5; i++) {
+      const pb = await p.evaluate(i => { const e = document.querySelector(`#puzzleTray .pzPiece[data-index="${i}"]`).getBoundingClientRect(); return [e.x + e.width / 2, e.y + e.height / 2]; }, i);
+      const sb = await p.evaluate(i => { const e = document.querySelector(`.pzSlot[data-index="${i}"]`).getBoundingClientRect(); return [e.x + e.width / 2, e.y + e.height / 2]; }, i);
+      await p.mouse.move(pb[0], pb[1]); await p.mouse.down(); await p.mouse.move(sb[0], sb[1], { steps: 6 }); await p.mouse.up();
+      await p.waitForTimeout(250);
+    }
+    await p.waitForTimeout(500);
+  }],
+  ['doll', async p => {
+    await p.click(stage(19));
+    await p.waitForTimeout(700);
+  }],
   ['camel', async p => {
     await p.click(stage(11));
     for (let i = 0; i < 3; i++) {                       // three right answers: camel half way
@@ -55,15 +78,9 @@ const SCENES = [
     });
     await p.waitForTimeout(1200);
   }],
-  ['sentence', async p => {
-    await p.click(stage(13));
-    const words = await p.evaluate(() => sentCur.words);
-    await p.locator('#sentTray .sentChip', { hasText: new RegExp('^' + words[0] + '$') }).click();
+  ['home-games', async p => {                           // the home screen scrolled to the game groups
+    await p.evaluate(() => document.getElementById('homeScreen').scrollTo(0, document.querySelector('.stageGroup:nth-child(5)').offsetTop - 10));
     await p.waitForTimeout(400);
-  }],
-  ['build-word', async p => {
-    await p.click(stage(4));
-    await p.waitForTimeout(500);
   }],
 ];
 
@@ -75,8 +92,8 @@ const SCENES = [
       const ctx = await browser.newContext({ viewport: d.viewport, deviceScaleFactor: d.scale, hasTouch: true, reducedMotion: 'reduce' });
       const page = await ctx.newPage();
       // home shows the locks a new user sees; the game scenes need the paid stages open
-      await page.addInitScript(unlock => { try { localStorage.clear(); if (unlock) localStorage.setItem('hebrewSpellingUnlocked', 'paid'); } catch (e) {} }, name !== 'home');
-      await page.goto('http://localhost:8181/');
+      await page.addInitScript(isHome => { try { localStorage.clear(); localStorage.setItem('hebrewSpellingUnlocked', 'paid'); if (isHome) localStorage.setItem('hebrewSpellingCompleted', '[0,1,2,3,4]'); } catch (e) {} }, HOME_SCENES.includes(name));
+      await page.goto(BASE);
       await page.waitForTimeout(600);
       await play(page);
       const file = path.join(OUT, `${d.name}-${i + 1}-${name}.png`);

@@ -94,7 +94,8 @@ The header comment in app.js has the stage table (stage number → screen → CO
 - Git: branch `release-1.5` (commit 78d2734, pushed; NOT main - main triggers a Play draft build). Sketches and the credential-path helper scripts stay untracked.
 - iOS: MARKETING_VERSION 1.5. ASC version 1.5 created (id 12e646f3-4cb2-401b-8de3-0ac883528185, PREPARE_FOR_SUBMISSION) with What's New in he/en-US/es-ES/es-MX/fr-FR/ru
   (`tools/asc-create-1.5.mjs`, helper `tools/asc.mjs`, kept local and untracked: it holds the key id/issuer and the .p8 path). Codemagic "iOS Release" build (started by Claude in the owner's signed-in Codemagic, branch release-1.5) -> ASC build 22 (VALID), attached to 1.5 and **submitted to App Review 28.11.2026** (submission bca0a5b4-3917-44fa-8332-6c62320d2a74, WAITING_FOR_REVIEW; `tools/asc-wait-build.mjs`, `tools/asc-submit-1.5.mjs`). Release type AFTER_APPROVAL. Next iOS version >= 1.6.
-- App Store screenshots still show the old home screen (`node tools/store-screenshots.js --ios` makes new ones).
+- Store screenshots (28.11.2026): new set made with `APP_URL=http://localhost:8765/ node tools/store-screenshots.js [--ios]` (8 scenes: new home, build-word, hard puzzle, doll, camel, crossword, memory, home-games; old sets kept in store-assets/screens-1.4 / screens-ios-1.4).
+  **Google Play: replaced (iw-IL only has screenshots: 8 phone / 8 7" / 8 10"), `node play-screenshots.mjs upload store-assets/screens`.** App Store: NOT replaced (owner chose Google only; 1.5 is in review, replacing needs the submission cancelled first).
 
 ## Kids' home screen (owner's request 28.11.2026, not shipped yet; sketch in sketches/kids-home)
 - Children can't read, so each stage card shows a PICTURE of the stage (www/img/stage-thumbs/NN.webp, 22 files, ~230 KB) with the
