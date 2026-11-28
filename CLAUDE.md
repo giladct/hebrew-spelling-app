@@ -93,7 +93,7 @@ The header comment in app.js has the stage table (stage number → screen → CO
   (`ANDROID_VERSION_CODE=58 gradlew bundleRelease`) and uploaded with `node upload-production.mjs "1.5" "<notes>"`; production release "1.5" status completed. Next versionCode > 58.
 - Git: branch `release-1.5` (commit 78d2734, pushed; NOT main - main triggers a Play draft build). Sketches and the credential-path helper scripts stay untracked.
 - iOS: MARKETING_VERSION 1.5. ASC version 1.5 created (id 12e646f3-4cb2-401b-8de3-0ac883528185, PREPARE_FOR_SUBMISSION) with What's New in he/en-US/es-ES/es-MX/fr-FR/ru
-  (`tools/asc-create-1.5.mjs`, helper `tools/asc.mjs`). Still to do: the owner starts Codemagic "iOS Release" on branch release-1.5; then attach the build, submit for review. Next iOS version >= 1.6.
+  (`tools/asc-create-1.5.mjs`, helper `tools/asc.mjs`, kept local and untracked: it holds the key id/issuer and the .p8 path). Still to do: the owner starts Codemagic "iOS Release" on branch release-1.5; then attach the build, submit for review. Next iOS version >= 1.6.
 - App Store screenshots still show the old home screen (`node tools/store-screenshots.js --ios` makes new ones).
 
 ## Kids' home screen (owner's request 28.11.2026, not shipped yet; sketch in sketches/kids-home)
